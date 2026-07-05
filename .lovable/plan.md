@@ -1,52 +1,74 @@
-## Fase 1 — Painel Admin (agora)
+# Plano de melhoria — Cliente, Admin, Suporte e Idiomas
 
-Vou entregar uma fatia funcional e bonita, pronta para crescer nas próximas fases. Stack adaptada ao Lovable: **TanStack Start + React + TypeScript + Tailwind v4 + Shadcn + Lovable Cloud (Postgres + Auth + Storage + Edge)**. Isto substitui Next.js/NestJS separados mas cobre os mesmos requisitos (Postgres, JWT/sessão via cookies, RLS no lugar do RBAC em código, Edge Functions em vez de rotas Nest).
+Escopo grande, dividido em 5 frentes. Vou executar tudo em uma sequência de edições, mas listo aqui para você aprovar antes de eu começar.
 
-### O que entra nesta fase
+## 1. Dashboard do cliente (`/app`)
 
-1. **Design system Binance-dark**
-   - Tokens em `src/styles.css`: `#0B0E11` bg, `#181A20` surface, `#F0B90B` primary (amarelo Binance), `#EAECEF` text, verde/vermelho para up/down.
-   - Fonte: Inter. Tema escuro por padrão, claro disponível.
-   - Variantes shadcn (button `primary`/`ghost`/`danger`, card `surface`), tabela densa estilo exchange.
+- **Ilha principal — Saldo com donut chart**
+  - Card grande com valor total em USD/EUR (respeitando moeda de exibição do perfil).
+  - Gráfico donut (Recharts) mostrando distribuição percentual por moeda (BTC, ETH, USDT, etc.).
+  - Legenda ao lado com moeda, % e valor.
+  - Rodapé pequeno "N moedas em carteira" — substitui a ilha atual "Moedas em carteira".
+- **Ilha "Minhas carteiras"** logo abaixo, redesenhada:
+  - Lista mais rica: ícone, símbolo, nome, saldo, valor em fiat, mini-sparkline 7d (variação), % 24h em verde/vermelho.
+- **Remover** a ilha "Investimentos ativos" da home.
 
-2. **Autenticação + RBAC**
-   - Lovable Cloud (email+senha, confirmação de email desligada para agilizar testes).
-   - Tabelas: `profiles`, `user_roles` (enum `admin` | `agent` | `client`), função `has_role()` security-definer.
-   - Rota `/auth` (login/signup) e layout `_authenticated` gerenciado.
-   - Gate `_admin` que exige role `admin` via `beforeLoad`.
-   - Trigger: primeiro usuário criado vira `admin`; demais viram `client`.
+## 2. Aba "Carteira" do cliente (`/app/wallet`)
 
-3. **Schema base (migrations)**
-   - `profiles`, `user_roles`
-   - `currencies` (symbol, name, network, decimals, active)
-   - `plans` (name, min, max, daily_rate, duration_days, active)
-   - `wallets` (user_id, currency_id, available, locked)
-   - `transactions` (type: deposit/withdraw/investment/profit, amount, status)
-   - `audit_logs` (actor_id, action, target, metadata)
-   - RLS em todas; grants explícitos; policies via `has_role`.
+- Mesmo padrão visual da home: cards com gradientes suaves, tipografia hierárquica.
+- Cada moeda como card expansível com: saldo disponível, bloqueado, valor fiat, sparkline, botões Depositar/Sacar/Trocar.
 
-4. **Rotas Admin** (`/admin/*`)
-   - **Dashboard**: KPIs (total usuários, depósitos, saques, volume), gráfico de novos cadastros (Recharts).
-   - **Usuários**: listar, filtrar, ver detalhes, congelar/liberar, atribuir role, ajustar saldo (registra em `audit_logs`).
-   - **Moedas**: CRUD; preços ao vivo via CoinGecko (`/api/v3/simple/price`) com cache 60s.
-   - **Planos**: CRUD.
-   - **Logs de auditoria**: tabela paginada.
+## 3. Área de Perfil do cliente (nova)
 
-5. **Rota pública `/`**
-   - Landing curta estilo Binance com CTA "Entrar no app".
+- Novo item **"Perfil"** no topbar/sidebar do cliente com o nome do usuário e avatar.
+- Rota `/app/profile` com sub-abas:
+  - **Informações** — nome, email, telefone, endereço, moeda de exibição, idioma. Edição inline.
+  - **Segurança** — troca de senha, 2FA (setup TOTP), sessões ativas.
+  - **KYC & Documentos** — status atual, envio de documentos, histórico.
+- **Remover** os itens "KYC" e "Segurança" da sidebar do cliente (agora vivem dentro de Perfil).
 
-### Fora desta fase (fases seguintes)
+## 4. Admin — detalhe do cliente
 
-- Dashboard Cliente completo, KYC, staking, chat suporte, 2FA, integrações Stripe/CoinPayments, notificações push/SMS, exports PDF/Excel, painel do Agente.
-- Estas ficam pré-preparadas no schema/roles mas sem UI ainda.
+- Adicionar a aba **"Suporte"** ao lado de Perfil / Carteira / Transações, listando tickets daquele cliente com acesso ao chat.
+- Aplicar o mesmo tratamento visual (cards com hierarquia, donut de patrimônio do cliente no header do detalhe, KPIs compactos).
+- Corrigir o chat de suporte:
+  - Envio de mensagem em tempo real (Supabase Realtime já no projeto).
+  - Indicador de "digitando", timestamps, avatar do agente com `agent_display_name`.
+  - Marcar mensagens como lidas.
+  - Testar com Playwright headless.
 
-### Detalhes técnicos
+## 5. Internacionalização PT / EN / DE
 
-- Server functions (`createServerFn` + `requireSupabaseAuth`) para ações admin; RLS + checagem de role no handler (defesa em profundidade).
-- CoinGecko em Edge Function pública (`/api/public/prices`) com cache in-memory 60s.
-- Auditoria: toda mutação admin insere em `audit_logs`.
-- Todos os ajustes de saldo passam por RPC `admin_adjust_balance(user_id, currency_id, delta, reason)` — atômica, valida role, grava log.
+- Adicionar `i18next` + `react-i18next` + `i18next-browser-languagedetector`.
+- Estrutura `src/i18n/` com `pt.json`, `en.json`, `de.json` — chaves por namespace (common, auth, app, admin, wallet, profile, support, kyc).
+- Seletor de idioma no header (persistido em `profiles.locale` e localStorage).
+- Varrer todos os textos hardcoded das telas do cliente, admin, auth, emails de UI e substituir por `t("chave")`. Traduzir todos para os 3 idiomas.
+- Default = idioma do navegador, fallback = PT.
 
-### Confirmação
+## Detalhes técnicos
 
-Depois desta fase entrego a Fase 2 (área Cliente: wallet, depósito/saque, investimentos). Ok seguir?
+- **Donut**: `recharts` já instalado, usar `<PieChart>` com `innerRadius`.
+- **Sparkline 7d**: buscar `market_chart` do CoinGecko via `getMarketPrices` estendido (novo server fn `getMarketSparklines`).
+- **Perfil**: nova migração adiciona `locale` e `display_currency` em `profiles` se ainda não existirem; RLS já permite `self update`.
+- **Chat realtime**: canal `ticket:{id}` já existe? Verificar `TicketConversation.tsx` — adicionar subscription se faltar, e broadcast de mensagens novas.
+- **i18n**: sem SSR-i18n pesado — hidratação client-side é suficiente para este app autenticado.
+
+## Ordem de execução
+
+1. Migração (locale/display_currency em profiles se faltar).
+2. Instalar i18next + criar arquivos base + seletor no header.
+3. Redesign home do cliente (donut + carteiras).
+4. Redesign wallet.
+5. Rota `/app/profile` + sub-abas + remoção dos itens da sidebar.
+6. Admin: aba Suporte + redesign detalhe do cliente.
+7. Fix chat realtime + teste Playwright.
+8. Tradução completa dos 3 idiomas + varredura de strings.
+9. Build + typecheck + verificação visual.
+
+## Fora do escopo (a menos que você peça)
+
+- Novos fluxos de negócio (novos tipos de transação, planos, etc.).
+- Personalização de emails (depende do domínio, como já conversamos).
+- Mudanças no schema além de `locale`/`display_currency`.
+
+**Confirma que posso executar tudo isso?** É um trabalho grande (várias horas de edição). Se preferir, posso fazer em fases — por exemplo começando pelas frentes 1+2+3 (cliente) e depois 4+5 num segundo turno.
