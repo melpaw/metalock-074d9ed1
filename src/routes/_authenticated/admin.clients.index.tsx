@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Circle, Ticket as TicketIcon, Clock } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/admin/clients")({
+export const Route = createFileRoute("/_authenticated/admin/clients/")({
   component: ClientsList,
 });
 
