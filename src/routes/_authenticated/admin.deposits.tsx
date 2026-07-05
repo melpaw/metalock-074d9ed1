@@ -52,8 +52,8 @@ function DepositsPage() {
           <div key={d.id} className="rounded-xl border border-border bg-surface p-4 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="font-semibold">{d.profiles?.full_name || d.profiles?.email}</div>
-                <div className="text-xs text-muted-foreground">{d.profiles?.email}</div>
+                <div className="font-semibold">{d.profile?.full_name || d.profile?.email}</div>
+                <div className="text-xs text-muted-foreground">{d.profile?.email}</div>
               </div>
               <Badge variant={d.status === "ready" ? "default" : "secondary"}>{d.status === "ready" ? "Pronto" : "Pendente"}</Badge>
             </div>
