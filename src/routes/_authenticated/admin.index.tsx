@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, TrendingUp, ArrowDownToLine, ArrowUpToLine, Coins as CoinsIcon } from "lucide-react";
+import { Users, TrendingUp, ArrowDownToLine, ArrowUpToLine, Coins as CoinsIcon, UserCircle2 } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { useServerFn } from "@tanstack/react-start";
 import { getMarketPrices } from "@/lib/prices.functions";
@@ -14,16 +14,20 @@ function AdminDashboard() {
   const { data: kpis } = useQuery({
     queryKey: ["admin-kpis"],
     queryFn: async () => {
-      const [users, tx] = await Promise.all([
+      const [users, roles, tx] = await Promise.all([
         supabase.from("profiles").select("id, created_at, status"),
+        supabase.from("user_roles").select("user_id, role"),
         supabase.from("transactions").select("type, amount, status, created_at"),
       ]);
       const usersData = users.data ?? [];
+      const rolesData = roles.data ?? [];
       const txData = tx.data ?? [];
+      const clientIds = new Set(rolesData.filter((r) => r.role === "client").map((r) => r.user_id));
       const deposits = txData.filter((t) => t.type === "deposit" && t.status === "completed");
       const withdraws = txData.filter((t) => t.type === "withdrawal" && t.status === "completed");
       return {
         totalUsers: usersData.length,
+        totalClients: clientIds.size,
         activeUsers: usersData.filter((u) => u.status === "active").length,
         totalDeposits: deposits.reduce((s, t) => s + Number(t.amount), 0),
         totalWithdraws: withdraws.reduce((s, t) => s + Number(t.amount), 0),
@@ -48,11 +52,14 @@ function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Link to="/admin/clients" className="block">
+          <Kpi icon={UserCircle2} label="Clientes" value={kpis?.totalClients ?? "—"} sub="Clique para gerenciar →" clickable />
+        </Link>
         <Kpi icon={Users} label="Usuários totais" value={kpis?.totalUsers ?? "—"} sub={`${kpis?.activeUsers ?? 0} ativos`} />
         <Kpi icon={ArrowDownToLine} label="Depósitos" value={fmt(kpis?.totalDeposits)} accent="up" />
         <Kpi icon={ArrowUpToLine} label="Saques" value={fmt(kpis?.totalWithdraws)} accent="down" />
-        <Kpi icon={TrendingUp} label="Volume líquido" value={fmt((kpis?.totalDeposits ?? 0) - (kpis?.totalWithdraws ?? 0))} />
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border border-border bg-surface p-6">
