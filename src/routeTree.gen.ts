@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminKycRouteImport } from './routes/_authenticated/admin.kyc'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
+import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
 import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
 import { Route as AuthenticatedAppSupportTicketIdRouteImport } from './routes/_authenticated/app.support.$ticketId'
 import { Route as AuthenticatedAgentTicketsTicketIdRouteImport } from './routes/_authenticated/agent.tickets.$ticketId'
@@ -161,6 +162,12 @@ const AuthenticatedAdminCurrenciesRoute =
     path: '/currencies',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminClientsRoute =
+  AuthenticatedAdminClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminApprovalsRoute =
   AuthenticatedAdminApprovalsRouteImport.update({
     id: '/approvals',
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -220,6 +228,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -251,6 +260,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
+  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/_authenticated/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/dashboard'
     | '/admin/approvals'
+    | '/admin/clients'
     | '/admin/currencies'
     | '/admin/kyc'
     | '/admin/logs'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/admin/approvals'
+    | '/admin/clients'
     | '/admin/currencies'
     | '/admin/kyc'
     | '/admin/logs'
@@ -338,6 +350,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/dashboard'
     | '/_authenticated/admin/approvals'
+    | '/_authenticated/admin/clients'
     | '/_authenticated/admin/currencies'
     | '/_authenticated/admin/kyc'
     | '/_authenticated/admin/logs'
@@ -536,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/clients': {
+      id: '/_authenticated/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/approvals': {
       id: '/_authenticated/admin/approvals'
       path: '/approvals'
@@ -584,6 +604,7 @@ const AuthenticatedAdminTicketsRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
+  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
   AuthenticatedAdminKycRoute: typeof AuthenticatedAdminKycRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
@@ -596,6 +617,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
+  AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
   AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
   AuthenticatedAdminKycRoute: AuthenticatedAdminKycRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
