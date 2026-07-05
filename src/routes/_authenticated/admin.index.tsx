@@ -7,12 +7,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMarketPrices } from "@/lib/prices.functions";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
 });
 
 function AdminDashboard() {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
 
   const { data: kpis } = useQuery({
