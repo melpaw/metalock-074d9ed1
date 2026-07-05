@@ -1,38 +1,49 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, TrendingUp, ArrowDownToLine, ArrowUpToLine, Coins as CoinsIcon, UserCircle2 } from "lucide-react";
+import { UserCircle2, Coins as CoinsIcon, Headphones, Circle } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { useServerFn } from "@tanstack/react-start";
 import { getMarketPrices } from "@/lib/prices.functions";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
 });
 
 function AdminDashboard() {
+  const [search, setSearch] = useState("");
+
   const { data: kpis } = useQuery({
     queryKey: ["admin-kpis"],
     queryFn: async () => {
-      const [users, roles, tx] = await Promise.all([
+      const [users, roles, tickets] = await Promise.all([
         supabase.from("profiles").select("id, created_at, status"),
         supabase.from("user_roles").select("user_id, role"),
-        supabase.from("transactions").select("type, amount, status, created_at"),
+        supabase.from("support_tickets").select("id, status").in("status", ["open", "pending"]),
       ]);
       const usersData = users.data ?? [];
       const rolesData = roles.data ?? [];
-      const txData = tx.data ?? [];
       const clientIds = new Set(rolesData.filter((r) => r.role === "client").map((r) => r.user_id));
-      const deposits = txData.filter((t) => t.type === "deposit" && t.status === "completed");
-      const withdraws = txData.filter((t) => t.type === "withdrawal" && t.status === "completed");
       return {
         totalUsers: usersData.length,
         totalClients: clientIds.size,
         activeUsers: usersData.filter((u) => u.status === "active").length,
-        totalDeposits: deposits.reduce((s, t) => s + Number(t.amount), 0),
-        totalWithdraws: withdraws.reduce((s, t) => s + Number(t.amount), 0),
+        openTickets: tickets.data?.length ?? 0,
         newSignups7d: last7DaysBuckets(usersData.map((u) => u.created_at)),
       };
+    },
+  });
+
+  const { data: clients } = useQuery({
+    queryKey: ["admin-clients-compact"],
+    queryFn: async () => {
+      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "client");
+      const ids = (roles ?? []).map((r) => r.user_id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("profiles").select("id,email,full_name,status,kyc_status,created_at").in("id", ids).order("created_at", { ascending: false });
+      return data ?? [];
     },
   });
 
@@ -44,6 +55,10 @@ function AdminDashboard() {
     staleTime: 55_000,
   });
 
+  const filtered = (clients ?? []).filter((c: any) =>
+    !search || c.email?.toLowerCase().includes(search.toLowerCase()) || c.full_name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -51,25 +66,52 @@ function AdminDashboard() {
         <p className="text-sm text-muted-foreground">Métricas em tempo real da plataforma.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Link to="/admin/clients" className="block">
-          <Kpi icon={UserCircle2} label="Clientes" value={kpis?.totalClients ?? "—"} sub="Clique para gerenciar →" clickable />
+      {/* Compact KPI row */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Link to="/admin/clients" className="block group">
+          <div className="rounded-xl border border-border bg-surface p-5 transition group-hover:border-primary group-hover:bg-surface-elevated">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">Clientes</span>
+              <UserCircle2 className="h-4 w-4 text-primary" />
+            </div>
+            <div className="mt-3 text-3xl font-bold tabular-nums">{kpis?.totalClients ?? "—"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {kpis?.activeUsers ?? 0} usuários ativos · clique para gerenciar →
+            </div>
+          </div>
         </Link>
-        <Kpi icon={Users} label="Usuários totais" value={kpis?.totalUsers ?? "—"} sub={`${kpis?.activeUsers ?? 0} ativos`} />
-        <Kpi icon={ArrowDownToLine} label="Depósitos" value={fmt(kpis?.totalDeposits)} accent="up" />
-        <Kpi icon={ArrowUpToLine} label="Saques" value={fmt(kpis?.totalWithdraws)} accent="down" />
+        <Link to="/admin/tickets" className="block group">
+          <div className="rounded-xl border border-border bg-surface p-5 transition group-hover:border-primary group-hover:bg-surface-elevated">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">Suporte</span>
+              <Headphones className="h-4 w-4 text-primary" />
+            </div>
+            <div className="mt-3 text-3xl font-bold tabular-nums">{kpis?.openTickets ?? "—"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">Tickets abertos ou pendentes</div>
+          </div>
+        </Link>
+        <div className="rounded-xl border border-border bg-surface p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Novos (7d)</span>
+            <UserCircle2 className="h-4 w-4 text-primary" />
+          </div>
+          <div className="mt-3 text-3xl font-bold tabular-nums">
+            {kpis?.newSignups7d?.reduce((s: number, d: any) => s + d.count, 0) ?? "—"}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">Cadastros da última semana</div>
+        </div>
       </div>
 
-
+      {/* Chart + market */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border border-border bg-surface p-6">
           <h3 className="text-sm font-semibold text-muted-foreground">Novos cadastros (7 dias)</h3>
-          <div className="mt-4 h-64">
+          <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={kpis?.newSignups7d ?? []}>
                 <CartesianGrid stroke="oklch(0.28 0.006 260)" strokeDasharray="3 3" />
                 <XAxis dataKey="day" stroke="oklch(0.65 0.01 260)" fontSize={12} />
-                <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} />
+                <YAxis stroke="oklch(0.65 0.01 260)" fontSize={12} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: "oklch(0.19 0.006 260)", border: "1px solid oklch(0.28 0.006 260)", borderRadius: 8 }} />
                 <Line type="monotone" dataKey="count" stroke="oklch(0.82 0.16 90)" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
@@ -101,26 +143,65 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Compact clients list */}
+      <section className="rounded-xl border border-border bg-surface overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <div>
+            <h2 className="font-semibold">Clientes</h2>
+            <p className="text-xs text-muted-foreground">{clients?.length ?? 0} cadastrados · clique em um cliente para gerenciar</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Input placeholder="Buscar por email ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+            <Link to="/admin/clients" className="text-xs text-primary hover:underline">Ver todos →</Link>
+          </div>
+        </div>
+        {!clients ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">Nenhum cliente encontrado.</div>
+        ) : (
+          <div className="divide-y divide-border">
+            {filtered.slice(0, 10).map((c: any) => (
+              <Link key={c.id} to="/admin/clients/$userId" params={{ userId: c.id }} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-5 py-3 transition hover:bg-surface-elevated">
+                <div className="grid h-9 w-9 place-items-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">
+                  {(c.full_name || c.email || "?").slice(0, 2).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-medium text-sm">{c.full_name || c.email?.split("@")[0]}</span>
+                    <Circle className={`h-2 w-2 ${c.status === "active" ? "text-up fill-up" : c.status === "frozen" ? "text-warning fill-warning" : "text-down fill-down"}`} />
+                  </div>
+                  <div className="truncate text-xs text-muted-foreground">{c.email}</div>
+                </div>
+                <KycBadge status={c.kyc_status} />
+                <span className="text-xs text-muted-foreground tabular-nums hidden sm:block">
+                  {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
 
-function Kpi({ icon: Icon, label, value, sub, accent, clickable }: { icon: any; label: string; value: any; sub?: string; accent?: "up" | "down"; clickable?: boolean }) {
-  return (
-    <div className={`rounded-xl border border-border bg-surface p-5 transition ${clickable ? "cursor-pointer hover:border-primary hover:bg-surface-elevated" : ""}`}>
-      <div className="flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-        <Icon className={`h-4 w-4 ${accent === "up" ? "text-up" : accent === "down" ? "text-down" : "text-primary"}`} />
-      </div>
-      <div className="mt-3 text-2xl font-bold tabular-nums">{value}</div>
-      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
-    </div>
-  );
-}
-
-function fmt(n?: number) {
-  if (n == null) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+function KycBadge({ status }: { status: string | null }) {
+  const s = status ?? "not_started";
+  const map: Record<string, string> = {
+    approved: "bg-up/15 text-up border-up/30",
+    pending: "bg-warning/15 text-warning border-warning/30",
+    rejected: "bg-down/15 text-down border-down/30",
+    not_started: "bg-muted/30 text-muted-foreground border-border",
+  };
+  const label: Record<string, string> = {
+    approved: "KYC ok",
+    pending: "KYC pend.",
+    rejected: "KYC rec.",
+    not_started: "Sem KYC",
+  };
+  return <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium ${map[s]}`}>{label[s]}</span>;
 }
 
 function last7DaysBuckets(dates: string[]) {

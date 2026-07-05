@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Coins, LogOut, Menu, X, CheckSquare, Headphones, Shield, ShieldCheck, UserCircle2, Wallet } from "lucide-react";
+import { LayoutDashboard, Coins, LogOut, Menu, X, Headphones, Shield, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
@@ -15,11 +15,8 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?
 const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/clients", label: "Clientes", icon: UserCircle2 },
-  { to: "/admin/deposits", label: "Depósitos", icon: Wallet },
-  { to: "/admin/approvals", label: "Aprovações", icon: CheckSquare },
-  { to: "/admin/kyc", label: "KYC", icon: ShieldCheck },
-  { to: "/admin/team", label: "Equipe", icon: Shield },
   { to: "/admin/tickets", label: "Suporte", icon: Headphones },
+  { to: "/admin/team", label: "Equipe", icon: Shield },
   { to: "/admin/currencies", label: "Moedas", icon: Coins },
 ];
 
