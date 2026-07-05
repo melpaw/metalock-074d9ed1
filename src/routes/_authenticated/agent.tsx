@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Headphones, Users, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/agent")({
@@ -81,7 +82,7 @@ function AgentLayout() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="text-sm text-muted-foreground hidden lg:block">Painel do agente</div>
-          <div />
+          <NotificationBell />
         </header>
         <main className="flex-1 p-6"><Outlet /></main>
       </div>

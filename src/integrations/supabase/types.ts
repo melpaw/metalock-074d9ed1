@@ -152,6 +152,96 @@ export type Database = {
           },
         ]
       }
+      kyc_submissions: {
+        Row: {
+          address: string
+          birth_date: string
+          country: string
+          created_at: string
+          doc_number: string
+          doc_type: string
+          document_path: string | null
+          full_name: string
+          id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          selfie_path: string | null
+          status: Database["public"]["Enums"]["kyc_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          birth_date: string
+          country: string
+          created_at?: string
+          doc_number: string
+          doc_type: string
+          document_path?: string | null
+          full_name: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          selfie_path?: string | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          birth_date?: string
+          country?: string
+          created_at?: string
+          doc_number?: string
+          doc_type?: string
+          document_path?: string | null
+          full_name?: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          selfie_path?: string | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           active: boolean
@@ -195,6 +285,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          kyc_status: Database["public"]["Enums"]["kyc_status"]
           kyc_verified: boolean
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
@@ -205,6 +296,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
@@ -215,6 +307,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
@@ -224,6 +317,7 @@ export type Database = {
       support_tickets: {
         Row: {
           agent_id: string | null
+          assigned_to: string | null
           category: string
           created_at: string
           id: string
@@ -235,6 +329,7 @@ export type Database = {
         }
         Insert: {
           agent_id?: string | null
+          assigned_to?: string | null
           category?: string
           created_at?: string
           id?: string
@@ -246,6 +341,7 @@ export type Database = {
         }
         Update: {
           agent_id?: string | null
+          assigned_to?: string | null
           category?: string
           created_at?: string
           id?: string
@@ -417,6 +513,10 @@ export type Database = {
         Args: { _approve: boolean; _tx_id: string }
         Returns: undefined
       }
+      admin_review_kyc: {
+        Args: { _approve: boolean; _id: string; _notes: string }
+        Returns: undefined
+      }
       admin_set_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -447,6 +547,7 @@ export type Database = {
     Enums: {
       account_status: "active" | "frozen" | "blocked"
       app_role: "admin" | "agent" | "client"
+      kyc_status: "not_submitted" | "pending" | "approved" | "rejected"
       tx_status: "pending" | "completed" | "rejected" | "cancelled"
       tx_type:
         | "deposit"
@@ -584,6 +685,7 @@ export const Constants = {
     Enums: {
       account_status: ["active", "frozen", "blocked"],
       app_role: ["admin", "agent", "client"],
+      kyc_status: ["not_submitted", "pending", "approved", "rejected"],
       tx_status: ["pending", "completed", "rejected", "cancelled"],
       tx_type: [
         "deposit",

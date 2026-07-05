@@ -2,8 +2,9 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Users, Coins, Layers, ScrollText, LogOut, Menu, X, CheckSquare, Headphones, Shield } from "lucide-react";
+import { LayoutDashboard, Users, Coins, Layers, ScrollText, LogOut, Menu, X, CheckSquare, Headphones, Shield, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -14,6 +15,7 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?
 const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/users", label: "Usuários", icon: Users },
+  { to: "/admin/kyc", label: "KYC", icon: ShieldCheck },
   { to: "/admin/team", label: "Equipe", icon: Shield },
   { to: "/admin/approvals", label: "Aprovações", icon: CheckSquare },
   { to: "/admin/tickets", label: "Suporte", icon: Headphones },
@@ -96,7 +98,10 @@ function AdminLayout() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="text-sm text-muted-foreground hidden lg:block">Painel administrativo</div>
-          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+          </div>
         </header>
         <main className="flex-1 p-6">
           <Outlet />
