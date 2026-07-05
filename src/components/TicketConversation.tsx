@@ -34,26 +34,38 @@ export function TicketConversation({ ticketId, canManage }: Props) {
     });
   }, []);
 
-  const { data: ticket } = useQuery({
+  const { data: ticket, isLoading: ticketLoading, error: ticketError } = useQuery({
     queryKey: ["ticket", ticketId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("support_tickets")
-        .select("*, profiles!support_tickets_user_id_fkey(email,full_name)")
+        .select("*")
         .eq("id", ticketId)
         .maybeSingle();
-      return data;
+      if (error) throw error;
+      if (!data) return null;
+
+      if (!canManage) return data;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email,full_name")
+        .eq("id", (data as any).user_id)
+        .maybeSingle();
+
+      return { ...data, profiles: profile };
     },
   });
 
   const { data: messages } = useQuery({
     queryKey: ["ticket-messages", ticketId],
     queryFn: async () => {
-      const { data: msgs } = await supabase
+      const { data: msgs, error } = await supabase
         .from("ticket_messages")
         .select("*")
         .eq("ticket_id", ticketId)
         .order("created_at", { ascending: true });
+      if (error) throw error;
       const ids = Array.from(new Set((msgs ?? []).map((m: any) => m.sender_id)));
       const { data: profs } = ids.length ? await supabase.from("profiles").select("id,full_name,agent_display_name,email").in("id", ids) : { data: [] };
       const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
@@ -83,7 +95,11 @@ export function TicketConversation({ ticketId, canManage }: Props) {
       });
       if (error) throw error;
       if (canManage) {
-        await supabase.from("support_tickets").update({ status: "pending" }).eq("id", ticketId);
+        const { error: statusError } = await supabase.from("support_tickets").update({ status: "pending" }).eq("id", ticketId);
+        if (statusError) throw statusError;
+      } else {
+        const { error: statusError } = await supabase.from("support_tickets").update({ status: "open" }).eq("id", ticketId);
+        if (statusError) throw statusError;
       }
     },
     onSuccess: () => {
@@ -122,7 +138,9 @@ export function TicketConversation({ ticketId, canManage }: Props) {
     }
   }
 
-  if (!ticket) return <div className="text-muted-foreground">{t("common.loading")}</div>;
+  if (ticketLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
+  if (ticketError) return <div className="rounded-xl border border-down/30 bg-down/10 p-4 text-sm text-down">{(ticketError as Error).message}</div>;
+  if (!ticket) return <div className="rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground">{t("support.ticketUnavailable")}</div>;
 
   function nameFor(m: any, mine: boolean) {
     if (mine) return t("support.you");
