@@ -168,9 +168,11 @@
   "support": {
     "title": "Support",
     "subtitle": "Talk to our team",
+    "adminSubtitle": "Real-time client support",
     "newTicket": "New ticket",
     "openTicket": "Open a new ticket",
     "empty": "No tickets yet. Open a new one to start.",
+    "emptyAdmin": "No open tickets.",
     "subject": "Subject",
     "category": "Category",
     "priority": "Priority",
