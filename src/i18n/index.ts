@@ -15,11 +15,12 @@ if (!i18n.isInitialized) {
         en: { translation: en },
         de: { translation: de },
       },
-      fallbackLng: "pt",
+      fallbackLng: "en",
       supportedLngs: ["pt", "en", "de"],
       interpolation: { escapeValue: false },
       detection: {
-        order: ["localStorage", "navigator"],
+        // Only remember the user's explicit choice. First visit → English.
+        order: ["localStorage"],
         caches: ["localStorage"],
         lookupLocalStorage: "cv_lang",
       },
