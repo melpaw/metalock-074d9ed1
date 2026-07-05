@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getPrices } from "@/lib/prices.functions";
+import { getMarketPrices } from "@/lib/prices.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { TrendingUp, Wallet, Layers } from "lucide-react";
 
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 });
 
 function OverviewPage() {
-  const pricesFn = useServerFn(getPrices);
+  const pricesFn = useServerFn(getMarketPrices);
 
   const { data: wallets } = useQuery({
     queryKey: ["my-wallets"],
@@ -20,11 +20,12 @@ function OverviewPage() {
     queryKey: ["my-investments"],
     queryFn: async () => (await supabase.from("investments").select("*, plans(name), currencies(symbol)").eq("status", "active")).data ?? [],
   });
-  const { data: prices } = useQuery({
+  const { data: pricesRes } = useQuery({
     queryKey: ["prices-overview"],
     queryFn: () => pricesFn({ data: { ids: ["bitcoin","ethereum","tether","binancecoin","solana"] } }),
     refetchInterval: 60000,
   });
+  const prices = pricesRes?.data;
 
   const totalUsd = wallets?.reduce((sum, w: any) => {
     const cg = w.currencies?.coingecko_id;
