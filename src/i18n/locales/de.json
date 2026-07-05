@@ -1,0 +1,90 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "loading": "Lädt...",
+    "back": "Zurück",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirm": "Bestätigen",
+    "logout": "Abmelden",
+    "search": "Suchen",
+    "yes": "Ja",
+    "no": "Nein",
+    "language": "Sprache",
+    "currency": "Währung",
+    "status": "Status",
+    "actions": "Aktionen",
+    "close": "Schließen",
+    "open": "Öffnen",
+    "send": "Senden",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "nav": {
+    "overview": "Übersicht",
+    "wallet": "Wallet",
+    "plans": "Pläne",
+    "transactions": "Transaktionen",
+    "support": "Support",
+    "profile": "Profil",
+    "clientArea": "Kundenbereich",
+    "adminArea": "Admin-Bereich"
+  },
+  "overview": {
+    "title": "Willkommen",
+    "subtitle": "Konto-Übersicht",
+    "totalBalance": "Gesamtguthaben",
+    "allocation": "Portfolio-Verteilung",
+    "coinsInWallet": "{{count}} Coin in Wallet",
+    "coinsInWallet_plural": "{{count}} Coins in Wallet",
+    "activeInvestments": "Aktive Investitionen",
+    "myWallets": "Meine Wallets",
+    "seeAll": "Alle anzeigen",
+    "empty": "Zahlen Sie ein, um zu starten.",
+    "noInvestments": "Keine aktiven Investitionen.",
+    "change24h": "24h Veränderung",
+    "value": "Wert",
+    "amount": "Menge"
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "subtitle": "Ihre Informationen, Sicherheit und Verifizierung",
+    "tabs": { "info": "Informationen", "security": "Sicherheit", "kyc": "KYC & Dokumente" },
+    "info": {
+      "fullName": "Vollständiger Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "dob": "Geburtsdatum",
+      "country": "Land",
+      "city": "Stadt",
+      "postal": "PLZ",
+      "address": "Vollständige Adresse",
+      "language": "Sprache",
+      "displayCurrency": "Anzeigewährung",
+      "saved": "Profil aktualisiert"
+    },
+    "security": {
+      "title": "Kontosicherheit",
+      "changePassword": "Passwort ändern",
+      "twofa": "Zwei-Faktor-Authentifizierung (2FA)",
+      "twofaActive": "2FA aktiv",
+      "twofaInactive": "2FA inaktiv",
+      "enable": "2FA aktivieren",
+      "remove": "2FA entfernen"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Sprechen Sie mit unserem Team",
+    "newTicket": "Neues Ticket",
+    "empty": "Noch keine Tickets. Öffnen Sie ein neues.",
+    "subject": "Betreff",
+    "category": "Kategorie",
+    "priority": "Priorität",
+    "message": "Nachricht",
+    "typeMessage": "Schreiben Sie Ihre Nachricht...",
+    "internalNote": "Interne Notiz (nur Team)",
+    "displayName": "Name für Kunden"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "loading": "Carregando...",
+    "back": "Voltar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirm": "Confirmar",
+    "logout": "Sair",
+    "search": "Buscar",
+    "yes": "Sim",
+    "no": "Não",
+    "language": "Idioma",
+    "currency": "Moeda",
+    "status": "Status",
+    "actions": "Ações",
+    "close": "Fechar",
+    "open": "Abrir",
+    "send": "Enviar",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "nav": {
+    "overview": "Início",
+    "wallet": "Carteira",
+    "plans": "Planos",
+    "transactions": "Extrato",
+    "support": "Suporte",
+    "profile": "Perfil",
+    "clientArea": "Área do cliente",
+    "adminArea": "Área do admin"
+  },
+  "overview": {
+    "title": "Bem-vindo",
+    "subtitle": "Visão geral da sua conta",
+    "totalBalance": "Patrimônio total",
+    "allocation": "Distribuição da carteira",
+    "coinsInWallet": "{{count}} moeda em carteira",
+    "coinsInWallet_plural": "{{count}} moedas em carteira",
+    "activeInvestments": "Investimentos ativos",
+    "myWallets": "Minhas carteiras",
+    "seeAll": "Ver todas",
+    "empty": "Faça um depósito para começar.",
+    "noInvestments": "Nenhum investimento ativo.",
+    "change24h": "Variação 24h",
+    "value": "Valor",
+    "amount": "Quantidade"
+  },
+  "profile": {
+    "title": "Meu perfil",
+    "subtitle": "Suas informações, segurança e verificação",
+    "tabs": { "info": "Informações", "security": "Segurança", "kyc": "KYC & Documentos" },
+    "info": {
+      "fullName": "Nome completo",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "dob": "Data de nascimento",
+      "country": "País",
+      "city": "Cidade",
+      "postal": "CEP / Postal",
+      "address": "Endereço completo",
+      "language": "Idioma",
+      "displayCurrency": "Moeda de exibição",
+      "saved": "Perfil atualizado"
+    },
+    "security": {
+      "title": "Segurança da conta",
+      "changePassword": "Alterar senha",
+      "twofa": "Autenticação em 2 fatores (2FA)",
+      "twofaActive": "2FA ativo",
+      "twofaInactive": "2FA inativo",
+      "enable": "Ativar 2FA",
+      "remove": "Remover 2FA"
+    }
+  },
+  "support": {
+    "title": "Suporte",
+    "subtitle": "Fale com nossa equipe",
+    "newTicket": "Novo ticket",
+    "empty": "Nenhum ticket. Abra um novo para começar.",
+    "subject": "Assunto",
+    "category": "Categoria",
+    "priority": "Prioridade",
+    "message": "Mensagem",
+    "typeMessage": "Escreva sua mensagem...",
+    "internalNote": "Nota interna (visível só para equipe)",
+    "displayName": "Nome exibido ao cliente"
+  }
+}
