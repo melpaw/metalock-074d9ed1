@@ -5,20 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, Coins, LogOut, Menu, X, Headphones, Shield, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
-
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
-const nav: NavItem[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/clients", label: "Clientes", icon: UserCircle2 },
-  { to: "/admin/tickets", label: "Suporte", icon: Headphones },
-  { to: "/admin/team", label: "Equipe", icon: Shield },
-  { to: "/admin/currencies", label: "Moedas", icon: Coins },
-];
 
 function AdminLayout() {
   const navigate = useNavigate();
