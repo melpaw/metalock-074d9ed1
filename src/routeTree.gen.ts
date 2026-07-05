@@ -13,12 +13,27 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAgentRouteImport } from './routes/_authenticated/agent'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAgentIndexRouteImport } from './routes/_authenticated/agent.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAppWalletRouteImport } from './routes/_authenticated/app.wallet'
+import { Route as AuthenticatedAppTransactionsRouteImport } from './routes/_authenticated/app.transactions'
+import { Route as AuthenticatedAppSupportRouteImport } from './routes/_authenticated/app.support'
+import { Route as AuthenticatedAppInvestRouteImport } from './routes/_authenticated/app.invest'
+import { Route as AuthenticatedAgentUsersRouteImport } from './routes/_authenticated/agent.users'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin.tickets'
+import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin.team'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
+import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
+import { Route as AuthenticatedAppSupportTicketIdRouteImport } from './routes/_authenticated/app.support.$ticketId'
+import { Route as AuthenticatedAgentTicketsTicketIdRouteImport } from './routes/_authenticated/agent.tickets.$ticketId'
+import { Route as AuthenticatedAdminTicketsTicketIdRouteImport } from './routes/_authenticated/admin.tickets.$ticketId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -39,19 +54,76 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAgentRoute = AuthenticatedAgentRouteImport.update({
+  id: '/agent',
+  path: '/agent',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAgentIndexRoute = AuthenticatedAgentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAgentRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAppWalletRoute = AuthenticatedAppWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTransactionsRoute =
+  AuthenticatedAppTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSupportRoute = AuthenticatedAppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppInvestRoute = AuthenticatedAppInvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAgentUsersRoute = AuthenticatedAgentUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAgentRoute,
+} as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminTicketsRoute =
+  AuthenticatedAdminTicketsRouteImport.update({
+    id: '/tickets',
+    path: '/tickets',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminTeamRoute = AuthenticatedAdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
@@ -70,27 +142,79 @@ const AuthenticatedAdminCurrenciesRoute =
     path: '/currencies',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminApprovalsRoute =
+  AuthenticatedAdminApprovalsRouteImport.update({
+    id: '/approvals',
+    path: '/approvals',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAppSupportTicketIdRoute =
+  AuthenticatedAppSupportTicketIdRouteImport.update({
+    id: '/$ticketId',
+    path: '/$ticketId',
+    getParentRoute: () => AuthenticatedAppSupportRoute,
+  } as any)
+const AuthenticatedAgentTicketsTicketIdRoute =
+  AuthenticatedAgentTicketsTicketIdRouteImport.update({
+    id: '/tickets/$ticketId',
+    path: '/tickets/$ticketId',
+    getParentRoute: () => AuthenticatedAgentRoute,
+  } as any)
+const AuthenticatedAdminTicketsTicketIdRoute =
+  AuthenticatedAdminTicketsTicketIdRouteImport.update({
+    id: '/$ticketId',
+    path: '/$ticketId',
+    getParentRoute: () => AuthenticatedAdminTicketsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/agent': typeof AuthenticatedAgentRouteWithChildren
+  '/app': typeof AuthenticatedAppRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/agent/users': typeof AuthenticatedAgentUsersRoute
+  '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/app/transactions': typeof AuthenticatedAppTransactionsRoute
+  '/app/wallet': typeof AuthenticatedAppWalletRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/agent/': typeof AuthenticatedAgentIndexRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
+  '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
+  '/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
+  '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/agent/users': typeof AuthenticatedAgentUsersRoute
+  '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/app/transactions': typeof AuthenticatedAppTransactionsRoute
+  '/app/wallet': typeof AuthenticatedAppWalletRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/agent': typeof AuthenticatedAgentIndexRoute
+  '/app': typeof AuthenticatedAppIndexRoute
+  '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
+  '/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
+  '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,12 +222,27 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/agent': typeof AuthenticatedAgentRouteWithChildren
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/agent/users': typeof AuthenticatedAgentUsersRoute
+  '/_authenticated/app/invest': typeof AuthenticatedAppInvestRoute
+  '/_authenticated/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/_authenticated/app/transactions': typeof AuthenticatedAppTransactionsRoute
+  '/_authenticated/app/wallet': typeof AuthenticatedAppWalletRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/agent/': typeof AuthenticatedAgentIndexRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
+  '/_authenticated/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
+  '/_authenticated/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,34 +250,77 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/agent'
+    | '/app'
     | '/dashboard'
+    | '/admin/approvals'
     | '/admin/currencies'
     | '/admin/logs'
     | '/admin/plans'
+    | '/admin/team'
+    | '/admin/tickets'
     | '/admin/users'
+    | '/agent/users'
+    | '/app/invest'
+    | '/app/support'
+    | '/app/transactions'
+    | '/app/wallet'
     | '/admin/'
+    | '/agent/'
+    | '/app/'
+    | '/admin/tickets/$ticketId'
+    | '/agent/tickets/$ticketId'
+    | '/app/support/$ticketId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/admin/approvals'
     | '/admin/currencies'
     | '/admin/logs'
     | '/admin/plans'
+    | '/admin/team'
+    | '/admin/tickets'
     | '/admin/users'
+    | '/agent/users'
+    | '/app/invest'
+    | '/app/support'
+    | '/app/transactions'
+    | '/app/wallet'
     | '/admin'
+    | '/agent'
+    | '/app'
+    | '/admin/tickets/$ticketId'
+    | '/agent/tickets/$ticketId'
+    | '/app/support/$ticketId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/agent'
+    | '/_authenticated/app'
     | '/_authenticated/dashboard'
+    | '/_authenticated/admin/approvals'
     | '/_authenticated/admin/currencies'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/plans'
+    | '/_authenticated/admin/team'
+    | '/_authenticated/admin/tickets'
     | '/_authenticated/admin/users'
+    | '/_authenticated/agent/users'
+    | '/_authenticated/app/invest'
+    | '/_authenticated/app/support'
+    | '/_authenticated/app/transactions'
+    | '/_authenticated/app/wallet'
     | '/_authenticated/admin/'
+    | '/_authenticated/agent/'
+    | '/_authenticated/app/'
+    | '/_authenticated/admin/tickets/$ticketId'
+    | '/_authenticated/agent/tickets/$ticketId'
+    | '/_authenticated/app/support/$ticketId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -177,12 +359,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/agent': {
+      id: '/_authenticated/agent'
+      path: '/agent'
+      fullPath: '/agent'
+      preLoaderRoute: typeof AuthenticatedAgentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/agent/': {
+      id: '/_authenticated/agent/'
+      path: '/'
+      fullPath: '/agent/'
+      preLoaderRoute: typeof AuthenticatedAgentIndexRouteImport
+      parentRoute: typeof AuthenticatedAgentRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -191,11 +401,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/app/wallet': {
+      id: '/_authenticated/app/wallet'
+      path: '/wallet'
+      fullPath: '/app/wallet'
+      preLoaderRoute: typeof AuthenticatedAppWalletRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/transactions': {
+      id: '/_authenticated/app/transactions'
+      path: '/transactions'
+      fullPath: '/app/transactions'
+      preLoaderRoute: typeof AuthenticatedAppTransactionsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/support': {
+      id: '/_authenticated/app/support'
+      path: '/support'
+      fullPath: '/app/support'
+      preLoaderRoute: typeof AuthenticatedAppSupportRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/invest': {
+      id: '/_authenticated/app/invest'
+      path: '/invest'
+      fullPath: '/app/invest'
+      preLoaderRoute: typeof AuthenticatedAppInvestRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/agent/users': {
+      id: '/_authenticated/agent/users'
+      path: '/users'
+      fullPath: '/agent/users'
+      preLoaderRoute: typeof AuthenticatedAgentUsersRouteImport
+      parentRoute: typeof AuthenticatedAgentRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/tickets': {
+      id: '/_authenticated/admin/tickets'
+      path: '/tickets'
+      fullPath: '/admin/tickets'
+      preLoaderRoute: typeof AuthenticatedAdminTicketsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/team': {
+      id: '/_authenticated/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof AuthenticatedAdminTeamRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/plans': {
@@ -219,21 +478,70 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/approvals': {
+      id: '/_authenticated/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AuthenticatedAdminApprovalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/app/support/$ticketId': {
+      id: '/_authenticated/app/support/$ticketId'
+      path: '/$ticketId'
+      fullPath: '/app/support/$ticketId'
+      preLoaderRoute: typeof AuthenticatedAppSupportTicketIdRouteImport
+      parentRoute: typeof AuthenticatedAppSupportRoute
+    }
+    '/_authenticated/agent/tickets/$ticketId': {
+      id: '/_authenticated/agent/tickets/$ticketId'
+      path: '/tickets/$ticketId'
+      fullPath: '/agent/tickets/$ticketId'
+      preLoaderRoute: typeof AuthenticatedAgentTicketsTicketIdRouteImport
+      parentRoute: typeof AuthenticatedAgentRoute
+    }
+    '/_authenticated/admin/tickets/$ticketId': {
+      id: '/_authenticated/admin/tickets/$ticketId'
+      path: '/$ticketId'
+      fullPath: '/admin/tickets/$ticketId'
+      preLoaderRoute: typeof AuthenticatedAdminTicketsTicketIdRouteImport
+      parentRoute: typeof AuthenticatedAdminTicketsRoute
+    }
   }
 }
 
+interface AuthenticatedAdminTicketsRouteChildren {
+  AuthenticatedAdminTicketsTicketIdRoute: typeof AuthenticatedAdminTicketsTicketIdRoute
+}
+
+const AuthenticatedAdminTicketsRouteChildren: AuthenticatedAdminTicketsRouteChildren =
+  {
+    AuthenticatedAdminTicketsTicketIdRoute:
+      AuthenticatedAdminTicketsTicketIdRoute,
+  }
+
+const AuthenticatedAdminTicketsRouteWithChildren =
+  AuthenticatedAdminTicketsRoute._addFileChildren(
+    AuthenticatedAdminTicketsRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
+  AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
+  AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRouteWithChildren
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
   AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
+  AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
+  AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRouteWithChildren,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -241,13 +549,66 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedAgentRouteChildren {
+  AuthenticatedAgentUsersRoute: typeof AuthenticatedAgentUsersRoute
+  AuthenticatedAgentIndexRoute: typeof AuthenticatedAgentIndexRoute
+  AuthenticatedAgentTicketsTicketIdRoute: typeof AuthenticatedAgentTicketsTicketIdRoute
+}
+
+const AuthenticatedAgentRouteChildren: AuthenticatedAgentRouteChildren = {
+  AuthenticatedAgentUsersRoute: AuthenticatedAgentUsersRoute,
+  AuthenticatedAgentIndexRoute: AuthenticatedAgentIndexRoute,
+  AuthenticatedAgentTicketsTicketIdRoute:
+    AuthenticatedAgentTicketsTicketIdRoute,
+}
+
+const AuthenticatedAgentRouteWithChildren =
+  AuthenticatedAgentRoute._addFileChildren(AuthenticatedAgentRouteChildren)
+
+interface AuthenticatedAppSupportRouteChildren {
+  AuthenticatedAppSupportTicketIdRoute: typeof AuthenticatedAppSupportTicketIdRoute
+}
+
+const AuthenticatedAppSupportRouteChildren: AuthenticatedAppSupportRouteChildren =
+  {
+    AuthenticatedAppSupportTicketIdRoute: AuthenticatedAppSupportTicketIdRoute,
+  }
+
+const AuthenticatedAppSupportRouteWithChildren =
+  AuthenticatedAppSupportRoute._addFileChildren(
+    AuthenticatedAppSupportRouteChildren,
+  )
+
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppInvestRoute: typeof AuthenticatedAppInvestRoute
+  AuthenticatedAppSupportRoute: typeof AuthenticatedAppSupportRouteWithChildren
+  AuthenticatedAppTransactionsRoute: typeof AuthenticatedAppTransactionsRoute
+  AuthenticatedAppWalletRoute: typeof AuthenticatedAppWalletRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppInvestRoute: AuthenticatedAppInvestRoute,
+  AuthenticatedAppSupportRoute: AuthenticatedAppSupportRouteWithChildren,
+  AuthenticatedAppTransactionsRoute: AuthenticatedAppTransactionsRoute,
+  AuthenticatedAppWalletRoute: AuthenticatedAppWalletRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedAgentRoute: typeof AuthenticatedAgentRouteWithChildren
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedAgentRoute: AuthenticatedAgentRouteWithChildren,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
