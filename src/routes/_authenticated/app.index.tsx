@@ -200,32 +200,32 @@ function OverviewPage() {
       {/* Recent transactions */}
       <section className="rounded-2xl border border-border bg-surface overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="font-semibold">Extrato recente</h2>
-          <span className="text-xs text-muted-foreground">Últimas {Math.min(txs?.length ?? 0, 20)} transações</span>
+          <h2 className="font-semibold">{t("overview.recentTx")}</h2>
+          <span className="text-xs text-muted-foreground">{t("overview.lastNTx", { n: Math.min(txs?.length ?? 0, 20) })}</span>
         </div>
         {!txs || txs.length === 0 ? (
-          <div className="p-12 text-center text-sm text-muted-foreground">Sem transações ainda.</div>
+          <div className="p-12 text-center text-sm text-muted-foreground">{t("overview.noTx")}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b border-border bg-surface-elevated/40 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3 text-left">Tipo</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Valor</th>
-                  <th className="px-4 py-3 text-right">Data</th>
+                  <th className="px-4 py-3 text-left">{t("tx.type")}</th>
+                  <th className="px-4 py-3 text-left">{t("tx.status")}</th>
+                  <th className="px-4 py-3 text-right">{t("tx.amount")}</th>
+                  <th className="px-4 py-3 text-right">{t("tx.date")}</th>
                 </tr>
               </thead>
               <tbody>
                 {txs.map((tx: any) => (
                   <tr key={tx.id} className="border-b border-border/50 last:border-0">
-                    <td className="px-4 py-3 capitalize">{tx.type}</td>
+                    <td className="px-4 py-3">{t(`tx.${tx.type}`, { defaultValue: tx.type })}</td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className={
                         tx.status === "completed" ? "border-up/30 text-up" :
                         tx.status === "pending" ? "border-warning/30 text-warning" :
                         "border-down/30 text-down"
-                      }>{tx.status}</Badge>
+                      }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
                       {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
