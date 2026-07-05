@@ -15,16 +15,16 @@ export function WalletActions({ wallets, currencies, prices, onDone }: { wallets
   const { t } = useTranslation();
   return (
     <Tabs defaultValue="deposit" className="w-full">
-      <TabsList className="grid grid-cols-4 w-full">
-        <TabsTrigger value="deposit"><ArrowDownToLine className="h-4 w-4 mr-1" /> {t("wallet.deposit")}</TabsTrigger>
-        <TabsTrigger value="send"><Send className="h-4 w-4 mr-1" /> {t("wallet.send")}</TabsTrigger>
-        <TabsTrigger value="swap"><ArrowLeftRight className="h-4 w-4 mr-1" /> {t("wallet.swap")}</TabsTrigger>
-        <TabsTrigger value="withdraw"><Building2 className="h-4 w-4 mr-1" /> {t("wallet.withdraw")}</TabsTrigger>
+      <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-surface-elevated p-1">
+        <TabsTrigger value="deposit" className="min-h-10 px-2 text-xs"><ArrowDownToLine className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.deposit")}</span></TabsTrigger>
+        <TabsTrigger value="send" className="min-h-10 px-2 text-xs"><Send className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.send")}</span></TabsTrigger>
+        <TabsTrigger value="swap" className="min-h-10 px-2 text-xs"><ArrowLeftRight className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.swap")}</span></TabsTrigger>
+        <TabsTrigger value="withdraw" className="min-h-10 px-2 text-xs"><Building2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.withdraw")}</span></TabsTrigger>
       </TabsList>
-      <TabsContent value="deposit" className="mt-4"><DepositPanel currencies={currencies} onDone={onDone} /></TabsContent>
-      <TabsContent value="send" className="mt-4"><SendPanel wallets={wallets} onDone={onDone} /></TabsContent>
-      <TabsContent value="swap" className="mt-4"><SwapPanel wallets={wallets} currencies={currencies} prices={prices} onDone={onDone} /></TabsContent>
-      <TabsContent value="withdraw" className="mt-4"><WithdrawPanel wallets={wallets} prices={prices} onDone={onDone} /></TabsContent>
+      <TabsContent value="deposit" className="mt-3"><DepositPanel currencies={currencies} onDone={onDone} /></TabsContent>
+      <TabsContent value="send" className="mt-3"><SendPanel wallets={wallets} onDone={onDone} /></TabsContent>
+      <TabsContent value="swap" className="mt-3"><SwapPanel wallets={wallets} currencies={currencies} prices={prices} onDone={onDone} /></TabsContent>
+      <TabsContent value="withdraw" className="mt-3"><WithdrawPanel wallets={wallets} prices={prices} onDone={onDone} /></TabsContent>
     </Tabs>
   );
 }
@@ -54,10 +54,10 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
   }
   function copy(text: string) { navigator.clipboard.writeText(text); toast.success(t("wallet.copied")); }
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-dashed border-border p-4">
+    <div className="space-y-3">
+      <div className="rounded-lg border border-dashed border-border p-3">
         <Label className="text-xs uppercase text-muted-foreground">{t("wallet.chooseCurrency")}</Label>
-        <div className="mt-2 flex gap-2">
+        <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <Select value={currencyId} onValueChange={setCurrencyId}>
             <SelectTrigger className="flex-1"><SelectValue placeholder={t("wallet.select")} /></SelectTrigger>
             <SelectContent>
@@ -66,17 +66,17 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
           </Select>
           <Button onClick={() => request.mutate()} disabled={!currencyId || request.isPending}>{t("wallet.requestAddress")}</Button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">{t("wallet.requestHint")}</p>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{t("wallet.requestHint")}</p>
       </div>
       <div className="space-y-2">
         <div className="text-xs uppercase text-muted-foreground">{t("wallet.myAddresses")}</div>
         {!my?.length && <div className="rounded-md bg-surface-elevated p-4 text-sm text-muted-foreground text-center">{t("wallet.noAddresses")}</div>}
         {my?.map((a) => (
           <div key={a.id} className="rounded-lg border border-border bg-surface-elevated p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <span className="font-semibold">{a.currencies?.symbol}</span>
-                <span className="text-xs text-muted-foreground">{a.currencies?.name}</span>
+                <span className="truncate text-xs text-muted-foreground">{a.currencies?.name}</span>
                 {a.network && <span className="text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary">{a.network}</span>}
               </div>
               {a.status === "ready"
@@ -147,7 +147,7 @@ function SendPanel({ wallets, onDone }: { wallets: any[]; onDone: () => void }) 
           </SelectContent>
         </Select>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div><Label>{t("common.amount")}</Label><Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
         <div className="flex items-end">
           {currencyId && <Button variant="ghost" size="sm" onClick={() => { const w = funded.find((x) => x.currency_id === currencyId); if (w) setAmount(String(w.available)); }}>{t("wallet.max")}</Button>}
@@ -187,10 +187,10 @@ function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; cu
     <div className="space-y-3">
       <div>
         <Label>{t("wallet.youPay")}</Label>
-        <div className="flex gap-2">
+        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_9rem]">
           <Input type="number" step="0.00000001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="flex-1" />
           <Select value={fromId} onValueChange={setFromId}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol}</SelectItem>)}</SelectContent>
           </Select>
         </div>
@@ -198,10 +198,10 @@ function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; cu
       <div className="flex justify-center"><ArrowLeftRight className="h-5 w-5 text-primary rotate-90" /></div>
       <div>
         <Label>{t("wallet.youReceive")}</Label>
-        <div className="flex gap-2">
+        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_9rem]">
           <Input value={receive ? receive.toFixed(8) : ""} readOnly placeholder="0.00" className="flex-1" />
           <Select value={toId} onValueChange={setToId}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{currencies.filter((c) => c.id !== fromId).map((c) => <SelectItem key={c.id} value={c.id}>{c.symbol}</SelectItem>)}</SelectContent>
           </Select>
         </div>

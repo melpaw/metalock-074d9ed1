@@ -23,7 +23,7 @@ function SupportPage() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isDetail = pathname !== "/app/support";
 
-  const { data: tickets } = useQuery({
+  const { data: tickets, isLoading, error } = useQuery({
     queryKey: ["my-tickets"],
     queryFn: async () => (await supabase.from("support_tickets").select("*").order("created_at",{ascending:false})).data ?? [],
   });
@@ -41,6 +41,8 @@ function SupportPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-surface divide-y divide-border">
+        {isLoading && <div className="p-12 text-center text-muted-foreground">{t("common.loading")}</div>}
+        {error && <div className="p-6 text-sm text-down">{(error as Error).message}</div>}
         {tickets?.map((tk: any) => (
           <Link key={tk.id} to="/app/support/$ticketId" params={{ ticketId: tk.id }}
             className="flex items-center gap-3 p-4 hover:bg-surface-elevated transition">
@@ -55,7 +57,7 @@ function SupportPage() {
             <Badge variant="outline">{t(`support.statuses.${tk.status}`, { defaultValue: tk.status })}</Badge>
           </Link>
         ))}
-        {tickets?.length === 0 && <div className="p-12 text-center text-muted-foreground">{t("support.empty")}</div>}
+        {tickets?.length === 0 && !isLoading && !error && <div className="p-12 text-center text-muted-foreground">{t("support.empty")}</div>}
       </div>
     </div>
   );

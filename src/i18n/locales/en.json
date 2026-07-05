@@ -70,7 +70,7 @@
     "amount": "Amount",
     "walletActions": "Wallet actions",
     "walletActionsSubtitle": "Deposit, send, swap and withdraw — all in one place",
-    "recentTx": "Recent activity",
+    "recentTx": "Recent statements",
     "lastNTx": "Last {{n}} transactions",
     "noTx": "No transactions yet."
   },
@@ -129,7 +129,14 @@
     "swap": "Swap",
     "investment": "Investment",
     "adjustment": "Adjustment",
-    "transfer": "Transfer"
+    "transfer": "Transfer",
+    "details": "Details",
+    "detailsTitle": "Transaction details",
+    "fee": "Fee",
+    "reference": "Reference",
+    "hash": "Transaction hash",
+    "sender": "Sender address",
+    "note": "Note"
   },
   "profile": {
     "title": "My profile",
@@ -161,9 +168,11 @@
   "support": {
     "title": "Support",
     "subtitle": "Talk to our team",
+    "adminSubtitle": "Real-time client support",
     "newTicket": "New ticket",
     "openTicket": "Open a new ticket",
     "empty": "No tickets yet. Open a new one to start.",
+    "emptyAdmin": "No open tickets.",
     "subject": "Subject",
     "category": "Category",
     "priority": "Priority",
@@ -205,7 +214,8 @@
     "sendMessage": "Send message",
     "connected": "Connected",
     "connecting": "Connecting...",
-    "pressEnterHint": "Enter to send · Shift+Enter for a new line"
+    "pressEnterHint": "Enter to send · Shift+Enter for a new line",
+    "ticketUnavailable": "Ticket not found or you do not have access."
   },
   "auth": {
     "loginTitle": "Sign in to your account",
@@ -252,6 +262,8 @@
     "supportHint": "Open or pending tickets",
     "newSignups": "New (7d)",
     "newSignupsHint": "Sign-ups in the last week",
+    "newSignupsShort": "new in 7d",
+    "activeUsersShort": "{{active}} active users",
     "signups7d": "New sign-ups (7 days)",
     "liveMarket": "Live market",
     "seeAllClients": "See all →",
