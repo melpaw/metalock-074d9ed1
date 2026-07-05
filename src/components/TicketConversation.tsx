@@ -56,8 +56,18 @@ export function TicketConversation({ ticketId, canManage }: Props) {
       const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
       return (msgs ?? []).map((m: any) => ({ ...m, sender: map.get(m.sender_id) }));
     },
-    refetchInterval: 4000,
+    refetchInterval: 8000,
   });
+
+  // Realtime: subscribe to ticket_messages for this ticket
+  useEffect(() => {
+    const ch = supabase
+      .channel(`ticket:${ticketId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "ticket_messages", filter: `ticket_id=eq.${ticketId}` },
+        () => qc.invalidateQueries({ queryKey: ["ticket-messages", ticketId] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [ticketId, qc]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
