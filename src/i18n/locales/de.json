@@ -70,7 +70,7 @@
     "amount": "Menge",
     "walletActions": "Wallet-Aktionen",
     "walletActionsSubtitle": "Einzahlen, senden, tauschen und abheben — alles an einem Ort",
-    "recentTx": "Letzte Aktivität",
+    "recentTx": "Letzte Auszüge",
     "lastNTx": "Letzte {{n}} Transaktionen",
     "noTx": "Noch keine Transaktionen."
   },
@@ -129,7 +129,14 @@
     "swap": "Tausch",
     "investment": "Investition",
     "adjustment": "Anpassung",
-    "transfer": "Überweisung"
+    "transfer": "Überweisung",
+    "details": "Details",
+    "detailsTitle": "Transaktionsdetails",
+    "fee": "Gebühr",
+    "reference": "Referenz",
+    "hash": "Transaktionshash",
+    "sender": "Absenderadresse",
+    "note": "Notiz"
   },
   "profile": {
     "title": "Mein Profil",
@@ -205,7 +212,8 @@
     "sendMessage": "Nachricht senden",
     "connected": "Verbunden",
     "connecting": "Verbinde...",
-    "pressEnterHint": "Enter zum Senden · Shift+Enter für neue Zeile"
+    "pressEnterHint": "Enter zum Senden · Shift+Enter für neue Zeile",
+    "ticketUnavailable": "Ticket nicht gefunden oder kein Zugriff."
   },
   "auth": {
     "loginTitle": "Bei Ihrem Konto anmelden",
@@ -252,6 +260,8 @@
     "supportHint": "Offene oder wartende Tickets",
     "newSignups": "Neu (7 T.)",
     "newSignupsHint": "Registrierungen der letzten Woche",
+    "newSignupsShort": "neu in 7 T.",
+    "activeUsersShort": "{{active}} aktive Nutzer",
     "signups7d": "Neue Registrierungen (7 Tage)",
     "liveMarket": "Live-Markt",
     "seeAllClients": "Alle anzeigen →",
