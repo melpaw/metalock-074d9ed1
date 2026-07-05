@@ -14,9 +14,18 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function AdminLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+
+  const nav = [
+    { to: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
+    { to: "/admin/clients", label: t("nav.clients"), icon: UserCircle2 },
+    { to: "/admin/tickets", label: t("nav.support"), icon: Headphones },
+    { to: "/admin/team", label: t("nav.team"), icon: Shield },
+    { to: "/admin/currencies", label: t("nav.currencies"), icon: Coins },
+  ];
 
   const { data: roleCheck, isLoading } = useQuery({
     queryKey: ["is-admin"],
@@ -39,7 +48,7 @@ function AdminLayout() {
   }
 
   if (isLoading || !roleCheck?.isAdmin) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Verificando permissões...</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
   }
 
   return (
