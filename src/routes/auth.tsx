@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).optional().default("login"),
@@ -17,11 +18,56 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const signupPasswordSchema = z
+  .string()
+  .min(8, "A senha precisa ter no mínimo 8 caracteres")
+  .regex(/[0-9]/, "A senha precisa ter pelo menos 1 número");
+
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  autoComplete,
+  minLength,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: string;
+  minLength?: number;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required
+        minLength={minLength}
+        autoComplete={autoComplete}
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        tabIndex={-1}
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const isSignup = mode === "signup";
@@ -31,6 +77,17 @@ function AuthPage() {
     setLoading(true);
     try {
       if (isSignup) {
+        const parsed = signupPasswordSchema.safeParse(password);
+        if (!parsed.success) {
+          toast.error(parsed.error.issues[0]?.message ?? "Senha inválida");
+          setLoading(false);
+          return;
+        }
+        if (password !== passwordConfirm) {
+          toast.error("As senhas não coincidem");
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
@@ -96,8 +153,29 @@ function AuthPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete={isSignup ? "new-password" : "current-password"} />
+              <PasswordInput
+                id="password"
+                value={password}
+                onChange={setPassword}
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                minLength={isSignup ? 8 : 6}
+              />
+              {isSignup && (
+                <p className="text-xs text-muted-foreground">Mínimo 8 caracteres, incluindo pelo menos 1 número.</p>
+              )}
             </div>
+            {isSignup && (
+              <div className="space-y-2">
+                <Label htmlFor="passwordConfirm">Confirmar senha</Label>
+                <PasswordInput
+                  id="passwordConfirm"
+                  value={passwordConfirm}
+                  onChange={setPasswordConfirm}
+                  autoComplete="new-password"
+                  minLength={8}
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full font-semibold" disabled={loading}>
               {loading ? "Aguarde..." : isSignup ? "Criar conta" : "Entrar"}
             </Button>
