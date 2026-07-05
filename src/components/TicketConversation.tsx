@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
-import { Send, Lock } from "lucide-react";
+import { Send, Lock, Save } from "lucide-react";
 
 type Props = { ticketId: string; canManage: boolean };
 
@@ -16,9 +17,18 @@ export function TicketConversation({ ticketId, canManage }: Props) {
   const [internal, setInternal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [me, setMe] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState("");
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
+    supabase.auth.getUser().then(async ({ data }) => {
+      const uid = data.user?.id ?? null;
+      setMe(uid);
+      if (uid) {
+        const { data: p } = await supabase.from("profiles").select("agent_display_name").eq("id", uid).maybeSingle();
+        setDisplayName((p as any)?.agent_display_name ?? "");
+      }
+    });
   }, []);
 
   const { data: ticket } = useQuery({
@@ -36,14 +46,17 @@ export function TicketConversation({ ticketId, canManage }: Props) {
   const { data: messages } = useQuery({
     queryKey: ["ticket-messages", ticketId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: msgs } = await supabase
         .from("ticket_messages")
         .select("*")
         .eq("ticket_id", ticketId)
         .order("created_at", { ascending: true });
-      return data ?? [];
+      const ids = Array.from(new Set((msgs ?? []).map((m: any) => m.sender_id)));
+      const { data: profs } = ids.length ? await supabase.from("profiles").select("id,full_name,agent_display_name,email").in("id", ids) : { data: [] };
+      const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      return (msgs ?? []).map((m: any) => ({ ...m, sender: map.get(m.sender_id) }));
     },
-    refetchInterval: 5000,
+    refetchInterval: 4000,
   });
 
   useEffect(() => {
@@ -82,7 +95,22 @@ export function TicketConversation({ ticketId, canManage }: Props) {
     onError: (e) => toast.error(e.message),
   });
 
+  async function saveDisplayName() {
+    setSavingName(true);
+    const { error } = await supabase.rpc("set_agent_display_name" as any, { _display_name: displayName || null });
+    setSavingName(false);
+    if (error) return toast.error(error.message);
+    toast.success("Nome de exibição salvo");
+  }
+
   if (!ticket) return <div className="text-muted-foreground">Carregando...</div>;
+
+  function nameFor(m: any, mine: boolean) {
+    if (mine) return "Você";
+    const s = m.sender;
+    if (!s) return "Cliente";
+    return s.agent_display_name || s.full_name || "Suporte";
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -107,6 +135,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
                   mine ? "bg-primary text-primary-foreground" : "bg-surface-elevated"
                 }`}>
                   {m.is_internal && <div className="flex items-center gap-1 text-[10px] uppercase mb-1"><Lock className="h-3 w-3" /> Nota interna</div>}
+                  <div className="text-[10px] font-medium opacity-80 mb-0.5">{nameFor(m, mine)}</div>
                   <div className="whitespace-pre-wrap">{m.body}</div>
                   <div className="text-[10px] opacity-70 mt-1">{new Date(m.created_at).toLocaleString("pt-BR")}</div>
                 </div>
@@ -134,6 +163,13 @@ export function TicketConversation({ ticketId, canManage }: Props) {
       {canManage && (
         <div className="rounded-xl border border-border bg-surface p-4 space-y-4 h-fit">
           <h3 className="text-sm font-semibold">Controle</h3>
+          <div className="space-y-2">
+            <label className="text-xs text-muted-foreground">Nome exibido ao cliente</label>
+            <div className="flex gap-2">
+              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="ex: João Suporte" />
+              <Button size="icon" variant="outline" onClick={saveDisplayName} disabled={savingName}><Save className="h-4 w-4" /></Button>
+            </div>
+          </div>
           <div className="space-y-2">
             <label className="text-xs text-muted-foreground">Status</label>
             <Select value={ticket.status} onValueChange={(v) => updateTicket.mutate({ status: v })}>

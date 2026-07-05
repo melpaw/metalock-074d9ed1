@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Coins, ScrollText, LogOut, Menu, X, CheckSquare, Headphones, Shield, ShieldCheck, UserCircle2, Wallet } from "lucide-react";
+import { LayoutDashboard, Coins, LogOut, Menu, X, CheckSquare, Headphones, Shield, ShieldCheck, UserCircle2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
@@ -21,7 +21,6 @@ const nav: NavItem[] = [
   { to: "/admin/team", label: "Equipe", icon: Shield },
   { to: "/admin/tickets", label: "Suporte", icon: Headphones },
   { to: "/admin/currencies", label: "Moedas", icon: Coins },
-  { to: "/admin/logs", label: "Auditoria", icon: ScrollText },
 ];
 
 function AdminLayout() {

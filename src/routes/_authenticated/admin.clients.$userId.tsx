@@ -9,9 +9,11 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2 } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2, Check, X, Plus, Upload, QrCode, Eye, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/$userId")({
   component: ClientDetail,
@@ -69,12 +71,8 @@ function ClientDetail() {
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="flex flex-wrap w-full h-auto">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
-          <TabsTrigger value="kyc">KYC & Documentos</TabsTrigger>
           <TabsTrigger value="wallet">Carteira</TabsTrigger>
-          <TabsTrigger value="bank">Contas Bancárias</TabsTrigger>
           <TabsTrigger value="tx">Transações</TabsTrigger>
-          <TabsTrigger value="tickets">Tickets</TabsTrigger>
-          <TabsTrigger value="logs">Auditoria</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -82,19 +80,15 @@ function ClientDetail() {
             <ProfileCard client={client} onSaved={() => qc.invalidateQueries({ queryKey: ["client-detail", userId] })} />
             <div className="space-y-4">
               <PermissionsCard userId={userId} />
+              <KycIsland userId={userId} />
               <AdminNoteCard userId={userId} />
-              <BalanceAdjustCard userId={userId} email={client.email} />
               <DangerCard userId={userId} status={client.status} onDone={() => qc.invalidateQueries({ queryKey: ["client-detail", userId] })} />
             </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="kyc"><KycTab userId={userId} /></TabsContent>
         <TabsContent value="wallet"><WalletTab userId={userId} /></TabsContent>
-        <TabsContent value="bank"><BankTab userId={userId} /></TabsContent>
         <TabsContent value="tx"><TxTab userId={userId} /></TabsContent>
-        <TabsContent value="tickets"><TicketsTab userId={userId} /></TabsContent>
-        <TabsContent value="logs"><LogsTab userId={userId} /></TabsContent>
       </Tabs>
     </div>
   );
@@ -158,7 +152,7 @@ function ProfileCard({ client, onSaved }: { client: any; onSaved: () => void }) 
   );
 }
 
-/* ---------- Permissions ---------- */
+/* ---------- Permissions (compact grid) ---------- */
 function PermissionsCard({ userId }: { userId: string }) {
   const qc = useQueryClient();
   const { data } = useQuery({
@@ -182,20 +176,112 @@ function PermissionsCard({ userId }: { userId: string }) {
   });
 
   if (!local) return null;
-  const toggles: Array<[keyof typeof local, string]> = [
+  const toggles: Array<[string, string]> = [
     ["allow_send", "Enviar"], ["allow_buy", "Comprar"], ["allow_swap", "Trocar"],
-    ["allow_deposit", "Depositar"], ["allow_withdrawal", "Sacar"], ["allow_stake", "Fazer stake"],
+    ["allow_deposit", "Depositar"], ["allow_withdrawal", "Sacar"], ["allow_stake", "Stake"],
   ];
   return (
-    <Card title="Permissões do cliente" action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
-      <div className="space-y-3">
+    <Card title="Permissões" action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
+      <div className="grid grid-cols-2 gap-2">
         {toggles.map(([k, label]) => (
-          <div key={String(k)} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2">
+          <label key={k} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 cursor-pointer">
             <span className="text-sm">{label}</span>
             <Switch checked={!!local[k]} onCheckedChange={(v) => setLocal({ ...local, [k]: v })} />
-          </div>
+          </label>
         ))}
       </div>
+    </Card>
+  );
+}
+
+/* ---------- KYC island (list + review) ---------- */
+function KycIsland({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["client-kyc-island", userId],
+    queryFn: async () => (await supabase.from("kyc_submissions").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
+  });
+
+  const [viewer, setViewer] = useState<{ sub: any; doc?: string; selfie?: string } | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  async function openViewer(sub: any) {
+    const [d, s] = await Promise.all([
+      sub.document_path ? supabase.storage.from("kyc-documents").createSignedUrl(sub.document_path, 300) : Promise.resolve({ data: null }),
+      sub.selfie_path ? supabase.storage.from("kyc-documents").createSignedUrl(sub.selfie_path, 300) : Promise.resolve({ data: null }),
+    ]);
+    setViewer({ sub, doc: (d.data as any)?.signedUrl, selfie: (s.data as any)?.signedUrl });
+  }
+
+  async function review(id: string, approve: boolean) {
+    const note = notes[id] ?? "";
+    if (!approve && !note.trim()) return toast.error("Informe o motivo da recusa");
+    const { error } = await supabase.rpc("admin_review_kyc", { _id: id, _approve: approve, _notes: note });
+    if (error) return toast.error(error.message);
+    toast.success(approve ? "KYC aprovado" : "KYC recusado");
+    qc.invalidateQueries({ queryKey: ["client-kyc-island", userId] });
+    qc.invalidateQueries({ queryKey: ["client-detail", userId] });
+  }
+
+  return (
+    <Card title="KYC & Documentos">
+      {!data?.length ? (
+        <div className="py-4 text-center text-sm text-muted-foreground">Cliente ainda não enviou documentos.</div>
+      ) : (
+        <div className="space-y-2">
+          {data.map((k: any) => (
+            <div key={k.id} className="rounded-md bg-surface-elevated p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{k.full_name || k.doc_type} · {k.doc_number}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(k.created_at).toLocaleString("pt-BR")}</div>
+                </div>
+                <Badge variant="outline" className={
+                  k.status === "approved" ? "border-up/40 text-up" :
+                  k.status === "rejected" ? "border-down/40 text-down" :
+                  "border-warning/40 text-warning"
+                }>{k.status}</Badge>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => openViewer(k)}><Eye className="h-4 w-4 mr-1" /> Ver docs</Button>
+              </div>
+              {k.status === "pending" && (
+                <div className="space-y-2">
+                  <Textarea rows={2} placeholder="Nota (obrigatório para recusar)"
+                    value={notes[k.id] ?? ""} onChange={(e) => setNotes({ ...notes, [k.id]: e.target.value })} />
+                  <div className="flex gap-2">
+                    <Button size="sm" className="bg-up hover:bg-up/90 text-white" onClick={() => review(k.id, true)}>
+                      <Check className="h-4 w-4 mr-1" /> Autorizar
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => review(k.id, false)}>
+                      <X className="h-4 w-4 mr-1" /> Reprovar
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {k.review_notes && k.status !== "pending" && (
+                <div className="text-xs text-muted-foreground border-t border-border pt-2">Nota: {k.review_notes}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={!!viewer} onOpenChange={(o) => !o && setViewer(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader><DialogTitle>Documentos KYC</DialogTitle></DialogHeader>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <div className="mb-2 text-sm font-medium">Documento</div>
+              {viewer?.doc ? <img src={viewer.doc} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
+            </div>
+            <div>
+              <div className="mb-2 text-sm font-medium">Selfie</div>
+              {viewer?.selfie ? <img src={viewer.selfie} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
@@ -219,42 +305,8 @@ function AdminNoteCard({ userId }: { userId: string }) {
   });
 
   return (
-    <Card title="Nota interna do admin" action={<Button size="sm" onClick={() => save.mutate()}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
-      <Textarea rows={4} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Anotações visíveis apenas para admin/agentes..." />
-    </Card>
-  );
-}
-
-/* ---------- Balance adjust ---------- */
-function BalanceAdjustCard({ userId, email }: { userId: string; email: string }) {
-  const [currencyId, setCurrencyId] = useState("");
-  const [delta, setDelta] = useState("");
-  const [reason, setReason] = useState("");
-  const { data: currencies } = useQuery({
-    queryKey: ["currencies"],
-    queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true)).data ?? [],
-  });
-
-  async function submit() {
-    if (!currencyId || !delta) return toast.error("Preencha moeda e valor");
-    const { error } = await supabase.rpc("admin_adjust_balance", {
-      _user_id: userId, _currency_id: currencyId, _delta: Number(delta), _reason: reason || `manual: ${email}`,
-    });
-    if (error) return toast.error(error.message);
-    toast.success("Saldo ajustado"); setDelta(""); setReason("");
-  }
-
-  return (
-    <Card title="Ajustar saldo">
-      <div className="space-y-2">
-        <select value={currencyId} onChange={(e) => setCurrencyId(e.target.value)} className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
-          <option value="">Selecione a moeda...</option>
-          {currencies?.map((c: any) => <option key={c.id} value={c.id}>{c.symbol} — {c.name}</option>)}
-        </select>
-        <Input type="number" step="0.00000001" placeholder="Valor (negativo para debitar)" value={delta} onChange={(e) => setDelta(e.target.value)} />
-        <Input placeholder="Motivo" value={reason} onChange={(e) => setReason(e.target.value)} />
-        <Button className="w-full" onClick={submit}>Confirmar ajuste</Button>
-      </div>
+    <Card title="Nota interna" action={<Button size="sm" onClick={() => save.mutate()}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
+      <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Anotações visíveis apenas para equipe..." />
     </Card>
   );
 }
@@ -270,47 +322,31 @@ function DangerCard({ userId, status, onDone }: { userId: string; status: string
   return (
     <div className="rounded-xl border border-down/40 bg-down/5 p-4">
       <div className="text-sm font-semibold text-down">Zona de perigo</div>
-      <p className="mt-1 text-xs text-muted-foreground">Bloquear impede login e transações. Ação reversível.</p>
-      <Button variant="destructive" size="sm" className="mt-3" onClick={ban} disabled={status === "blocked"}>
+      <Button variant="destructive" size="sm" className="mt-2" onClick={ban} disabled={status === "blocked"}>
         <Ban className="h-4 w-4 mr-1" /> {status === "blocked" ? "Já bloqueado" : "Bloquear conta"}
       </Button>
     </div>
   );
 }
 
-/* ---------- KYC ---------- */
-function KycTab({ userId }: { userId: string }) {
-  const { data } = useQuery({
-    queryKey: ["client-kyc", userId],
-    queryFn: async () => (await supabase.from("kyc_submissions").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
-  });
+/* =============== WALLET TAB =============== */
+function WalletTab({ userId }: { userId: string }) {
   return (
-    <Card title="Submissões KYC">
-      {!data?.length ? <Empty text="Sem submissões." /> : (
-        <div className="space-y-2">
-          {data.map((k: any) => (
-            <div key={k.id} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-sm">
-              <div>
-                <div className="font-medium capitalize">{k.document_type} · {k.status}</div>
-                <div className="text-xs text-muted-foreground">{new Date(k.created_at).toLocaleString("pt-BR")}</div>
-              </div>
-              <Link to="/admin/kyc" className="text-xs text-primary hover:underline">Revisar →</Link>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
+    <div className="space-y-4">
+      <WalletsIsland userId={userId} />
+      <DepositRequestsIsland userId={userId} />
+      <BankAccountsIsland userId={userId} />
+    </div>
   );
 }
 
-/* ---------- Wallet ---------- */
-function WalletTab({ userId }: { userId: string }) {
+function WalletsIsland({ userId }: { userId: string }) {
   const { data } = useQuery({
     queryKey: ["client-wallets", userId],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)").eq("user_id", userId)).data ?? [],
   });
   return (
-    <Card title="Carteiras">
+    <Card title="Saldos">
       {!data?.length ? <Empty text="Nenhuma carteira." /> : (
         <Table>
           <TableHeader><TableRow><TableHead>Moeda</TableHead><TableHead className="text-right">Disponível</TableHead><TableHead className="text-right">Bloqueado</TableHead></TableRow></TableHeader>
@@ -329,16 +365,113 @@ function WalletTab({ userId }: { userId: string }) {
   );
 }
 
-/* ---------- Bank ---------- */
-function BankTab({ userId }: { userId: string }) {
+function DepositRequestsIsland({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["client-deposit-addresses", userId],
+    queryFn: async () => (await supabase.from("deposit_addresses" as any).select("*, currencies(symbol,name,network)").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
+    refetchInterval: 15000,
+  });
+  const [editing, setEditing] = useState<any | null>(null);
+
+  return (
+    <Card title="Solicitações de endereços de depósito">
+      {!data?.length ? (
+        <Empty text="Cliente ainda não solicitou nenhum endereço." />
+      ) : (
+        <div className="space-y-2">
+          {(data as any[]).map((d) => (
+            <div key={d.id} className="rounded-md bg-surface-elevated p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-sm font-medium">{d.currencies?.symbol} · {d.currencies?.name}
+                    {d.currencies?.network && <span className="text-xs text-muted-foreground"> · {d.currencies.network}</span>}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleString("pt-BR")}</div>
+                  {d.status === "ready" && <div className="text-xs font-mono break-all mt-1">{d.address}</div>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={d.status === "ready" ? "default" : "secondary"}>{d.status === "ready" ? "Pronto" : "Pendente"}</Badge>
+                  <Button size="sm" variant="outline" onClick={() => setEditing(d)}>
+                    <Upload className="h-4 w-4 mr-1" /> {d.status === "ready" ? "Atualizar" : "Cadastrar"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {editing && (
+        <DepositEditDialog record={editing} onClose={() => setEditing(null)} onSaved={() => { qc.invalidateQueries({ queryKey: ["client-deposit-addresses", userId] }); setEditing(null); }} />
+      )}
+    </Card>
+  );
+}
+
+function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose: () => void; onSaved: () => void }) {
+  const [address, setAddress] = useState(record.address ?? "");
+  const [network, setNetwork] = useState(record.network ?? record.currencies?.network ?? "");
+  const [memo, setMemo] = useState(record.memo_tag ?? "");
+  const [notes, setNotes] = useState(record.notes ?? "");
+  const [file, setFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!address) return toast.error("Informe o endereço");
+    setSaving(true);
+    try {
+      let qrPath: string | null = record.qr_image_path ?? null;
+      if (file) {
+        const path = `${record.user_id}/${record.id}-${Date.now()}.png`;
+        const up = await supabase.storage.from("deposit-qr").upload(path, file, { upsert: true, contentType: file.type });
+        if (up.error) throw up.error;
+        qrPath = path;
+      }
+      const { error } = await supabase.rpc("admin_set_deposit_address" as any, {
+        _id: record.id, _address: address, _network: network || null,
+        _memo_tag: memo || null, _qr_image_path: qrPath, _notes: notes || null,
+      });
+      if (error) throw error;
+      toast.success("Endereço enviado ao cliente");
+      onSaved();
+    } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Cadastrar endereço · {record.currencies?.symbol}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label>Endereço da carteira</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... / bc1..." /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Rede</Label><Input value={network} onChange={(e) => setNetwork(e.target.value)} placeholder="ERC20, BEP20..." /></div>
+            <div><Label>Memo / Tag (opcional)</Label><Input value={memo} onChange={(e) => setMemo(e.target.value)} /></div>
+          </div>
+          <div>
+            <Label className="flex items-center gap-2"><QrCode className="h-4 w-4" /> QR code (PNG/JPG)</Label>
+            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            {record.qr_image_path && !file && <p className="text-xs text-muted-foreground mt-1">Já existe um QR cadastrado. Envie um novo para substituir.</p>}
+          </div>
+          <div><Label>Observações (opcional)</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={save} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Salvar & notificar"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function BankAccountsIsland({ userId }: { userId: string }) {
   const { data } = useQuery({
     queryKey: ["client-banks", userId],
     queryFn: async () => (await supabase.from("bank_accounts" as any).select("*").eq("user_id", userId)).data as any[] ?? [],
   });
   return (
-    <Card title="Contas bancárias">
+    <Card title="Contas bancárias conectadas">
       <p className="mb-3 text-xs text-muted-foreground">Por segurança, apenas os últimos 4 dígitos são exibidos.</p>
-      {!data?.length ? <Empty text="Nenhuma conta bancária cadastrada." /> : (
+      {!data?.length ? <Empty text="Nenhuma conta bancária conectada." /> : (
         <div className="space-y-2">
           {data.map((b: any) => (
             <div key={b.id} className="rounded-md bg-surface-elevated px-3 py-2 text-sm">
@@ -352,81 +485,230 @@ function BankTab({ userId }: { userId: string }) {
   );
 }
 
-/* ---------- Transactions ---------- */
+/* =============== TRANSACTIONS TAB =============== */
 function TxTab({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const [addOpen, setAddOpen] = useState(false);
+  const [editTx, setEditTx] = useState<any | null>(null);
+  const [filter, setFilter] = useState<string>("all");
+
   const { data } = useQuery({
     queryKey: ["client-tx", userId],
-    queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol)").eq("user_id", userId).order("created_at", { ascending: false }).limit(100)).data ?? [],
+    queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol,name,usd_price)").eq("user_id", userId).order("created_at", { ascending: false }).limit(200)).data ?? [],
+    refetchInterval: 15000,
   });
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    if (filter === "all") return data;
+    if (filter === "pending") return data.filter((t: any) => t.status === "pending");
+    return data.filter((t: any) => t.status === filter);
+  }, [data, filter]);
+
+  function refresh() { qc.invalidateQueries({ queryKey: ["client-tx", userId] }); qc.invalidateQueries({ queryKey: ["client-wallets", userId] }); }
+
   return (
-    <Card title="Últimas 100 transações">
-      {!data?.length ? <Empty text="Sem transações." /> : (
+    <Card
+      title="Histórico de transações"
+      action={<Button size="sm" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1" /> Adicionar transação</Button>}
+    >
+      <div className="flex gap-1 mb-3 flex-wrap">
+        {[
+          ["all", "Todas"], ["pending", "Pendente"], ["completed", "Aprovadas"], ["rejected", "Recusadas"],
+        ].map(([v, l]) => (
+          <button key={v} onClick={() => setFilter(v)}
+            className={`text-xs rounded-md px-3 py-1 border ${filter === v ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>{l}</button>
+        ))}
+      </div>
+      {!filtered.length ? <Empty text="Sem transações." /> : (
         <Table>
-          <TableHeader><TableRow><TableHead>Data</TableHead><TableHead>Tipo</TableHead><TableHead>Moeda</TableHead><TableHead className="text-right">Valor</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow>
+            <TableHead>Data</TableHead><TableHead>Tipo</TableHead><TableHead>Moeda</TableHead>
+            <TableHead className="text-right">Valor</TableHead><TableHead className="text-right">USD</TableHead>
+            <TableHead>Status</TableHead><TableHead></TableHead>
+          </TableRow></TableHeader>
           <TableBody>
-            {data.map((t: any) => (
-              <TableRow key={t.id}>
+            {filtered.map((t: any) => (
+              <TableRow key={t.id} className={t.hidden ? "opacity-50" : ""}>
                 <TableCell className="text-xs">{new Date(t.created_at).toLocaleString("pt-BR")}</TableCell>
                 <TableCell className="capitalize">{t.type}</TableCell>
                 <TableCell>{t.currencies?.symbol}</TableCell>
                 <TableCell className={`text-right tabular-nums ${Number(t.amount) < 0 ? "text-down" : "text-up"}`}>{Number(t.amount).toFixed(8)}</TableCell>
-                <TableCell><Badge variant="outline" className="capitalize">{t.status}</Badge></TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">${Number(t.usd_value ?? (Number(t.currencies?.usd_price ?? 0) * Math.abs(Number(t.amount)))).toFixed(2)}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={
+                    t.status === "completed" ? "border-up/40 text-up" :
+                    t.status === "rejected" ? "border-down/40 text-down" :
+                    "border-warning/40 text-warning"
+                  }>{(t.metadata?.ui_status || t.status)}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button size="icon" variant="ghost" onClick={() => setEditTx(t)}><Pencil className="h-4 w-4" /></Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      {addOpen && <TxDialog userId={userId} onClose={() => setAddOpen(false)} onSaved={() => { setAddOpen(false); refresh(); }} />}
+      {editTx && <TxEditDialog tx={editTx} onClose={() => setEditTx(null)} onSaved={() => { setEditTx(null); refresh(); }} />}
     </Card>
   );
 }
 
-/* ---------- Tickets ---------- */
-function TicketsTab({ userId }: { userId: string }) {
-  const { data } = useQuery({
-    queryKey: ["client-tickets", userId],
-    queryFn: async () => (await supabase.from("support_tickets").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
+const TX_STATUSES: Array<[string, string]> = [
+  ["hold", "Hold"], ["processing", "Processing"], ["approved", "Aprovada"], ["rejected", "Recusada"],
+];
+const TX_TYPES: Array<[string, string]> = [
+  ["deposit", "Depósito"], ["withdrawal", "Saque"], ["adjustment", "Ajuste"], ["transfer", "Transferência"],
+];
+
+function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () => void; onSaved: () => void }) {
+  const { data: currencies } = useQuery({
+    queryKey: ["currencies-active"],
+    queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
   });
+  const [type, setType] = useState<string>("deposit");
+  const [currencyId, setCurrencyId] = useState<string>("");
+  const [amount, setAmount] = useState("");
+  const [status, setStatus] = useState<string>("hold");
+  const [txHash, setTxHash] = useState("");
+  const [sender, setSender] = useState("");
+  const [note, setNote] = useState("");
+  const [hidden, setHidden] = useState(false);
+  const [txDate, setTxDate] = useState<string>(() => {
+    const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16);
+  });
+  const [saving, setSaving] = useState(false);
+
+  const currency = currencies?.find((c: any) => c.id === currencyId);
+  const usd = currency ? (Number(amount || 0) * Number(currency.usd_price ?? 0)) : 0;
+
+  async function submit() {
+    if (!currencyId) return toast.error("Selecione a moeda");
+    if (!amount || Number(amount) <= 0) return toast.error("Informe um valor válido");
+    setSaving(true);
+    const { error } = await supabase.rpc("admin_add_transaction" as any, {
+      _user_id: userId,
+      _type: type,
+      _currency_id: currencyId,
+      _amount: Number(amount),
+      _status: status,
+      _tx_hash: txHash || null,
+      _sender_address: sender || null,
+      _note: note || null,
+      _hidden: hidden,
+      _tx_date: new Date(txDate).toISOString(),
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Transação adicionada");
+    onSaved();
+  }
+
   return (
-    <Card title="Tickets de suporte">
-      {!data?.length ? <Empty text="Nenhum ticket." /> : (
-        <div className="space-y-2">
-          {data.map((t: any) => (
-            <Link key={t.id} to="/admin/tickets/$ticketId" params={{ ticketId: t.id }} className="block rounded-md bg-surface-elevated px-3 py-2 hover:bg-surface transition">
-              <div className="flex items-center justify-between">
-                <div className="font-medium">{t.subject}</div>
-                <Badge variant="outline" className="capitalize">{t.status}</Badge>
-              </div>
-              <div className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("pt-BR")}</div>
-            </Link>
-          ))}
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Adicionar transação</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Tipo">
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{TX_TYPES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+            <Field label="Moeda">
+              <Select value={currencyId} onValueChange={setCurrencyId}>
+                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>{currencies?.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.symbol} — {c.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </Field>
+          </div>
+          <Field label="Data/hora da transação">
+            <Input type="datetime-local" value={txDate} onChange={(e) => setTxDate(e.target.value)} />
+          </Field>
+          <Field label={`Valor (na moeda${currency ? ` — ${currency.symbol}` : ""})`}>
+            <Input type="number" step="0.00000001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            {currency && amount && (
+              <div className="text-xs text-muted-foreground mt-1">≈ ${usd.toFixed(2)} USD (cotação atual: ${Number(currency.usd_price ?? 0).toFixed(2)})</div>
+            )}
+          </Field>
+          <Field label="Transaction ID (hash) — opcional">
+            <Input value={txHash} onChange={(e) => setTxHash(e.target.value)} placeholder="0x..." />
+          </Field>
+          <Field label="Endereço remetente — opcional">
+            <Input value={sender} onChange={(e) => setSender(e.target.value)} />
+          </Field>
+          <Field label="Status">
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Nota para o cliente">
+            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex: depósito confirmado, aguarde compensação..." />
+          </Field>
+          <label className="flex items-center gap-2 text-sm">
+            <Switch checked={hidden} onCheckedChange={setHidden} />
+            Ocultar transação do cliente
+          </label>
         </div>
-      )}
-    </Card>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Adicionar transação"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-/* ---------- Audit logs ---------- */
-function LogsTab({ userId }: { userId: string }) {
-  const { data } = useQuery({
-    queryKey: ["client-logs", userId],
-    queryFn: async () => (await supabase.from("audit_logs").select("*").eq("target_id", userId).order("created_at", { ascending: false }).limit(50)).data ?? [],
-  });
+function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; onSaved: () => void }) {
+  const [status, setStatus] = useState<string>(tx.metadata?.ui_status || tx.status || "hold");
+  const [note, setNote] = useState(tx.note ?? "");
+  const [hidden, setHidden] = useState<boolean>(!!tx.hidden);
+  const [saving, setSaving] = useState(false);
+
+  async function submit() {
+    setSaving(true);
+    const { error } = await supabase.rpc("admin_update_transaction" as any, {
+      _tx_id: tx.id, _status: status, _note: note, _hidden: hidden,
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Transação atualizada"); onSaved();
+  }
+
   return (
-    <Card title="Auditoria (últimas 50 ações)">
-      {!data?.length ? <Empty text="Sem registros." /> : (
-        <div className="space-y-1 text-sm">
-          {data.map((l: any) => (
-            <div key={l.id} className="flex items-start justify-between gap-3 rounded-md bg-surface-elevated px-3 py-2">
-              <div>
-                <div className="font-medium">{l.action}</div>
-                {l.metadata && <div className="text-xs text-muted-foreground font-mono">{JSON.stringify(l.metadata)}</div>}
-              </div>
-              <div className="whitespace-nowrap text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString("pt-BR")}</div>
-            </div>
-          ))}
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Editar transação</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div className="text-xs text-muted-foreground font-mono break-all">ID: {tx.id}</div>
+          <div className="text-sm">
+            <span className="capitalize">{tx.type}</span> · {Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
+          </div>
+          <Field label="Status">
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Nota para o cliente">
+            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
+          </Field>
+          <label className="flex items-center gap-2 text-sm">
+            <Switch checked={hidden} onCheckedChange={setHidden} />
+            Ocultar do cliente
+          </label>
         </div>
-      )}
-    </Card>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> Salvar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
