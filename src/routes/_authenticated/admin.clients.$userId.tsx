@@ -11,9 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2, Check, X, Plus, Upload, QrCode, Eye, Pencil, LifeBuoy, MessageCircle } from "lucide-react";
+import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2, Check, X, Plus, Upload, QrCode, Eye, Pencil, LifeBuoy, MessageCircle, Wallet as WalletIcon, Ticket as TicketIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useServerFn } from "@tanstack/react-start";
+import { getMarketPrices } from "@/lib/prices.functions";
+
+const KPI_PALETTE = ["#f7931a", "#627eea", "#26a17b", "#f0b90b", "#14f195", "#8247e5", "#e84142", "#0033ad"];
 
 export const Route = createFileRoute("/_authenticated/admin/clients/$userId")({
   component: ClientDetail,
@@ -67,6 +72,8 @@ function ClientDetail() {
           </div>
         </div>
       </div>
+
+      <ClientKpiHeader userId={userId} />
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="flex flex-wrap w-full h-auto">
