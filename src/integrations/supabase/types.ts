@@ -44,6 +44,96 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_accounts: {
+        Row: {
+          account_holder: string
+          bank_name: string
+          country: string | null
+          created_at: string
+          iban_masked: string | null
+          id: string
+          last4: string
+          user_id: string
+        }
+        Insert: {
+          account_holder: string
+          bank_name: string
+          country?: string | null
+          created_at?: string
+          iban_masked?: string | null
+          id?: string
+          last4: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string
+          bank_name?: string
+          country?: string | null
+          created_at?: string
+          iban_masked?: string | null
+          id?: string
+          last4?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      client_admin_notes: {
+        Row: {
+          note: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          note?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          note?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      client_permissions: {
+        Row: {
+          allow_buy: boolean
+          allow_deposit: boolean
+          allow_send: boolean
+          allow_stake: boolean
+          allow_swap: boolean
+          allow_withdrawal: boolean
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          allow_buy?: boolean
+          allow_deposit?: boolean
+          allow_send?: boolean
+          allow_stake?: boolean
+          allow_swap?: boolean
+          allow_withdrawal?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          allow_buy?: boolean
+          allow_deposit?: boolean
+          allow_send?: boolean
+          allow_stake?: boolean
+          allow_swap?: boolean
+          allow_withdrawal?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       currencies: {
         Row: {
           active: boolean
@@ -281,34 +371,52 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city: string | null
+          country: string | null
           created_at: string
+          date_of_birth: string | null
           email: string
+          full_address: string | null
           full_name: string | null
           id: string
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           kyc_verified: boolean
+          phone: string | null
+          postal_code: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email: string
+          full_address?: string | null
           full_name?: string | null
           id: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
+          phone?: string | null
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string
+          full_address?: string | null
           full_name?: string | null
           id?: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
+          phone?: string | null
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
         }
@@ -520,6 +628,19 @@ export type Database = {
       admin_set_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      admin_update_profile: {
+        Args: {
+          _city: string
+          _country: string
+          _date_of_birth: string
+          _full_address: string
+          _full_name: string
+          _phone: string
+          _postal_code: string
           _user_id: string
         }
         Returns: undefined
