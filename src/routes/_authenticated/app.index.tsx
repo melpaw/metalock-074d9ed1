@@ -156,8 +156,8 @@ function OverviewPage() {
       {/* Actions: deposit / send / swap / withdraw */}
       <section className="rounded-2xl border border-border bg-surface p-5">
         <div className="mb-4">
-          <h2 className="font-semibold">Ações da carteira</h2>
-          <p className="text-xs text-muted-foreground">Depósito, envio, swap e saque em um só lugar</p>
+          <h2 className="font-semibold">{t("overview.walletActions")}</h2>
+          <p className="text-xs text-muted-foreground">{t("overview.walletActionsSubtitle")}</p>
         </div>
         <WalletActions wallets={wallets ?? []} currencies={currencies ?? []} prices={prices} onDone={refresh} />
       </section>
