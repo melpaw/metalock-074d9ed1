@@ -1,104 +1,170 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getMarketPrices } from "@/lib/prices.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { TrendingUp, Wallet, Layers } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: OverviewPage,
 });
 
+const PALETTE = ["#f7931a", "#627eea", "#26a17b", "#f0b90b", "#14f195", "#8247e5", "#e84142", "#0033ad", "#ff0080", "#00d4ff"];
+
 function OverviewPage() {
+  const { t, i18n } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
+
+  const { data: profile } = useQuery({
+    queryKey: ["me-profile"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("profiles").select("display_currency,full_name").eq("id", u.user.id).maybeSingle();
+      return data;
+    },
+  });
 
   const { data: wallets } = useQuery({
     queryKey: ["my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
   });
-  const { data: investments } = useQuery({
-    queryKey: ["my-investments"],
-    queryFn: async () => (await supabase.from("investments").select("*, plans(name), currencies(symbol)").eq("status", "active")).data ?? [],
-  });
+
+  const cgIds = useMemo(
+    () => Array.from(new Set((wallets ?? []).map((w: any) => w.currencies?.coingecko_id).filter(Boolean))) as string[],
+    [wallets],
+  );
   const { data: pricesRes } = useQuery({
-    queryKey: ["prices-overview"],
-    queryFn: () => pricesFn({ data: { ids: ["bitcoin","ethereum","tether","binancecoin","solana"] } }),
+    queryKey: ["prices-overview", cgIds.join(",")],
+    queryFn: () => pricesFn({ data: { ids: cgIds.length ? cgIds : ["bitcoin"] } }),
+    enabled: cgIds.length > 0,
     refetchInterval: 60000,
   });
-  const prices = pricesRes?.data;
+  const prices = (pricesRes as any)?.data ?? {};
 
-  const totalUsd = wallets?.reduce((sum, w: any) => {
+  const displayCurrency = (profile as any)?.display_currency ?? "USD";
+  const fxUsdToEur = prices["tether"]?.eur ?? 0.92; // rough hint
+  const toDisplay = (usd: number) => displayCurrency === "EUR" ? usd * fxUsdToEur : usd;
+  const fmt = (v: number) => new Intl.NumberFormat(i18n.language, { style: "currency", currency: displayCurrency, maximumFractionDigits: 2 }).format(v);
+
+  const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const price = cg ? (prices as any)?.[cg]?.usd ?? 0 : (w.currencies?.symbol === "USDT" ? 1 : 0);
-    return sum + Number(w.available) * price;
-  }, 0) ?? 0;
+    const priceUsd = cg ? prices[cg]?.usd ?? 0 : w.currencies?.symbol === "USDT" ? 1 : 0;
+    const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
+    const total = Number(w.available) + Number(w.locked);
+    const valueUsd = total * priceUsd;
+    return { ...w, priceUsd, change24, valueUsd, total };
+  }).filter((r: any) => r.total > 0).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
+
+  const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0);
+  const chartData = rows.map((r: any, i: number) => ({
+    name: r.currencies?.symbol ?? "?",
+    value: r.valueUsd,
+    percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
+    color: PALETTE[i % PALETTE.length],
+  }));
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Bem-vindo</h1>
-        <p className="text-sm text-muted-foreground">Visão geral da sua conta</p>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {t("overview.title")}{(profile as any)?.full_name ? `, ${(profile as any).full_name.split(" ")[0]}` : ""}
+        </h1>
+        <p className="text-sm text-muted-foreground">{t("overview.subtitle")}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Kpi icon={<Wallet className="h-5 w-5" />} label="Patrimônio total" value={`$${totalUsd.toLocaleString("en-US",{maximumFractionDigits:2})}`} />
-        <Kpi icon={<Layers className="h-5 w-5" />} label="Moedas em carteira" value={String(wallets?.length ?? 0)} />
-        <Kpi icon={<TrendingUp className="h-5 w-5" />} label="Investimentos ativos" value={String(investments?.length ?? 0)} />
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-surface p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Minhas carteiras</h2>
-            <Link to="/app/wallet" className="text-xs text-primary hover:underline">Ver todas →</Link>
-          </div>
+      {/* Main balance island */}
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated p-6 shadow-lg">
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative grid gap-6 md:grid-cols-[1fr_auto]">
           <div className="space-y-2">
-            {wallets?.slice(0,5).map((w: any) => (
-              <div key={w.id} className="flex items-center justify-between rounded-md border border-border/50 p-3">
-                <div>
-                  <div className="font-medium">{w.currencies?.symbol}</div>
-                  <div className="text-xs text-muted-foreground">{w.currencies?.name}</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("overview.totalBalance")}</div>
+            <div className="text-4xl font-black tabular-nums">{fmt(toDisplay(totalUsd))}</div>
+            <div className="text-xs text-muted-foreground">
+              {t("overview.coinsInWallet", { count: rows.length })}
+            </div>
+            {chartData.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1.5 max-w-md">
+                {chartData.slice(0, 8).map((c) => (
+                  <div key={c.name} className="flex items-center gap-2 text-xs">
+                    <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ background: c.color }} />
+                    <span className="font-medium">{c.name}</span>
+                    <span className="ml-auto tabular-nums text-muted-foreground">{c.percent.toFixed(1)}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full max-w-[220px] justify-self-center">
+            {chartData.length > 0 ? (
+              <div className="relative h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={chartData} dataKey="value" innerRadius={60} outerRadius={95} paddingAngle={2} stroke="none">
+                      {chartData.map((c) => <Cell key={c.name} fill={c.color} />)}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "hsl(var(--surface-elevated))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v: any, _n: any, p: any) => [fmt(toDisplay(Number(v))), p.payload.name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-[10px] uppercase text-muted-foreground">{displayCurrency}</div>
+                  <div className="text-sm font-bold tabular-nums">{Math.round(toDisplay(totalUsd)).toLocaleString(i18n.language)}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid h-[220px] place-items-center rounded-full border-2 border-dashed border-border text-center text-xs text-muted-foreground p-6">
+                <div><Wallet className="mx-auto mb-2 h-8 w-8 opacity-50" />{t("overview.empty")}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* My wallets island */}
+      <section className="rounded-2xl border border-border bg-surface overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="font-semibold">{t("overview.myWallets")}</h2>
+          <Link to="/app/wallet" className="text-xs text-primary hover:underline">{t("overview.seeAll")} →</Link>
+        </div>
+        {rows.length === 0 ? (
+          <div className="p-12 text-center text-sm text-muted-foreground">{t("overview.empty")}</div>
+        ) : (
+          <div className="divide-y divide-border">
+            {rows.slice(0, 8).map((r: any, i: number) => (
+              <div key={r.id} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-3 hover:bg-surface-elevated/50 transition">
+                <div className="grid h-10 w-10 place-items-center rounded-full text-xs font-bold text-white shrink-0"
+                  style={{ background: PALETTE[i % PALETTE.length] }}>
+                  {r.currencies?.symbol?.slice(0, 3)}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold truncate">{r.currencies?.name ?? r.currencies?.symbol}</div>
+                  <div className="text-xs text-muted-foreground tabular-nums">
+                    {Number(r.total).toFixed(6)} {r.currencies?.symbol}
+                  </div>
+                </div>
+                <div className="hidden sm:block text-right">
+                  <div className="text-xs text-muted-foreground">{fmt(toDisplay(r.priceUsd))}</div>
+                  <div className={`text-xs tabular-nums flex items-center justify-end gap-0.5 ${r.change24 >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                    {r.change24 >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {r.change24.toFixed(2)}%
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono">{Number(w.available).toFixed(6)}</div>
-                  {Number(w.locked) > 0 && <div className="text-xs text-warning">bloq: {Number(w.locked).toFixed(6)}</div>}
+                  <div className="font-bold tabular-nums">{fmt(toDisplay(r.valueUsd))}</div>
+                  <div className="text-[10px] text-muted-foreground">{totalUsd ? ((r.valueUsd / totalUsd) * 100).toFixed(1) : 0}%</div>
                 </div>
               </div>
             ))}
-            {wallets?.length === 0 && <div className="text-sm text-muted-foreground text-center py-6">Faça um depósito para começar.</div>}
           </div>
-        </section>
-
-        <section className="rounded-xl border border-border bg-surface p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Investimentos ativos</h2>
-            <Link to="/app/invest" className="text-xs text-primary hover:underline">Novo →</Link>
-          </div>
-          <div className="space-y-2">
-            {investments?.slice(0,5).map((i: any) => (
-              <div key={i.id} className="rounded-md border border-border/50 p-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{i.plans?.name}</span>
-                  <span className="font-mono text-sm">{Number(i.amount).toFixed(4)} {i.currencies?.symbol}</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {i.daily_rate}% ao dia · até {new Date(i.end_date).toLocaleDateString("pt-BR")}
-                </div>
-              </div>
-            ))}
-            {investments?.length === 0 && <div className="text-sm text-muted-foreground text-center py-6">Nenhum investimento ativo.</div>}
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-
-function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon}{label}</div>
-      <div className="mt-2 text-2xl font-bold">{value}</div>
+        )}
+      </section>
     </div>
   );
 }

@@ -1,33 +1,50 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Wallet, Layers, ArrowLeftRight, LifeBuoy, LogOut, Menu, X, ShieldCheck, KeyRound } from "lucide-react";
+import { LayoutDashboard, Wallet, Layers, ArrowLeftRight, LifeBuoy, LogOut, Menu, X, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
 });
 
-const nav = [
-  { to: "/app", label: "Overview", icon: LayoutDashboard, exact: true },
-  { to: "/app/wallet", label: "Carteira", icon: Wallet },
-  { to: "/app/invest", label: "Planos", icon: Layers },
-  { to: "/app/transactions", label: "Extrato", icon: ArrowLeftRight },
-  { to: "/app/kyc", label: "Verificação (KYC)", icon: ShieldCheck },
-  { to: "/app/security", label: "Segurança (2FA)", icon: KeyRound },
-  { to: "/app/support", label: "Suporte", icon: LifeBuoy },
-];
-
 function AppLayout() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [me, setMe] = useState<{ name: string; email: string; avatar_url: string | null } | null>(null);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      const { data: p } = await supabase.from("profiles")
+        .select("full_name,email,avatar_url,locale")
+        .eq("id", data.user.id).maybeSingle();
+      if (p) {
+        setMe({ name: (p as any).full_name || (p as any).email, email: (p as any).email, avatar_url: (p as any).avatar_url });
+        if ((p as any).locale && (p as any).locale !== i18n.language.slice(0, 2)) i18n.changeLanguage((p as any).locale);
+      }
+    });
+  }, [i18n]);
+
+  const nav = [
+    { to: "/app", label: t("nav.overview"), icon: LayoutDashboard, exact: true },
+    { to: "/app/wallet", label: t("nav.wallet"), icon: Wallet },
+    { to: "/app/invest", label: t("nav.plans"), icon: Layers },
+    { to: "/app/transactions", label: t("nav.transactions"), icon: ArrowLeftRight },
+    { to: "/app/support", label: t("nav.support"), icon: LifeBuoy },
+  ];
 
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
+
+  const initials = (me?.name || me?.email || "U").slice(0, 2).toUpperCase();
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -36,9 +53,22 @@ function AppLayout() {
           <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary font-black text-primary-foreground">C</div>
           <div>
             <div className="text-sm font-bold leading-tight">CryptoVault</div>
-            <div className="text-[10px] uppercase tracking-widest text-primary">Cliente</div>
+            <div className="text-[10px] uppercase tracking-widest text-primary">{t("nav.clientArea")}</div>
           </div>
         </div>
+
+        <Link to="/app/profile" onClick={() => setOpen(false)}
+          className={`mx-3 mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition hover:bg-surface-elevated ${pathname.startsWith("/app/profile") ? "ring-1 ring-primary" : ""}`}>
+          {me?.avatar_url
+            ? <img src={me.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+            : <div className="grid h-10 w-10 place-items-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">{initials}</div>}
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold">{me?.name ?? "..."}</div>
+            <div className="truncate text-[11px] text-muted-foreground">{t("nav.profile")}</div>
+          </div>
+          <UserRound className="h-4 w-4 text-muted-foreground" />
+        </Link>
+
         <nav className="p-3 space-y-1">
           {nav.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -54,7 +84,7 @@ function AppLayout() {
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-3">
           <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+            <LogOut className="mr-2 h-4 w-4" /> {t("common.logout")}
           </Button>
         </div>
       </aside>
@@ -64,8 +94,11 @@ function AppLayout() {
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="text-sm text-muted-foreground hidden lg:block">Área do cliente</div>
-          <NotificationBell />
+          <div className="text-sm text-muted-foreground hidden lg:block">{t("nav.clientArea")}</div>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <NotificationBell />
+          </div>
         </header>
         <main className="flex-1 p-6"><Outlet /></main>
       </div>

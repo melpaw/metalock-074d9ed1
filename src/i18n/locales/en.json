@@ -1,0 +1,90 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "back": "Back",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "logout": "Log out",
+    "search": "Search",
+    "yes": "Yes",
+    "no": "No",
+    "language": "Language",
+    "currency": "Currency",
+    "status": "Status",
+    "actions": "Actions",
+    "close": "Close",
+    "open": "Open",
+    "send": "Send",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "overview": "Overview",
+    "wallet": "Wallet",
+    "plans": "Plans",
+    "transactions": "Transactions",
+    "support": "Support",
+    "profile": "Profile",
+    "clientArea": "Client area",
+    "adminArea": "Admin area"
+  },
+  "overview": {
+    "title": "Welcome",
+    "subtitle": "Account overview",
+    "totalBalance": "Total balance",
+    "allocation": "Portfolio allocation",
+    "coinsInWallet": "{{count}} coin in wallet",
+    "coinsInWallet_plural": "{{count}} coins in wallet",
+    "activeInvestments": "Active investments",
+    "myWallets": "My wallets",
+    "seeAll": "See all",
+    "empty": "Make a deposit to get started.",
+    "noInvestments": "No active investments.",
+    "change24h": "24h change",
+    "value": "Value",
+    "amount": "Amount"
+  },
+  "profile": {
+    "title": "My profile",
+    "subtitle": "Your information, security and verification",
+    "tabs": { "info": "Information", "security": "Security", "kyc": "KYC & Documents" },
+    "info": {
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "dob": "Date of birth",
+      "country": "Country",
+      "city": "City",
+      "postal": "Postal code",
+      "address": "Full address",
+      "language": "Language",
+      "displayCurrency": "Display currency",
+      "saved": "Profile updated"
+    },
+    "security": {
+      "title": "Account security",
+      "changePassword": "Change password",
+      "twofa": "Two-factor authentication (2FA)",
+      "twofaActive": "2FA active",
+      "twofaInactive": "2FA inactive",
+      "enable": "Enable 2FA",
+      "remove": "Remove 2FA"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Talk to our team",
+    "newTicket": "New ticket",
+    "empty": "No tickets yet. Open a new one to start.",
+    "subject": "Subject",
+    "category": "Category",
+    "priority": "Priority",
+    "message": "Message",
+    "typeMessage": "Write your message...",
+    "internalNote": "Internal note (team only)",
+    "displayName": "Name shown to client"
+  }
+}

@@ -432,12 +432,14 @@ export type Database = {
           country: string | null
           created_at: string
           date_of_birth: string | null
+          display_currency: string
           email: string
           full_address: string | null
           full_name: string | null
           id: string
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           kyc_verified: boolean
+          locale: string
           phone: string | null
           postal_code: string | null
           status: Database["public"]["Enums"]["account_status"]
@@ -450,12 +452,14 @@ export type Database = {
           country?: string | null
           created_at?: string
           date_of_birth?: string | null
+          display_currency?: string
           email: string
           full_address?: string | null
           full_name?: string | null
           id: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
+          locale?: string
           phone?: string | null
           postal_code?: string | null
           status?: Database["public"]["Enums"]["account_status"]
@@ -468,12 +472,14 @@ export type Database = {
           country?: string | null
           created_at?: string
           date_of_birth?: string | null
+          display_currency?: string
           email?: string
           full_address?: string | null
           full_name?: string | null
           id?: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           kyc_verified?: boolean
+          locale?: string
           phone?: string | null
           postal_code?: string | null
           status?: Database["public"]["Enums"]["account_status"]

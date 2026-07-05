@@ -23,8 +23,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppWalletRouteImport } from './routes/_authenticated/app.wallet'
 import { Route as AuthenticatedAppTransactionsRouteImport } from './routes/_authenticated/app.transactions'
 import { Route as AuthenticatedAppSupportRouteImport } from './routes/_authenticated/app.support'
-import { Route as AuthenticatedAppSecurityRouteImport } from './routes/_authenticated/app.security'
-import { Route as AuthenticatedAppKycRouteImport } from './routes/_authenticated/app.kyc'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
 import { Route as AuthenticatedAppInvestRouteImport } from './routes/_authenticated/app.invest'
 import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin.tickets'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin.team'
@@ -110,15 +109,9 @@ const AuthenticatedAppSupportRoute = AuthenticatedAppSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppSecurityRoute =
-  AuthenticatedAppSecurityRouteImport.update({
-    id: '/security',
-    path: '/security',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKycRoute = AuthenticatedAppKycRouteImport.update({
-  id: '/kyc',
-  path: '/kyc',
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppInvestRoute = AuthenticatedAppInvestRouteImport.update({
@@ -218,8 +211,7 @@ export interface FileRoutesByFullPath {
   '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/app/invest': typeof AuthenticatedAppInvestRoute
-  '/app/kyc': typeof AuthenticatedAppKycRoute
-  '/app/security': typeof AuthenticatedAppSecurityRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -246,8 +238,7 @@ export interface FileRoutesByTo {
   '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/app/invest': typeof AuthenticatedAppInvestRoute
-  '/app/kyc': typeof AuthenticatedAppKycRoute
-  '/app/security': typeof AuthenticatedAppSecurityRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -279,8 +270,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
   '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
   '/_authenticated/app/invest': typeof AuthenticatedAppInvestRoute
-  '/_authenticated/app/kyc': typeof AuthenticatedAppKycRoute
-  '/_authenticated/app/security': typeof AuthenticatedAppSecurityRoute
+  '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/_authenticated/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/_authenticated/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -312,8 +302,7 @@ export interface FileRouteTypes {
     | '/admin/team'
     | '/admin/tickets'
     | '/app/invest'
-    | '/app/kyc'
-    | '/app/security'
+    | '/app/profile'
     | '/app/support'
     | '/app/transactions'
     | '/app/wallet'
@@ -340,8 +329,7 @@ export interface FileRouteTypes {
     | '/admin/team'
     | '/admin/tickets'
     | '/app/invest'
-    | '/app/kyc'
-    | '/app/security'
+    | '/app/profile'
     | '/app/support'
     | '/app/transactions'
     | '/app/wallet'
@@ -372,8 +360,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/team'
     | '/_authenticated/admin/tickets'
     | '/_authenticated/app/invest'
-    | '/_authenticated/app/kyc'
-    | '/_authenticated/app/security'
+    | '/_authenticated/app/profile'
     | '/_authenticated/app/support'
     | '/_authenticated/app/transactions'
     | '/_authenticated/app/wallet'
@@ -494,18 +481,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSupportRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/security': {
-      id: '/_authenticated/app/security'
-      path: '/security'
-      fullPath: '/app/security'
-      preLoaderRoute: typeof AuthenticatedAppSecurityRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/kyc': {
-      id: '/_authenticated/app/kyc'
-      path: '/kyc'
-      fullPath: '/app/kyc'
-      preLoaderRoute: typeof AuthenticatedAppKycRouteImport
+    '/_authenticated/app/profile': {
+      id: '/_authenticated/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/invest': {
@@ -685,8 +665,7 @@ const AuthenticatedAppSupportRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppInvestRoute: typeof AuthenticatedAppInvestRoute
-  AuthenticatedAppKycRoute: typeof AuthenticatedAppKycRoute
-  AuthenticatedAppSecurityRoute: typeof AuthenticatedAppSecurityRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppSupportRoute: typeof AuthenticatedAppSupportRouteWithChildren
   AuthenticatedAppTransactionsRoute: typeof AuthenticatedAppTransactionsRoute
   AuthenticatedAppWalletRoute: typeof AuthenticatedAppWalletRoute
@@ -695,8 +674,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppInvestRoute: AuthenticatedAppInvestRoute,
-  AuthenticatedAppKycRoute: AuthenticatedAppKycRoute,
-  AuthenticatedAppSecurityRoute: AuthenticatedAppSecurityRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppSupportRoute: AuthenticatedAppSupportRouteWithChildren,
   AuthenticatedAppTransactionsRoute: AuthenticatedAppTransactionsRoute,
   AuthenticatedAppWalletRoute: AuthenticatedAppWalletRoute,
