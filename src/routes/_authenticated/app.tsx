@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Wallet, TrendingUp, ArrowLeftRight, LifeBuoy, LogOut, Menu, X, ShieldCheck, KeyRound } from "lucide-react";
+import { LayoutDashboard, Wallet, Layers, ArrowLeftRight, LifeBuoy, LogOut, Menu, X, ShieldCheck, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/app")({
 const nav = [
   { to: "/app", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/app/wallet", label: "Carteira", icon: Wallet },
-  { to: "/app/invest", label: "Investir", icon: TrendingUp },
+  { to: "/app/invest", label: "Planos", icon: Layers },
   { to: "/app/transactions", label: "Extrato", icon: ArrowLeftRight },
   { to: "/app/kyc", label: "Verificação (KYC)", icon: ShieldCheck },
   { to: "/app/security", label: "Segurança (2FA)", icon: KeyRound },
