@@ -32,8 +32,8 @@ import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminKycRouteImport } from './routes/_authenticated/admin.kyc'
 import { Route as AuthenticatedAdminDepositsRouteImport } from './routes/_authenticated/admin.deposits'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
-import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
 import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
+import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
 import { Route as AuthenticatedAppSupportTicketIdRouteImport } from './routes/_authenticated/app.support.$ticketId'
 import { Route as AuthenticatedAgentTicketsTicketIdRouteImport } from './routes/_authenticated/agent.tickets.$ticketId'
 import { Route as AuthenticatedAdminTicketsTicketIdRouteImport } from './routes/_authenticated/admin.tickets.$ticketId'
@@ -158,16 +158,16 @@ const AuthenticatedAdminCurrenciesRoute =
     path: '/currencies',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminClientsRoute =
-  AuthenticatedAdminClientsRouteImport.update({
-    id: '/clients',
-    path: '/clients',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminApprovalsRoute =
   AuthenticatedAdminApprovalsRouteImport.update({
     id: '/approvals',
     path: '/approvals',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientsIndexRoute =
+  AuthenticatedAdminClientsIndexRouteImport.update({
+    id: '/clients/',
+    path: '/clients/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAppSupportTicketIdRoute =
@@ -190,9 +190,9 @@ const AuthenticatedAdminTicketsTicketIdRoute =
   } as any)
 const AuthenticatedAdminClientsUserIdRoute =
   AuthenticatedAdminClientsUserIdRouteImport.update({
-    id: '/$userId',
-    path: '/$userId',
-    getParentRoute: () => AuthenticatedAdminClientsRoute,
+    id: '/clients/$userId',
+    path: '/clients/$userId',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -203,7 +203,6 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
-  '/admin/clients': typeof AuthenticatedAdminClientsRouteWithChildren
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/deposits': typeof AuthenticatedAdminDepositsRoute
   '/admin/kyc': typeof AuthenticatedAdminKycRoute
@@ -224,13 +223,13 @@ export interface FileRoutesByFullPath {
   '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
   '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
-  '/admin/clients': typeof AuthenticatedAdminClientsRouteWithChildren
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/deposits': typeof AuthenticatedAdminDepositsRoute
   '/admin/kyc': typeof AuthenticatedAdminKycRoute
@@ -251,6 +250,7 @@ export interface FileRoutesByTo {
   '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
   '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -262,7 +262,6 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
-  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRouteWithChildren
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/_authenticated/admin/deposits': typeof AuthenticatedAdminDepositsRoute
   '/_authenticated/admin/kyc': typeof AuthenticatedAdminKycRoute
@@ -283,6 +282,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/_authenticated/agent/tickets/$ticketId': typeof AuthenticatedAgentTicketsTicketIdRoute
   '/_authenticated/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -294,7 +294,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/dashboard'
     | '/admin/approvals'
-    | '/admin/clients'
     | '/admin/currencies'
     | '/admin/deposits'
     | '/admin/kyc'
@@ -315,13 +314,13 @@ export interface FileRouteTypes {
     | '/admin/tickets/$ticketId'
     | '/agent/tickets/$ticketId'
     | '/app/support/$ticketId'
+    | '/admin/clients/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
     | '/admin/approvals'
-    | '/admin/clients'
     | '/admin/currencies'
     | '/admin/deposits'
     | '/admin/kyc'
@@ -342,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/tickets/$ticketId'
     | '/agent/tickets/$ticketId'
     | '/app/support/$ticketId'
+    | '/admin/clients'
   id:
     | '__root__'
     | '/'
@@ -352,7 +352,6 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/dashboard'
     | '/_authenticated/admin/approvals'
-    | '/_authenticated/admin/clients'
     | '/_authenticated/admin/currencies'
     | '/_authenticated/admin/deposits'
     | '/_authenticated/admin/kyc'
@@ -373,6 +372,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/tickets/$ticketId'
     | '/_authenticated/agent/tickets/$ticketId'
     | '/_authenticated/app/support/$ticketId'
+    | '/_authenticated/admin/clients/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -544,18 +544,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/clients': {
-      id: '/_authenticated/admin/clients'
-      path: '/clients'
-      fullPath: '/admin/clients'
-      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/approvals': {
       id: '/_authenticated/admin/approvals'
       path: '/approvals'
       fullPath: '/admin/approvals'
       preLoaderRoute: typeof AuthenticatedAdminApprovalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clients/': {
+      id: '/_authenticated/admin/clients/'
+      path: '/clients'
+      fullPath: '/admin/clients/'
+      preLoaderRoute: typeof AuthenticatedAdminClientsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/app/support/$ticketId': {
@@ -581,27 +581,13 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/clients/$userId': {
       id: '/_authenticated/admin/clients/$userId'
-      path: '/$userId'
+      path: '/clients/$userId'
       fullPath: '/admin/clients/$userId'
       preLoaderRoute: typeof AuthenticatedAdminClientsUserIdRouteImport
-      parentRoute: typeof AuthenticatedAdminClientsRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
   }
 }
-
-interface AuthenticatedAdminClientsRouteChildren {
-  AuthenticatedAdminClientsUserIdRoute: typeof AuthenticatedAdminClientsUserIdRoute
-}
-
-const AuthenticatedAdminClientsRouteChildren: AuthenticatedAdminClientsRouteChildren =
-  {
-    AuthenticatedAdminClientsUserIdRoute: AuthenticatedAdminClientsUserIdRoute,
-  }
-
-const AuthenticatedAdminClientsRouteWithChildren =
-  AuthenticatedAdminClientsRoute._addFileChildren(
-    AuthenticatedAdminClientsRouteChildren,
-  )
 
 interface AuthenticatedAdminTicketsRouteChildren {
   AuthenticatedAdminTicketsTicketIdRoute: typeof AuthenticatedAdminTicketsTicketIdRoute
@@ -620,7 +606,6 @@ const AuthenticatedAdminTicketsRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
-  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRouteWithChildren
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
   AuthenticatedAdminDepositsRoute: typeof AuthenticatedAdminDepositsRoute
   AuthenticatedAdminKycRoute: typeof AuthenticatedAdminKycRoute
@@ -629,11 +614,12 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
   AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRouteWithChildren
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminClientsUserIdRoute: typeof AuthenticatedAdminClientsUserIdRoute
+  AuthenticatedAdminClientsIndexRoute: typeof AuthenticatedAdminClientsIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
-  AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRouteWithChildren,
   AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
   AuthenticatedAdminDepositsRoute: AuthenticatedAdminDepositsRoute,
   AuthenticatedAdminKycRoute: AuthenticatedAdminKycRoute,
@@ -642,6 +628,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
   AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRouteWithChildren,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminClientsUserIdRoute: AuthenticatedAdminClientsUserIdRoute,
+  AuthenticatedAdminClientsIndexRoute: AuthenticatedAdminClientsIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
