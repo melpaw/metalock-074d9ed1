@@ -22,6 +22,8 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppWalletRouteImport } from './routes/_authenticated/app.wallet'
 import { Route as AuthenticatedAppTransactionsRouteImport } from './routes/_authenticated/app.transactions'
 import { Route as AuthenticatedAppSupportRouteImport } from './routes/_authenticated/app.support'
+import { Route as AuthenticatedAppSecurityRouteImport } from './routes/_authenticated/app.security'
+import { Route as AuthenticatedAppKycRouteImport } from './routes/_authenticated/app.kyc'
 import { Route as AuthenticatedAppInvestRouteImport } from './routes/_authenticated/app.invest'
 import { Route as AuthenticatedAgentUsersRouteImport } from './routes/_authenticated/agent.users'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -29,6 +31,7 @@ import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin.team'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
+import { Route as AuthenticatedAdminKycRouteImport } from './routes/_authenticated/admin.kyc'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
 import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
 import { Route as AuthenticatedAppSupportTicketIdRouteImport } from './routes/_authenticated/app.support.$ticketId'
@@ -100,6 +103,17 @@ const AuthenticatedAppSupportRoute = AuthenticatedAppSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSecurityRoute =
+  AuthenticatedAppSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppKycRoute = AuthenticatedAppKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppInvestRoute = AuthenticatedAppInvestRouteImport.update({
   id: '/invest',
   path: '/invest',
@@ -134,6 +148,11 @@ const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
 const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminKycRoute = AuthenticatedAdminKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminCurrenciesRoute =
@@ -176,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/team': typeof AuthenticatedAdminTeamRoute
@@ -183,6 +203,8 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/agent/users': typeof AuthenticatedAgentUsersRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/kyc': typeof AuthenticatedAppKycRoute
+  '/app/security': typeof AuthenticatedAppSecurityRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -199,6 +221,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/team': typeof AuthenticatedAdminTeamRoute
@@ -206,6 +229,8 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/agent/users': typeof AuthenticatedAgentUsersRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/kyc': typeof AuthenticatedAppKycRoute
+  '/app/security': typeof AuthenticatedAppSecurityRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -227,6 +252,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/_authenticated/admin/kyc': typeof AuthenticatedAdminKycRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
@@ -234,6 +260,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/agent/users': typeof AuthenticatedAgentUsersRoute
   '/_authenticated/app/invest': typeof AuthenticatedAppInvestRoute
+  '/_authenticated/app/kyc': typeof AuthenticatedAppKycRoute
+  '/_authenticated/app/security': typeof AuthenticatedAppSecurityRoute
   '/_authenticated/app/support': typeof AuthenticatedAppSupportRouteWithChildren
   '/_authenticated/app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/_authenticated/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -255,6 +283,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/admin/approvals'
     | '/admin/currencies'
+    | '/admin/kyc'
     | '/admin/logs'
     | '/admin/plans'
     | '/admin/team'
@@ -262,6 +291,8 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/agent/users'
     | '/app/invest'
+    | '/app/kyc'
+    | '/app/security'
     | '/app/support'
     | '/app/transactions'
     | '/app/wallet'
@@ -278,6 +309,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/admin/approvals'
     | '/admin/currencies'
+    | '/admin/kyc'
     | '/admin/logs'
     | '/admin/plans'
     | '/admin/team'
@@ -285,6 +317,8 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/agent/users'
     | '/app/invest'
+    | '/app/kyc'
+    | '/app/security'
     | '/app/support'
     | '/app/transactions'
     | '/app/wallet'
@@ -305,6 +339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/admin/approvals'
     | '/_authenticated/admin/currencies'
+    | '/_authenticated/admin/kyc'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/team'
@@ -312,6 +347,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/agent/users'
     | '/_authenticated/app/invest'
+    | '/_authenticated/app/kyc'
+    | '/_authenticated/app/security'
     | '/_authenticated/app/support'
     | '/_authenticated/app/transactions'
     | '/_authenticated/app/wallet'
@@ -422,6 +459,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSupportRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/security': {
+      id: '/_authenticated/app/security'
+      path: '/security'
+      fullPath: '/app/security'
+      preLoaderRoute: typeof AuthenticatedAppSecurityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/kyc': {
+      id: '/_authenticated/app/kyc'
+      path: '/kyc'
+      fullPath: '/app/kyc'
+      preLoaderRoute: typeof AuthenticatedAppKycRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/invest': {
       id: '/_authenticated/app/invest'
       path: '/invest'
@@ -469,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/admin/logs'
       preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/kyc': {
+      id: '/_authenticated/admin/kyc'
+      path: '/kyc'
+      fullPath: '/admin/kyc'
+      preLoaderRoute: typeof AuthenticatedAdminKycRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/currencies': {
@@ -527,6 +585,7 @@ const AuthenticatedAdminTicketsRouteWithChildren =
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
+  AuthenticatedAdminKycRoute: typeof AuthenticatedAdminKycRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
@@ -538,6 +597,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
   AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
+  AuthenticatedAdminKycRoute: AuthenticatedAdminKycRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
@@ -581,6 +641,8 @@ const AuthenticatedAppSupportRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppInvestRoute: typeof AuthenticatedAppInvestRoute
+  AuthenticatedAppKycRoute: typeof AuthenticatedAppKycRoute
+  AuthenticatedAppSecurityRoute: typeof AuthenticatedAppSecurityRoute
   AuthenticatedAppSupportRoute: typeof AuthenticatedAppSupportRouteWithChildren
   AuthenticatedAppTransactionsRoute: typeof AuthenticatedAppTransactionsRoute
   AuthenticatedAppWalletRoute: typeof AuthenticatedAppWalletRoute
@@ -589,6 +651,8 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppInvestRoute: AuthenticatedAppInvestRoute,
+  AuthenticatedAppKycRoute: AuthenticatedAppKycRoute,
+  AuthenticatedAppSecurityRoute: AuthenticatedAppSecurityRoute,
   AuthenticatedAppSupportRoute: AuthenticatedAppSupportRouteWithChildren,
   AuthenticatedAppTransactionsRoute: AuthenticatedAppTransactionsRoute,
   AuthenticatedAppWalletRoute: AuthenticatedAppWalletRoute,
