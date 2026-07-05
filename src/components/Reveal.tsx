@@ -2,20 +2,18 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
  * Lightweight scroll-reveal wrapper — fades + translates content in when it
- * enters the viewport. Uses IntersectionObserver (no library), animates once.
+ * enters the viewport. IntersectionObserver, animates once, no deps.
  */
 export function Reveal({
   children,
   delay = 0,
   className = "",
-  as: Tag = "div",
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
-  as?: keyof React.JSX.IntrinsicElements;
 }) {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -37,8 +35,7 @@ export function Reveal({
   }, [shown]);
 
   return (
-    // @ts-expect-error dynamic tag
-    <Tag
+    <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
       className={`transition-all duration-700 ease-out will-change-transform ${
@@ -46,6 +43,6 @@ export function Reveal({
       } ${className}`}
     >
       {children}
-    </Tag>
+    </div>
   );
 }
