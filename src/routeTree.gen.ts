@@ -25,8 +25,6 @@ import { Route as AuthenticatedAppSupportRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppSecurityRouteImport } from './routes/_authenticated/app.security'
 import { Route as AuthenticatedAppKycRouteImport } from './routes/_authenticated/app.kyc'
 import { Route as AuthenticatedAppInvestRouteImport } from './routes/_authenticated/app.invest'
-import { Route as AuthenticatedAgentUsersRouteImport } from './routes/_authenticated/agent.users'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin.tickets'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin.team'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
@@ -121,16 +119,6 @@ const AuthenticatedAppInvestRoute = AuthenticatedAppInvestRouteImport.update({
   path: '/invest',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAgentUsersRoute = AuthenticatedAgentUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAgentRoute,
-} as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const AuthenticatedAdminTicketsRoute =
   AuthenticatedAdminTicketsRouteImport.update({
     id: '/tickets',
@@ -215,8 +203,6 @@ export interface FileRoutesByFullPath {
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/agent/users': typeof AuthenticatedAgentUsersRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
   '/app/kyc': typeof AuthenticatedAppKycRoute
   '/app/security': typeof AuthenticatedAppSecurityRoute
@@ -243,8 +229,6 @@ export interface FileRoutesByTo {
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/agent/users': typeof AuthenticatedAgentUsersRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
   '/app/kyc': typeof AuthenticatedAppKycRoute
   '/app/security': typeof AuthenticatedAppSecurityRoute
@@ -276,8 +260,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
   '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRouteWithChildren
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/agent/users': typeof AuthenticatedAgentUsersRoute
   '/_authenticated/app/invest': typeof AuthenticatedAppInvestRoute
   '/_authenticated/app/kyc': typeof AuthenticatedAppKycRoute
   '/_authenticated/app/security': typeof AuthenticatedAppSecurityRoute
@@ -309,8 +291,6 @@ export interface FileRouteTypes {
     | '/admin/plans'
     | '/admin/team'
     | '/admin/tickets'
-    | '/admin/users'
-    | '/agent/users'
     | '/app/invest'
     | '/app/kyc'
     | '/app/security'
@@ -337,8 +317,6 @@ export interface FileRouteTypes {
     | '/admin/plans'
     | '/admin/team'
     | '/admin/tickets'
-    | '/admin/users'
-    | '/agent/users'
     | '/app/invest'
     | '/app/kyc'
     | '/app/security'
@@ -369,8 +347,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/team'
     | '/_authenticated/admin/tickets'
-    | '/_authenticated/admin/users'
-    | '/_authenticated/agent/users'
     | '/_authenticated/app/invest'
     | '/_authenticated/app/kyc'
     | '/_authenticated/app/security'
@@ -506,20 +482,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppInvestRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/agent/users': {
-      id: '/_authenticated/agent/users'
-      path: '/users'
-      fullPath: '/agent/users'
-      preLoaderRoute: typeof AuthenticatedAgentUsersRouteImport
-      parentRoute: typeof AuthenticatedAgentRoute
-    }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/tickets': {
       id: '/_authenticated/admin/tickets'
       path: '/tickets'
@@ -645,7 +607,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
   AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRouteWithChildren
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -658,7 +619,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
   AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRouteWithChildren,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -666,13 +626,11 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedAgentRouteChildren {
-  AuthenticatedAgentUsersRoute: typeof AuthenticatedAgentUsersRoute
   AuthenticatedAgentIndexRoute: typeof AuthenticatedAgentIndexRoute
   AuthenticatedAgentTicketsTicketIdRoute: typeof AuthenticatedAgentTicketsTicketIdRoute
 }
 
 const AuthenticatedAgentRouteChildren: AuthenticatedAgentRouteChildren = {
-  AuthenticatedAgentUsersRoute: AuthenticatedAgentUsersRoute,
   AuthenticatedAgentIndexRoute: AuthenticatedAgentIndexRoute,
   AuthenticatedAgentTicketsTicketIdRoute:
     AuthenticatedAgentTicketsTicketIdRoute,
