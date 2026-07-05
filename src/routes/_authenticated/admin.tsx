@@ -98,7 +98,10 @@ function AdminLayout() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="text-sm text-muted-foreground hidden lg:block">Painel administrativo</div>
-          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+          </div>
         </header>
         <main className="flex-1 p-6">
           <Outlet />
