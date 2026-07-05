@@ -64,8 +64,8 @@ function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Visão geral</h1>
-        <p className="text-sm text-muted-foreground">Métricas em tempo real da plataforma.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("admin.dashboard")}</h1>
+        <p className="text-sm text-muted-foreground">{t("admin.dashboardSubtitle")}</p>
       </div>
 
       {/* Compact KPI row */}
@@ -73,41 +73,39 @@ function AdminDashboard() {
         <Link to="/admin/clients" className="block group">
           <div className="rounded-xl border border-border bg-surface p-5 transition group-hover:border-primary group-hover:bg-surface-elevated">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Clientes</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("admin.clients")}</span>
               <UserCircle2 className="h-4 w-4 text-primary" />
             </div>
             <div className="mt-3 text-3xl font-bold tabular-nums">{kpis?.totalClients ?? "—"}</div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {kpis?.activeUsers ?? 0} usuários ativos · clique para gerenciar →
-            </div>
+            <div className="mt-1 text-xs text-muted-foreground">{t("admin.clientsHint", { active: kpis?.activeUsers ?? 0 })}</div>
           </div>
         </Link>
         <Link to="/admin/tickets" className="block group">
           <div className="rounded-xl border border-border bg-surface p-5 transition group-hover:border-primary group-hover:bg-surface-elevated">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Suporte</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("admin.support")}</span>
               <Headphones className="h-4 w-4 text-primary" />
             </div>
             <div className="mt-3 text-3xl font-bold tabular-nums">{kpis?.openTickets ?? "—"}</div>
-            <div className="mt-1 text-xs text-muted-foreground">Tickets abertos ou pendentes</div>
+            <div className="mt-1 text-xs text-muted-foreground">{t("admin.supportHint")}</div>
           </div>
         </Link>
         <div className="rounded-xl border border-border bg-surface p-5">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Novos (7d)</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">{t("admin.newSignups")}</span>
             <UserCircle2 className="h-4 w-4 text-primary" />
           </div>
           <div className="mt-3 text-3xl font-bold tabular-nums">
             {kpis?.newSignups7d?.reduce((s: number, d: any) => s + d.count, 0) ?? "—"}
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">Cadastros da última semana</div>
+          <div className="mt-1 text-xs text-muted-foreground">{t("admin.newSignupsHint")}</div>
         </div>
       </div>
 
       {/* Chart + market */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border border-border bg-surface p-6">
-          <h3 className="text-sm font-semibold text-muted-foreground">Novos cadastros (7 dias)</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{t("admin.signups7d")}</h3>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={kpis?.newSignups7d ?? []}>
@@ -124,7 +122,7 @@ function AdminDashboard() {
         <div className="rounded-xl border border-border bg-surface p-6">
           <div className="flex items-center gap-2">
             <CoinsIcon className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold">Mercado ao vivo</h3>
+            <h3 className="text-sm font-semibold">{t("admin.liveMarket")}</h3>
           </div>
           <div className="mt-4 space-y-2">
             {prices?.data ? (
@@ -140,7 +138,7 @@ function AdminDashboard() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">Carregando...</p>
+              <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
             )}
           </div>
         </div>
@@ -150,18 +148,18 @@ function AdminDashboard() {
       <section className="rounded-xl border border-border bg-surface overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
           <div>
-            <h2 className="font-semibold">Clientes</h2>
-            <p className="text-xs text-muted-foreground">{clients?.length ?? 0} cadastrados · clique em um cliente para gerenciar</p>
+            <h2 className="font-semibold">{t("admin.clients")}</h2>
+            <p className="text-xs text-muted-foreground">{clients?.length ?? 0} · {t("admin.clientsHint", { active: kpis?.activeUsers ?? 0 })}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Input placeholder="Buscar por email ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
-            <Link to="/admin/clients" className="text-xs text-primary hover:underline">Ver todos →</Link>
+            <Input placeholder={t("admin.searchClient")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+            <Link to="/admin/clients" className="text-xs text-primary hover:underline">{t("admin.seeAllClients")}</Link>
           </div>
         </div>
         {!clients ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">{t("common.loading")}</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">Nenhum cliente encontrado.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">{t("admin.noClient")}</div>
         ) : (
           <div className="divide-y divide-border">
             {filtered.slice(0, 10).map((c: any) => (
@@ -176,9 +174,9 @@ function AdminDashboard() {
                   </div>
                   <div className="truncate text-xs text-muted-foreground">{c.email}</div>
                 </div>
-                <KycBadge status={c.kyc_status} />
+                <KycBadge status={c.kyc_status} t={t} />
                 <span className="text-xs text-muted-foreground tabular-nums hidden sm:block">
-                  {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                  {new Date(c.created_at).toLocaleDateString(i18n.language)}
                 </span>
               </Link>
             ))}
@@ -189,7 +187,7 @@ function AdminDashboard() {
   );
 }
 
-function KycBadge({ status }: { status: string | null }) {
+function KycBadge({ status, t }: { status: string | null; t: (key: string) => string }) {
   const s = status ?? "not_started";
   const map: Record<string, string> = {
     approved: "bg-up/15 text-up border-up/30",
@@ -198,10 +196,10 @@ function KycBadge({ status }: { status: string | null }) {
     not_started: "bg-muted/30 text-muted-foreground border-border",
   };
   const label: Record<string, string> = {
-    approved: "KYC ok",
-    pending: "KYC pend.",
-    rejected: "KYC rec.",
-    not_started: "Sem KYC",
+    approved: t("admin.kycOk"),
+    pending: t("admin.kycPending"),
+    rejected: t("admin.kycRejected"),
+    not_started: t("admin.noKyc"),
   };
   return <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium ${map[s]}`}>{label[s]}</span>;
 }
