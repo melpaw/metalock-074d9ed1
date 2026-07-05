@@ -105,9 +105,9 @@ function AdminDashboard() {
   );
 }
 
-function Kpi({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: any; sub?: string; accent?: "up" | "down" }) {
+function Kpi({ icon: Icon, label, value, sub, accent, clickable }: { icon: any; label: string; value: any; sub?: string; accent?: "up" | "down"; clickable?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className={`rounded-xl border border-border bg-surface p-5 transition ${clickable ? "cursor-pointer hover:border-primary hover:bg-surface-elevated" : ""}`}>
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
         <Icon className={`h-4 w-4 ${accent === "up" ? "text-up" : accent === "down" ? "text-down" : "text-primary"}`} />
