@@ -82,7 +82,7 @@ function AdminLayout() {
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-3">
           <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+            <LogOut className="mr-2 h-4 w-4" /> {t("common.logout")}
           </Button>
         </div>
       </aside>
@@ -95,10 +95,11 @@ function AdminLayout() {
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="text-sm text-muted-foreground hidden lg:block">Painel administrativo</div>
+          <div className="text-sm text-muted-foreground hidden lg:block">{t("nav.adminArea")}</div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <NotificationBell />
-            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.viewAsClient")} →</Link>
           </div>
         </header>
         <main className="flex-1 p-6">
