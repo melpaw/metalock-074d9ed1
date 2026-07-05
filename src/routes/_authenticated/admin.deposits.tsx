@@ -19,10 +19,18 @@ function DepositsPage() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["admin-deposit-addresses"],
-    queryFn: async () => (await supabase
-      .from("deposit_addresses" as any)
-      .select("*, currencies(symbol,name,network), profiles!deposit_addresses_user_id_fkey(email,full_name)")
-      .order("status", { ascending: true }).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      const { data: rows } = await supabase
+        .from("deposit_addresses" as any)
+        .select("*, currencies(symbol,name,network)")
+        .order("status", { ascending: true }).order("created_at", { ascending: false });
+      const ids = Array.from(new Set(((rows as any[]) ?? []).map((r) => r.user_id)));
+      const { data: profs } = ids.length
+        ? await supabase.from("profiles").select("id,email,full_name").in("id", ids)
+        : { data: [] as any[] };
+      const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      return ((rows as any[]) ?? []).map((r) => ({ ...r, profile: map.get(r.user_id) }));
+    },
     refetchInterval: 20000,
   });
 
