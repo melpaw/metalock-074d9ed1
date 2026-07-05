@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2, Check, X, Plus, Upload, QrCode, Eye, Pencil } from "lucide-react";
+import { ArrowLeft, Ban, Save, Snowflake, CheckCircle2, Check, X, Plus, Upload, QrCode, Eye, Pencil, LifeBuoy, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 
@@ -73,6 +73,7 @@ function ClientDetail() {
           <TabsTrigger value="profile">Perfil</TabsTrigger>
           <TabsTrigger value="wallet">Carteira</TabsTrigger>
           <TabsTrigger value="tx">Transações</TabsTrigger>
+          <TabsTrigger value="support"><LifeBuoy className="h-4 w-4 mr-1" /> Suporte</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -89,7 +90,39 @@ function ClientDetail() {
 
         <TabsContent value="wallet"><WalletTab userId={userId} /></TabsContent>
         <TabsContent value="tx"><TxTab userId={userId} /></TabsContent>
+        <TabsContent value="support"><SupportTab userId={userId} /></TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+/* ---------- Support tickets for this client ---------- */
+function SupportTab({ userId }: { userId: string }) {
+  const { data: tickets } = useQuery({
+    queryKey: ["admin-client-tickets", userId],
+    queryFn: async () => (await supabase.from("support_tickets").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
+  });
+  return (
+    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+      <div className="border-b border-border px-5 py-3 text-sm font-semibold">Tickets deste cliente</div>
+      {!tickets?.length ? (
+        <div className="p-12 text-center text-sm text-muted-foreground">Sem tickets.</div>
+      ) : (
+        <div className="divide-y divide-border">
+          {tickets.map((t: any) => (
+            <Link key={t.id} to="/admin/tickets/$ticketId" params={{ ticketId: t.id }}
+              className="flex items-center gap-3 px-5 py-3 hover:bg-surface-elevated transition">
+              <MessageCircle className="h-4 w-4 text-primary shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate text-sm">{t.subject}</div>
+                <div className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString()} · {t.category}</div>
+              </div>
+              <Badge variant="outline" className="capitalize text-xs">{t.priority}</Badge>
+              <Badge variant="outline" className="capitalize text-xs">{t.status}</Badge>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
