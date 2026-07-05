@@ -426,6 +426,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agent_display_name: string | null
           avatar_url: string | null
           city: string | null
           country: string | null
@@ -443,6 +444,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          agent_display_name?: string | null
           avatar_url?: string | null
           city?: string | null
           country?: string | null
@@ -460,6 +462,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          agent_display_name?: string | null
           avatar_url?: string | null
           city?: string | null
           country?: string | null
@@ -556,37 +559,49 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          created_by: string | null
           currency_id: string | null
           fee: number
+          hidden: boolean
           id: string
           metadata: Json
+          note: string | null
           reference: string | null
           status: Database["public"]["Enums"]["tx_status"]
           type: Database["public"]["Enums"]["tx_type"]
+          usd_value: number | null
           user_id: string
         }
         Insert: {
           amount: number
           created_at?: string
+          created_by?: string | null
           currency_id?: string | null
           fee?: number
+          hidden?: boolean
           id?: string
           metadata?: Json
+          note?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["tx_status"]
           type: Database["public"]["Enums"]["tx_type"]
+          usd_value?: number | null
           user_id: string
         }
         Update: {
           amount?: number
           created_at?: string
+          created_by?: string | null
           currency_id?: string | null
           fee?: number
+          hidden?: boolean
           id?: string
           metadata?: Json
+          note?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["tx_status"]
           type?: Database["public"]["Enums"]["tx_type"]
+          usd_value?: number | null
           user_id?: string
         }
         Relationships: [
@@ -660,6 +675,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_add_transaction: {
+        Args: {
+          _amount: number
+          _currency_id: string
+          _hidden: boolean
+          _note: string
+          _sender_address: string
+          _status: string
+          _tx_date: string
+          _tx_hash: string
+          _type: Database["public"]["Enums"]["tx_type"]
+          _user_id: string
+        }
+        Returns: string
+      }
       admin_adjust_balance: {
         Args: {
           _currency_id: string
@@ -716,6 +746,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_update_transaction: {
+        Args: {
+          _hidden: boolean
+          _note: string
+          _status: string
+          _tx_id: string
+        }
+        Returns: undefined
+      }
       client_request_deposit_address: {
         Args: { _currency_id: string }
         Returns: string
@@ -747,6 +786,10 @@ export type Database = {
       request_withdrawal: {
         Args: { _address: string; _amount: number; _currency_id: string }
         Returns: string
+      }
+      set_agent_display_name: {
+        Args: { _display_name: string }
+        Returns: undefined
       }
     }
     Enums: {
