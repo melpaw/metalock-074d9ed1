@@ -179,6 +179,56 @@ export type Database = {
         }
         Relationships: []
       }
+      deposit_addresses: {
+        Row: {
+          address: string | null
+          created_at: string
+          currency_id: string
+          id: string
+          memo_tag: string | null
+          network: string | null
+          notes: string | null
+          qr_image_path: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          currency_id: string
+          id?: string
+          memo_tag?: string | null
+          network?: string | null
+          notes?: string | null
+          qr_image_path?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          currency_id?: string
+          id?: string
+          memo_tag?: string | null
+          network?: string | null
+          notes?: string | null
+          qr_image_path?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposit_addresses_currency_id_fkey"
+            columns: ["currency_id"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investments: {
         Row: {
           accrued: number
@@ -625,6 +675,17 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _notes: string }
         Returns: undefined
       }
+      admin_set_deposit_address: {
+        Args: {
+          _address: string
+          _id: string
+          _memo_tag: string
+          _network: string
+          _notes: string
+          _qr_image_path: string
+        }
+        Returns: undefined
+      }
       admin_set_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -642,6 +703,19 @@ export type Database = {
           _phone: string
           _postal_code: string
           _user_id: string
+        }
+        Returns: undefined
+      }
+      client_request_deposit_address: {
+        Args: { _currency_id: string }
+        Returns: string
+      }
+      client_swap: {
+        Args: {
+          _from_amount: number
+          _from_currency: string
+          _rate: number
+          _to_currency: string
         }
         Returns: undefined
       }
