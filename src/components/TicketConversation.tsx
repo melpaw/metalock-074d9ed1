@@ -172,7 +172,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {(ticket as any).profiles?.full_name || (ticket as any).profiles?.email} · {ticket.category}
+            {canManage && ((ticket as any).profiles?.full_name || (ticket as any).profiles?.email) ? `${(ticket as any).profiles?.full_name || (ticket as any).profiles?.email} · ` : ""}{t(`support.categories.${ticket.category}`, { defaultValue: ticket.category })}
           </p>
         </div>
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
