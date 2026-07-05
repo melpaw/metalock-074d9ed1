@@ -72,6 +72,23 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const isSignup = mode === "signup";
+  const isForgot = mode === "forgot";
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Enviamos um link de redefinição para o seu e-mail. Ele expira em 1 hora.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível enviar o e-mail");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -136,60 +153,93 @@ function AuthPage() {
             </Link>
           </div>
 
-          <h1 className="text-2xl font-bold">{isSignup ? "Criar sua conta" : "Entrar na sua conta"}</h1>
+          <h1 className="text-2xl font-bold">
+            {isForgot ? "Recuperar senha" : isSignup ? "Criar sua conta" : "Entrar na sua conta"}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isSignup ? "É rápido e gratuito." : "Bom te ver de novo."}
+            {isForgot
+              ? "Informe seu e-mail e enviaremos um link para redefinir a senha. O link vale por 1 hora."
+              : isSignup
+              ? "É rápido e gratuito."
+              : "Bom te ver de novo."}
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            {isSignup && (
+          {isForgot ? (
+            <form onSubmit={handleForgot} className="mt-8 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nome completo</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                <Label htmlFor="email">E-mail</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={setPassword}
-                autoComplete={isSignup ? "new-password" : "current-password"}
-                minLength={isSignup ? 8 : 6}
-              />
-              {isSignup && (
-                <p className="text-xs text-muted-foreground">Mínimo 8 caracteres, incluindo pelo menos 1 número.</p>
-              )}
-            </div>
-            {isSignup && (
-              <div className="space-y-2">
-                <Label htmlFor="passwordConfirm">Confirmar senha</Label>
-                <PasswordInput
-                  id="passwordConfirm"
-                  value={passwordConfirm}
-                  onChange={setPasswordConfirm}
-                  autoComplete="new-password"
-                  minLength={8}
-                />
-              </div>
-            )}
-            <Button type="submit" className="w-full font-semibold" disabled={loading}>
-              {loading ? "Aguarde..." : isSignup ? "Criar conta" : "Entrar"}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full font-semibold" disabled={loading}>
+                {loading ? "Enviando..." : "Enviar link de redefinição"}
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                <Link to="/auth" search={{ mode: "login" }} className="font-medium text-primary hover:underline">
+                  ← Voltar para o login
+                </Link>
+              </p>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+                {isSignup && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nome completo</Label>
+                    <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Senha</Label>
+                    {!isSignup && (
+                      <Link to="/auth" search={{ mode: "forgot" }} className="text-xs text-primary hover:underline">
+                        Esqueci a senha
+                      </Link>
+                    )}
+                  </div>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={setPassword}
+                    autoComplete={isSignup ? "new-password" : "current-password"}
+                    minLength={isSignup ? 8 : 6}
+                  />
+                  {isSignup && (
+                    <p className="text-xs text-muted-foreground">Mínimo 8 caracteres, incluindo pelo menos 1 número.</p>
+                  )}
+                </div>
+                {isSignup && (
+                  <div className="space-y-2">
+                    <Label htmlFor="passwordConfirm">Confirmar senha</Label>
+                    <PasswordInput
+                      id="passwordConfirm"
+                      value={passwordConfirm}
+                      onChange={setPasswordConfirm}
+                      autoComplete="new-password"
+                      minLength={8}
+                    />
+                  </div>
+                )}
+                <Button type="submit" className="w-full font-semibold" disabled={loading}>
+                  {loading ? "Aguarde..." : isSignup ? "Criar conta" : "Entrar"}
+                </Button>
+              </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignup ? "Já tem conta?" : "Novo por aqui?"}{" "}
-            <Link to="/auth" search={{ mode: isSignup ? "login" : "signup" }} className="font-medium text-primary hover:underline">
-              {isSignup ? "Entrar" : "Criar conta"}
-            </Link>
-          </p>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                {isSignup ? "Já tem conta?" : "Novo por aqui?"}{" "}
+                <Link to="/auth" search={{ mode: isSignup ? "login" : "signup" }} className="font-medium text-primary hover:underline">
+                  {isSignup ? "Entrar" : "Criar conta"}
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
