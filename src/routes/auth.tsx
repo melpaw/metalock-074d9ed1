@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 
 const searchSchema = z.object({
-  mode: z.enum(["login", "signup"]).optional().default("login"),
+  mode: z.enum(["login", "signup", "forgot"]).optional().default("login"),
 });
+
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
