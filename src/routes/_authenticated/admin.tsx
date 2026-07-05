@@ -5,25 +5,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, Coins, LogOut, Menu, X, Headphones, Shield, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
-const nav: NavItem[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/clients", label: "Clientes", icon: UserCircle2 },
-  { to: "/admin/tickets", label: "Suporte", icon: Headphones },
-  { to: "/admin/team", label: "Equipe", icon: Shield },
-  { to: "/admin/currencies", label: "Moedas", icon: Coins },
-];
-
 function AdminLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+
+  const nav = [
+    { to: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
+    { to: "/admin/clients", label: t("nav.clients"), icon: UserCircle2 },
+    { to: "/admin/tickets", label: t("nav.support"), icon: Headphones },
+    { to: "/admin/team", label: t("nav.team"), icon: Shield },
+    { to: "/admin/currencies", label: t("nav.currencies"), icon: Coins },
+  ];
 
   const { data: roleCheck, isLoading } = useQuery({
     queryKey: ["is-admin"],
@@ -46,7 +48,7 @@ function AdminLayout() {
   }
 
   if (isLoading || !roleCheck?.isAdmin) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Verificando permissões...</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
   }
 
   return (
@@ -80,7 +82,7 @@ function AdminLayout() {
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-3">
           <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+            <LogOut className="mr-2 h-4 w-4" /> {t("common.logout")}
           </Button>
         </div>
       </aside>
@@ -93,10 +95,11 @@ function AdminLayout() {
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="text-sm text-muted-foreground hidden lg:block">Painel administrativo</div>
+          <div className="text-sm text-muted-foreground hidden lg:block">{t("nav.adminArea")}</div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <NotificationBell />
-            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.viewAsClient")} →</Link>
           </div>
         </header>
         <main className="flex-1 p-6">

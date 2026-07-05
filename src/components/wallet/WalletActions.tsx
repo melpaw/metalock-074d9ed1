@@ -9,15 +9,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowDownToLine, Send, ArrowLeftRight, Building2, Copy, QrCode, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function WalletActions({ wallets, currencies, prices, onDone }: { wallets: any[]; currencies: any[]; prices: any; onDone: () => void }) {
+  const { t } = useTranslation();
   return (
     <Tabs defaultValue="deposit" className="w-full">
       <TabsList className="grid grid-cols-4 w-full">
-        <TabsTrigger value="deposit"><ArrowDownToLine className="h-4 w-4 mr-1" /> Depositar</TabsTrigger>
-        <TabsTrigger value="send"><Send className="h-4 w-4 mr-1" /> Enviar</TabsTrigger>
-        <TabsTrigger value="swap"><ArrowLeftRight className="h-4 w-4 mr-1" /> Swap</TabsTrigger>
-        <TabsTrigger value="withdraw"><Building2 className="h-4 w-4 mr-1" /> Sacar</TabsTrigger>
+        <TabsTrigger value="deposit"><ArrowDownToLine className="h-4 w-4 mr-1" /> {t("wallet.deposit")}</TabsTrigger>
+        <TabsTrigger value="send"><Send className="h-4 w-4 mr-1" /> {t("wallet.send")}</TabsTrigger>
+        <TabsTrigger value="swap"><ArrowLeftRight className="h-4 w-4 mr-1" /> {t("wallet.swap")}</TabsTrigger>
+        <TabsTrigger value="withdraw"><Building2 className="h-4 w-4 mr-1" /> {t("wallet.withdraw")}</TabsTrigger>
       </TabsList>
       <TabsContent value="deposit" className="mt-4"><DepositPanel currencies={currencies} onDone={onDone} /></TabsContent>
       <TabsContent value="send" className="mt-4"><SendPanel wallets={wallets} onDone={onDone} /></TabsContent>
@@ -28,6 +30,7 @@ export function WalletActions({ wallets, currencies, prices, onDone }: { wallets
 }
 
 function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [currencyId, setCurrencyId] = useState("");
   const [viewer, setViewer] = useState<any | null>(null);
@@ -41,7 +44,7 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
       const { error } = await supabase.rpc("client_request_deposit_address" as any, { _currency_id: currencyId });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Solicitado. O admin cadastrará seu endereço em breve."); setCurrencyId(""); qc.invalidateQueries({ queryKey: ["my-deposit-addresses"] }); onDone(); },
+    onSuccess: () => { toast.success(t("wallet.requestHint")); setCurrencyId(""); qc.invalidateQueries({ queryKey: ["my-deposit-addresses"] }); onDone(); },
     onError: (e: any) => toast.error(e.message),
   });
   async function openQr(addr: any) {
@@ -49,25 +52,25 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
     const { data } = await supabase.storage.from("deposit-qr").createSignedUrl(addr.qr_image_path, 300);
     setViewer({ ...addr, signedUrl: data?.signedUrl ?? null });
   }
-  function copy(text: string) { navigator.clipboard.writeText(text); toast.success("Copiado"); }
+  function copy(text: string) { navigator.clipboard.writeText(text); toast.success(t("wallet.copied")); }
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-dashed border-border p-4">
-        <Label className="text-xs uppercase text-muted-foreground">Escolha a moeda para receber</Label>
+        <Label className="text-xs uppercase text-muted-foreground">{t("wallet.chooseCurrency")}</Label>
         <div className="mt-2 flex gap-2">
           <Select value={currencyId} onValueChange={setCurrencyId}>
-            <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione uma moeda..." /></SelectTrigger>
+            <SelectTrigger className="flex-1"><SelectValue placeholder={t("wallet.select")} /></SelectTrigger>
             <SelectContent>
               {currencies.map((c) => <SelectItem key={c.id} value={c.id}>{c.symbol} — {c.name} ({c.network})</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button onClick={() => request.mutate()} disabled={!currencyId || request.isPending}>Solicitar endereço</Button>
+          <Button onClick={() => request.mutate()} disabled={!currencyId || request.isPending}>{t("wallet.requestAddress")}</Button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">O administrador cadastrará seu endereço exclusivo e o QR code para depósito.</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("wallet.requestHint")}</p>
       </div>
       <div className="space-y-2">
-        <div className="text-xs uppercase text-muted-foreground">Meus endereços</div>
-        {!my?.length && <div className="rounded-md bg-surface-elevated p-4 text-sm text-muted-foreground text-center">Nenhum endereço ainda.</div>}
+        <div className="text-xs uppercase text-muted-foreground">{t("wallet.myAddresses")}</div>
+        {!my?.length && <div className="rounded-md bg-surface-elevated p-4 text-sm text-muted-foreground text-center">{t("wallet.noAddresses")}</div>}
         {my?.map((a) => (
           <div key={a.id} className="rounded-lg border border-border bg-surface-elevated p-3 space-y-2">
             <div className="flex items-center justify-between">
@@ -77,8 +80,8 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
                 {a.network && <span className="text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary">{a.network}</span>}
               </div>
               {a.status === "ready"
-                ? <span className="text-[10px] px-2 py-0.5 rounded bg-up/20 text-up">Pronto</span>
-                : <span className="text-[10px] px-2 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-1"><Clock className="h-3 w-3" />Aguardando admin</span>}
+                ? <span className="text-[10px] px-2 py-0.5 rounded bg-up/20 text-up">{t("wallet.ready")}</span>
+                : <span className="text-[10px] px-2 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-1"><Clock className="h-3 w-3" />{t("wallet.waitingAdmin")}</span>}
             </div>
             {a.status === "ready" ? (
               <>
@@ -94,11 +97,11 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
                   </div>
                 )}
                 {a.qr_image_path && (
-                  <Button size="sm" variant="outline" onClick={() => openQr(a)}><QrCode className="h-4 w-4 mr-1" /> Ver QR code</Button>
+                  <Button size="sm" variant="outline" onClick={() => openQr(a)}><QrCode className="h-4 w-4 mr-1" /> {t("wallet.seeQr")}</Button>
                 )}
               </>
             ) : (
-              <p className="text-xs text-muted-foreground">Você será notificado assim que o endereço estiver pronto.</p>
+              <p className="text-xs text-muted-foreground">{t("wallet.willNotify")}</p>
             )}
           </div>
         ))}
@@ -106,8 +109,8 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
       {viewer && (
         <Dialog open onOpenChange={(o) => !o && setViewer(null)}>
           <DialogContent>
-            <DialogHeader><DialogTitle>QR code · {viewer.currencies?.symbol}</DialogTitle></DialogHeader>
-            {viewer.signedUrl ? <img src={viewer.signedUrl} alt="QR" className="mx-auto max-h-80 rounded-lg bg-white p-2" /> : <p className="text-sm text-muted-foreground">QR indisponível.</p>}
+            <DialogHeader><DialogTitle>QR · {viewer.currencies?.symbol}</DialogTitle></DialogHeader>
+            {viewer.signedUrl ? <img src={viewer.signedUrl} alt="QR" className="mx-auto max-h-80 rounded-lg bg-white p-2" /> : <p className="text-sm text-muted-foreground">—</p>}
             <div className="text-xs font-mono break-all text-center">{viewer.address}</div>
           </DialogContent>
         </Dialog>
@@ -117,45 +120,47 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
 }
 
 function SendPanel({ wallets, onDone }: { wallets: any[]; onDone: () => void }) {
+  const { t } = useTranslation();
   const [currencyId, setCurrencyId] = useState("");
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const funded = wallets.filter((w) => Number(w.available) > 0);
   async function submit() {
-    if (!currencyId || !amount || !address) return toast.error("Preencha todos os campos");
+    if (!currencyId || !amount || !address) return toast.error(t("wallet.fillAll"));
     setLoading(true);
     try {
       const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: address });
       if (error) throw error;
-      toast.success("Envio solicitado. Aguarde aprovação do admin.");
+      toast.success(t("wallet.sendRequested"));
       setAmount(""); setAddress(""); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
   return (
     <div className="space-y-3">
       <div>
-        <Label>Moeda</Label>
+        <Label>{t("wallet.currency")}</Label>
         <Select value={currencyId} onValueChange={setCurrencyId}>
-          <SelectTrigger><SelectValue placeholder="Escolha uma moeda com saldo..." /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("wallet.chooseFunded")} /></SelectTrigger>
           <SelectContent>
-            {funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — disp {Number(w.available).toFixed(6)}</SelectItem>)}
+            {funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Valor</Label><Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
+        <div><Label>{t("common.amount")}</Label><Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
         <div className="flex items-end">
-          {currencyId && <Button variant="ghost" size="sm" onClick={() => { const w = funded.find((x) => x.currency_id === currencyId); if (w) setAmount(String(w.available)); }}>Máx</Button>}
+          {currencyId && <Button variant="ghost" size="sm" onClick={() => { const w = funded.find((x) => x.currency_id === currencyId); if (w) setAmount(String(w.available)); }}>{t("wallet.max")}</Button>}
         </div>
       </div>
-      <div><Label>Endereço de destino</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... ou bc1..." /></div>
-      <Button onClick={submit} disabled={loading} className="w-full">{loading ? "Enviando..." : "Enviar"}</Button>
+      <div><Label>{t("wallet.destAddress")}</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... / bc1..." /></div>
+      <Button onClick={submit} disabled={loading} className="w-full">{loading ? t("common.sending") : t("common.send")}</Button>
     </div>
   );
 }
 
 function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; currencies: any[]; prices: any; onDone: () => void }) {
+  const { t } = useTranslation();
   const [fromId, setFromId] = useState("");
   const [toId, setToId] = useState("");
   const [amount, setAmount] = useState("");
@@ -168,57 +173,52 @@ function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; cu
   const rate = fromPrice && toPrice ? fromPrice / toPrice : 0;
   const receive = Number(amount || 0) * rate;
   async function submit() {
-    if (!fromId || !toId || !amount) return toast.error("Preencha todos os campos");
-    if (fromId === toId) return toast.error("Escolha moedas diferentes");
-    if (!rate) return toast.error("Cotação indisponível para este par");
+    if (!fromId || !toId || !amount) return toast.error(t("wallet.fillAll"));
+    if (fromId === toId) return toast.error(t("wallet.diffCurrency"));
+    if (!rate) return toast.error(t("wallet.noQuote"));
     setLoading(true);
     try {
       const { error } = await supabase.rpc("client_swap" as any, { _from_currency: fromId, _to_currency: toId, _from_amount: Number(amount), _rate: rate });
       if (error) throw error;
-      toast.success("Swap concluído"); setAmount(""); onDone();
+      toast.success(t("wallet.swapDone")); setAmount(""); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
   return (
     <div className="space-y-3">
       <div>
-        <Label>Você paga</Label>
+        <Label>{t("wallet.youPay")}</Label>
         <div className="flex gap-2">
           <Input type="number" step="0.00000001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="flex-1" />
           <Select value={fromId} onValueChange={setFromId}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="De..." /></SelectTrigger>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        {fromId && (
-          <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-            <span>≈ ${(Number(amount || 0) * fromPrice).toFixed(2)}</span>
-            <button className="text-primary hover:underline" onClick={() => { const w = funded.find((x) => x.currency_id === fromId); if (w) setAmount(String(w.available)); }}>MÁX {funded.find((x) => x.currency_id === fromId)?.available}</button>
-          </div>
-        )}
       </div>
       <div className="flex justify-center"><ArrowLeftRight className="h-5 w-5 text-primary rotate-90" /></div>
       <div>
-        <Label>Você recebe</Label>
+        <Label>{t("wallet.youReceive")}</Label>
         <div className="flex gap-2">
           <Input value={receive ? receive.toFixed(8) : ""} readOnly placeholder="0.00" className="flex-1" />
           <Select value={toId} onValueChange={setToId}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="Para..." /></SelectTrigger>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>{currencies.filter((c) => c.id !== fromId).map((c) => <SelectItem key={c.id} value={c.id}>{c.symbol}</SelectItem>)}</SelectContent>
           </Select>
         </div>
       </div>
       {rate > 0 && (
         <div className="rounded-md bg-surface-elevated p-3 text-xs space-y-1">
-          <div className="flex justify-between"><span className="text-muted-foreground">Cotação</span><span>1 {fromCur?.symbol} = {rate.toFixed(8)} {toCur?.symbol}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Preço {fromCur?.symbol}</span><span>${fromPrice.toFixed(4)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">{t("wallet.rate")}</span><span>1 {fromCur?.symbol} = {rate.toFixed(8)} {toCur?.symbol}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">{t("wallet.price")} {fromCur?.symbol}</span><span>${fromPrice.toFixed(4)}</span></div>
         </div>
       )}
-      <Button onClick={submit} disabled={loading || !rate} className="w-full">{loading ? "Trocando..." : "Confirmar swap"}</Button>
+      <Button onClick={submit} disabled={loading || !rate} className="w-full">{loading ? t("common.processing") : t("wallet.confirmSwap")}</Button>
     </div>
   );
 }
 
 function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: any; onDone: () => void }) {
+  const { t } = useTranslation();
   const [currencyId, setCurrencyId] = useState("");
   const [amount, setAmount] = useState("");
   const [bankId, setBankId] = useState("");
@@ -232,41 +232,41 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : cur?.currencies?.symbol === "USDT" ? 1 : 0;
   const usdTotal = Number(amount || 0) * price;
   async function submit() {
-    if (!currencyId || !amount) return toast.error("Preencha os campos");
-    if (!bankId) return toast.error("Cadastre uma conta bancária primeiro");
+    if (!currencyId || !amount) return toast.error(t("wallet.fillFields"));
+    if (!bankId) return toast.error(t("wallet.noBank"));
     setLoading(true);
     try {
       const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: `BANK:${bankId}` });
       if (error) throw error;
-      toast.success("Saque solicitado. Aguarde aprovação."); setAmount(""); onDone();
+      toast.success(t("wallet.withdrawalRequested")); setAmount(""); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
   return (
     <div className="space-y-3">
       <div>
-        <Label>Ativo</Label>
+        <Label>{t("wallet.asset")}</Label>
         <Select value={currencyId} onValueChange={setCurrencyId}>
-          <SelectTrigger><SelectValue placeholder="Escolha o ativo..." /></SelectTrigger>
-          <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — disp {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
+          <SelectTrigger><SelectValue placeholder={t("wallet.chooseAsset")} /></SelectTrigger>
+          <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div>
-        <Label>Valor</Label>
+        <Label>{t("common.amount")}</Label>
         <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
         {price > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ ${usdTotal.toFixed(2)} USD</div>}
       </div>
       <div>
-        <Label>Conta bancária</Label>
+        <Label>{t("wallet.bankAccount")}</Label>
         {banks && banks.length > 0 ? (
           <Select value={bankId} onValueChange={setBankId}>
-            <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+            <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{banks.map((b) => <SelectItem key={b.id} value={b.id}>{b.bank_name} · •••• {b.last4}</SelectItem>)}</SelectContent>
           </Select>
         ) : (
-          <div className="rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground text-center">Nenhuma conta cadastrada. Abra um ticket no suporte para cadastrar sua conta.</div>
+          <div className="rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground text-center">{t("wallet.noBank")}</div>
         )}
       </div>
-      <Button onClick={submit} disabled={loading || !banks?.length} className="w-full">{loading ? "Enviando..." : "Solicitar saque"}</Button>
+      <Button onClick={submit} disabled={loading || !banks?.length} className="w-full">{loading ? t("common.sending") : t("wallet.requestWithdrawal")}</Button>
     </div>
   );
 }

@@ -7,11 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
-import { Send, Lock, Save } from "lucide-react";
+import { Send, Lock, Save, Circle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Props = { ticketId: string; canManage: boolean };
 
 export function TicketConversation({ ticketId, canManage }: Props) {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const [internal, setInternal] = useState(false);
@@ -19,6 +21,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
   const [me, setMe] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -56,17 +59,16 @@ export function TicketConversation({ ticketId, canManage }: Props) {
       const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
       return (msgs ?? []).map((m: any) => ({ ...m, sender: map.get(m.sender_id) }));
     },
-    refetchInterval: 8000,
+    refetchInterval: 15000,
   });
 
-  // Realtime: subscribe to ticket_messages for this ticket
   useEffect(() => {
     const ch = supabase
       .channel(`ticket:${ticketId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "ticket_messages", filter: `ticket_id=eq.${ticketId}` },
         () => qc.invalidateQueries({ queryKey: ["ticket-messages", ticketId] }))
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+      .subscribe((status) => setConnected(status === "SUBSCRIBED"));
+    return () => { supabase.removeChannel(ch); setConnected(false); };
   }, [ticketId, qc]);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ticket", ticketId] });
       qc.invalidateQueries({ queryKey: ["tickets-queue"] });
-      toast.success("Ticket atualizado");
+      toast.success(t("support.ticketUpdated"));
     },
     onError: (e) => toast.error(e.message),
   });
@@ -110,26 +112,46 @@ export function TicketConversation({ ticketId, canManage }: Props) {
     const { error } = await supabase.rpc("set_agent_display_name" as any, { _display_name: displayName || null });
     setSavingName(false);
     if (error) return toast.error(error.message);
-    toast.success("Nome de exibição salvo");
+    toast.success(t("support.displayNameSaved"));
   }
 
-  if (!ticket) return <div className="text-muted-foreground">Carregando...</div>;
+  function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (body.trim() && !send.isPending) send.mutate();
+    }
+  }
+
+  if (!ticket) return <div className="text-muted-foreground">{t("common.loading")}</div>;
 
   function nameFor(m: any, mine: boolean) {
-    if (mine) return "Você";
+    if (mine) return t("support.you");
     const s = m.sender;
-    if (!s) return "Cliente";
-    return s.agent_display_name || s.full_name || "Suporte";
+    if (!s) return t("support.client");
+    return s.agent_display_name || s.full_name || t("support.supportTeam");
   }
+
+  function initialsFor(m: any) {
+    const s = m.sender;
+    const name = s?.agent_display_name || s?.full_name || s?.email || "?";
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  const statusLabel = t(`support.statuses.${(ticket as any).status}`, { defaultValue: (ticket as any).status });
+  const priorityLabel = t(`support.priorities.${(ticket as any).priority}`, { defaultValue: (ticket as any).priority });
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <div className="rounded-xl border border-border bg-surface flex flex-col h-[70vh]">
-        <div className="border-b border-border p-4">
-          <div className="flex items-center gap-2">
-            <h2 className="font-semibold flex-1">{ticket.subject}</h2>
-            <Badge variant="outline" className="capitalize">{ticket.priority}</Badge>
-            <Badge variant="outline" className="capitalize">{ticket.status}</Badge>
+      <div className="rounded-xl border border-border bg-surface flex flex-col h-[70vh] overflow-hidden">
+        <div className="border-b border-border p-4 bg-surface-elevated/40">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-semibold flex-1 min-w-0 truncate">{ticket.subject}</h2>
+            <Badge variant="outline">{priorityLabel}</Badge>
+            <Badge variant="outline">{statusLabel}</Badge>
+            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Circle className={`h-2 w-2 ${connected ? "text-up fill-up" : "text-muted-foreground fill-muted"}`} />
+              {connected ? t("support.connected") : t("support.connecting")}
+            </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {(ticket as any).profiles?.full_name || (ticket as any).profiles?.email} · {ticket.category}
@@ -139,32 +161,46 @@ export function TicketConversation({ ticketId, canManage }: Props) {
           {messages?.map((m: any) => {
             const mine = m.sender_id === me;
             return (
-              <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
-                  m.is_internal ? "bg-warning/20 border border-warning/40" :
-                  mine ? "bg-primary text-primary-foreground" : "bg-surface-elevated"
+              <div key={m.id} className={`flex gap-2 ${mine ? "justify-end" : "justify-start"}`}>
+                {!mine && (
+                  <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/20 text-[10px] font-bold text-primary shrink-0">
+                    {initialsFor(m)}
+                  </div>
+                )}
+                <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
+                  m.is_internal ? "bg-warning/15 border border-warning/40 rounded-tl-md" :
+                  mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-surface-elevated rounded-tl-md"
                 }`}>
-                  {m.is_internal && <div className="flex items-center gap-1 text-[10px] uppercase mb-1"><Lock className="h-3 w-3" /> Nota interna</div>}
-                  <div className="text-[10px] font-medium opacity-80 mb-0.5">{nameFor(m, mine)}</div>
-                  <div className="whitespace-pre-wrap">{m.body}</div>
-                  <div className="text-[10px] opacity-70 mt-1">{new Date(m.created_at).toLocaleString("pt-BR")}</div>
+                  {m.is_internal && <div className="flex items-center gap-1 text-[10px] uppercase mb-1 opacity-80"><Lock className="h-3 w-3" /> {t("support.internalNote")}</div>}
+                  <div className="text-[10px] font-semibold opacity-80 mb-0.5">{nameFor(m, mine)}</div>
+                  <div className="whitespace-pre-wrap break-words">{m.body}</div>
+                  <div className="text-[10px] opacity-70 mt-1 text-right">{new Date(m.created_at).toLocaleString(i18n.language)}</div>
                 </div>
+                {mine && (
+                  <div className="grid h-8 w-8 place-items-center rounded-full gradient-primary text-[10px] font-bold text-primary-foreground shrink-0">
+                    {t("support.you").slice(0, 2)}
+                  </div>
+                )}
               </div>
             );
           })}
-          {messages?.length === 0 && <div className="text-center text-muted-foreground text-sm py-8">Sem mensagens ainda.</div>}
+          {messages?.length === 0 && <div className="text-center text-muted-foreground text-sm py-8">{t("support.noMessages")}</div>}
         </div>
-        <div className="border-t border-border p-3 space-y-2">
-          <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Escreva sua mensagem..." rows={2} />
-          <div className="flex items-center justify-between">
-            {canManage ? (
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} />
-                Nota interna (visível só para equipe)
-              </label>
-            ) : <div />}
-            <Button onClick={() => send.mutate()} disabled={!body.trim() || send.isPending}>
-              <Send className="h-4 w-4 mr-2" /> Enviar
+        <div className="border-t border-border p-3 space-y-2 bg-surface-elevated/30">
+          <Textarea value={body} onChange={(e) => setBody(e.target.value)} onKeyDown={onKey} placeholder={t("support.typeMessage")} rows={2} className="resize-none" />
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              {canManage ? (
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} />
+                  {t("support.internalNote")}
+                </label>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">{t("support.pressEnterHint")}</span>
+              )}
+            </div>
+            <Button onClick={() => send.mutate()} disabled={!body.trim() || send.isPending} size="sm">
+              <Send className="h-4 w-4 mr-2" /> {send.isPending ? t("common.sending") : t("common.send")}
             </Button>
           </div>
         </div>
@@ -172,40 +208,40 @@ export function TicketConversation({ ticketId, canManage }: Props) {
 
       {canManage && (
         <div className="rounded-xl border border-border bg-surface p-4 space-y-4 h-fit">
-          <h3 className="text-sm font-semibold">Controle</h3>
+          <h3 className="text-sm font-semibold">{t("support.controlPanel")}</h3>
           <div className="space-y-2">
-            <label className="text-xs text-muted-foreground">Nome exibido ao cliente</label>
+            <label className="text-xs text-muted-foreground">{t("support.displayName")}</label>
             <div className="flex gap-2">
-              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="ex: João Suporte" />
+              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={t("support.displayNamePlaceholder")} />
               <Button size="icon" variant="outline" onClick={saveDisplayName} disabled={savingName}><Save className="h-4 w-4" /></Button>
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs text-muted-foreground">Status</label>
+            <label className="text-xs text-muted-foreground">{t("common.status")}</label>
             <Select value={ticket.status} onValueChange={(v) => updateTicket.mutate({ status: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Aberto</SelectItem>
-                <SelectItem value="pending">Aguardando cliente</SelectItem>
-                <SelectItem value="resolved">Resolvido</SelectItem>
-                <SelectItem value="closed">Fechado</SelectItem>
+                <SelectItem value="open">{t("support.statuses.open")}</SelectItem>
+                <SelectItem value="pending">{t("support.statuses.pending")}</SelectItem>
+                <SelectItem value="resolved">{t("support.statuses.resolved")}</SelectItem>
+                <SelectItem value="closed">{t("support.statuses.closed")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs text-muted-foreground">Prioridade</label>
+            <label className="text-xs text-muted-foreground">{t("support.priority")}</label>
             <Select value={ticket.priority} onValueChange={(v) => updateTicket.mutate({ priority: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Baixa</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="high">Alta</SelectItem>
-                <SelectItem value="urgent">Urgente</SelectItem>
+                <SelectItem value="low">{t("support.priorities.low")}</SelectItem>
+                <SelectItem value="normal">{t("support.priorities.normal")}</SelectItem>
+                <SelectItem value="high">{t("support.priorities.high")}</SelectItem>
+                <SelectItem value="urgent">{t("support.priorities.urgent")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Button variant="outline" className="w-full" onClick={() => updateTicket.mutate({ agent_id: me })}>
-            Assumir ticket
+            {t("support.assumeTicket")}
           </Button>
         </div>
       )}
