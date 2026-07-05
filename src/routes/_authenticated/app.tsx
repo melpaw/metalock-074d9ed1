@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Wallet, Layers, ArrowLeftRight, LifeBuoy, LogOut, Menu, X, UserRound } from "lucide-react";
+import { LayoutDashboard, Layers, LifeBuoy, LogOut, Menu, X, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -33,9 +33,7 @@ function AppLayout() {
 
   const nav = [
     { to: "/app", label: t("nav.overview"), icon: LayoutDashboard, exact: true },
-    { to: "/app/wallet", label: t("nav.wallet"), icon: Wallet },
     { to: "/app/invest", label: t("nav.plans"), icon: Layers },
-    { to: "/app/transactions", label: t("nav.transactions"), icon: ArrowLeftRight },
     { to: "/app/support", label: t("nav.support"), icon: LifeBuoy },
   ];
 
