@@ -2,42 +2,36 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Users, Coins, Layers, ScrollText, LogOut, Menu, X, CheckSquare, Headphones, Shield } from "lucide-react";
+import { Headphones, Users, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/admin")({
-  component: AdminLayout,
+export const Route = createFileRoute("/_authenticated/agent")({
+  component: AgentLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
-const nav: NavItem[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/users", label: "Usuários", icon: Users },
-  { to: "/admin/team", label: "Equipe", icon: Shield },
-  { to: "/admin/approvals", label: "Aprovações", icon: CheckSquare },
-  { to: "/admin/tickets", label: "Suporte", icon: Headphones },
-  { to: "/admin/currencies", label: "Moedas", icon: Coins },
-  { to: "/admin/plans", label: "Planos", icon: Layers },
-  { to: "/admin/logs", label: "Auditoria", icon: ScrollText },
+const nav = [
+  { to: "/agent", label: "Fila de tickets", icon: LayoutDashboard, exact: true },
+  { to: "/agent/users", label: "Consultar cliente", icon: Users },
 ];
 
-function AdminLayout() {
+function AgentLayout() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   const { data: roleCheck, isLoading } = useQuery({
-    queryKey: ["is-admin"],
+    queryKey: ["is-agent-or-admin"],
     queryFn: async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("role", "admin");
-      return { isAdmin: (data?.length ?? 0) > 0 };
+      const { data } = await supabase.from("user_roles").select("role");
+      const roles = (data ?? []).map((r) => r.role);
+      return { ok: roles.includes("agent") || roles.includes("admin") };
     },
   });
 
   useEffect(() => {
-    if (!isLoading && roleCheck && !roleCheck.isAdmin) {
-      toast.error("Acesso restrito a administradores.");
+    if (!isLoading && roleCheck && !roleCheck.ok) {
+      toast.error("Acesso restrito à equipe de suporte.");
       navigate({ to: "/dashboard" });
     }
   }, [isLoading, roleCheck, navigate]);
@@ -47,35 +41,29 @@ function AdminLayout() {
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
 
-  if (isLoading || !roleCheck?.isAdmin) {
+  if (isLoading || !roleCheck?.ok) {
     return <div className="grid min-h-screen place-items-center text-muted-foreground">Verificando permissões...</div>;
   }
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-border bg-sidebar transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary font-black text-primary-foreground">C</div>
+          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary/20 text-primary"><Headphones className="h-4 w-4" /></div>
           <div>
             <div className="text-sm font-bold leading-tight">CryptoVault</div>
-            <div className="text-[10px] uppercase tracking-widest text-primary">Admin</div>
+            <div className="text-[10px] uppercase tracking-widest text-primary">Suporte</div>
           </div>
         </div>
         <nav className="p-3 space-y-1">
           {nav.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
-              <Link
-                key={item.to}
-                to={item.to as string}
-                onClick={() => setOpen(false)}
+              <Link key={item.to} to={item.to} onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
                   active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                }`}>
+                <item.icon className="h-4 w-4" /> {item.label}
               </Link>
             );
           })}
@@ -86,21 +74,16 @@ function AdminLayout() {
           </Button>
         </div>
       </aside>
-
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 z-30 bg-black/50 lg:hidden" />}
-
-      {/* Main */}
       <div className="flex flex-1 flex-col min-w-0">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="text-sm text-muted-foreground hidden lg:block">Painel administrativo</div>
-          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Ver como cliente →</Link>
+          <div className="text-sm text-muted-foreground hidden lg:block">Painel do agente</div>
+          <div />
         </header>
-        <main className="flex-1 p-6">
-          <Outlet />
-        </main>
+        <main className="flex-1 p-6"><Outlet /></main>
       </div>
     </div>
   );
