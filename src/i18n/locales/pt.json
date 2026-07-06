@@ -191,7 +191,7 @@
     "chooseFunded": "Escolha uma moeda com saldo...",
     "max": "Máx",
     "destAddress": "Endereço de destino",
-    "sendRequested": "Envio solicitado. Aguarde aprovação do admin.",
+    "sendRequested": "Solicitação enviada para aprovação",
     "youPay": "Você paga",
     "youReceive": "Você recebe",
     "rate": "Cotação",
@@ -217,7 +217,13 @@
     "fromWallet": "De qual carteira",
     "toWallet": "Para qual carteira",
     "confirmTransfer": "Confirmar transferência",
-    "transferDone": "Transferência concluída"
+    "transferDone": "Transferência concluída",
+    "destinationAddress": "Endereço de destino",
+    "notesOptional": "Observações (opcional)",
+    "sendPendingHint": "O envio será revisado por um administrador ou agente. O saldo fica reservado até a aprovação.",
+    "requestSend": "Solicitar envio",
+    "invalidAmount": "Valor inválido",
+    "insufficient": "Saldo insuficiente"
   },
   "tx": {
     "type": "Tipo",
@@ -378,17 +384,77 @@
     "market": "Mercado",
     "features": "Recursos",
     "plans": "Planos",
-    "heroBadge": "Sistema online · Preços em tempo real",
+    "heroBadge": "Cofre cripto com foco em segurança",
     "heroTitle": "O jeito profissional de investir em",
-    "heroTitleAccent": "criptomoedas",
-    "heroSubtitle": "Wallet segura, investimentos com rendimento diário, staking e painel administrativo completo — tudo em uma plataforma.",
+    "heroTitleAccent": "sua identidade",
+    "heroSubtitle": "O MetaLock só permite transferências para carteiras registradas em seu próprio nome verificado. Mesmo que um invasor roube suas credenciais, ele não consegue movimentar uma única moeda.",
     "start": "Começar agora",
     "haveAccount": "Já tenho conta",
     "featuresTitle": "Tudo o que você precisa",
     "featuresSubtitle": "Ferramentas profissionais para você investir, acompanhar e crescer.",
     "ctaTitle": "Pronto para começar?",
     "ctaSubtitle": "Crie sua conta em segundos.",
-    "ctaButton": "Criar conta grátis"
+    "ctaButton": "Criar conta grátis",
+    "signIn": "Entrar",
+    "signUp": "Criar conta",
+    "heroTitleA": "Sua cripto, bloqueada à",
+    "heroTitleB": ".",
+    "ctaPrimary": "Criar conta segura",
+    "ctaSecondary": "Entrar",
+    "trust": {
+      "encryption": "Criptografia",
+      "transport": "Transporte",
+      "key": "Custódia de chaves",
+      "uptime": "Disponibilidade"
+    },
+    "stats": {
+      "title": "A escolha de investidores de longo prazo",
+      "protected": "Ativos protegidos",
+      "protectedSuffix": "sob custódia",
+      "clients": "Clientes verificados",
+      "clientsSuffix": "no mundo",
+      "uptime": "Disponibilidade",
+      "uptimeSuffix": "últimos 12 meses",
+      "breaches": "Incidentes de segurança",
+      "breachesSuffix": "desde o lançamento"
+    },
+    "guaranteeKicker": "A garantia MetaLock",
+    "guaranteeTitle": "Um invasor com sua senha ainda não consegue roubar sua cripto.",
+    "guaranteeBody": "Todo endereço de saque é vinculado criptograficamente a uma carteira registrada em sua identidade verificada. Destinos desconhecidos são rejeitados no nível do protocolo — não por um aviso que se possa ignorar. Essa é nossa defesa principal e vem ativada por padrão em toda conta.",
+    "pillarsTitle": "Como protegemos cada conta",
+    "pillarsSubtitle": "Defesa em profundidade: identidade, chaves, sessões, transporte, armazenamento e auditoria — reforçados em cada camada.",
+    "pillars": {
+      "identity": {
+        "title": "Transferências travadas por identidade",
+        "desc": "Você só envia e recebe de carteiras registradas em sua identidade verificada (KYC + comprovante bancário). Uma senha roubada não move fundos para um desconhecido."
+      },
+      "keys": {
+        "title": "Custódia isolada de chaves",
+        "desc": "Chaves privadas geradas e armazenadas em enclaves protegidos por hardware, fragmentadas e nunca expostas em texto claro no navegador ou servidor."
+      },
+      "auth": {
+        "title": "Autenticação em camadas",
+        "desc": "E-mail + senha, 2FA obrigatório em saques, impressão digital do dispositivo e verificação adicional em operações de alto valor."
+      },
+      "audit": {
+        "title": "Trilha de auditoria transparente",
+        "desc": "Todo login, mudança de permissão, depósito, transferência e ação administrativa é assinado e gravado em log imutável — revisável a qualquer momento."
+      },
+      "wallets": {
+        "title": "Carteiras multiativo segregadas",
+        "desc": "BTC, ETH e stablecoins ficam em carteiras separadas e auditadas individualmente — sem mistura de fundos ou exposição a hot wallet compartilhada."
+      },
+      "encryption": {
+        "title": "Criptografia ponta a ponta",
+        "desc": "AES-256 em repouso, TLS 1.3 em trânsito e entradas do cliente criptografadas para qualquer dado pessoal ou endereço de carteira."
+      }
+    },
+    "ctaFinal": {
+      "title": "Abra um cofre em menos de um minuto.",
+      "subtitle": "Cadastre-se, verifique sua identidade e sua conta fica travada em você — de ponta a ponta.",
+      "button": "Começar agora"
+    },
+    "footer": "Todos os direitos reservados."
   },
   "admin": {
     "dashboard": "Visão geral",

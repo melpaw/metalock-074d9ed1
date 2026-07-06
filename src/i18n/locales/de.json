@@ -191,7 +191,7 @@
     "chooseFunded": "Währung mit Guthaben wählen...",
     "max": "Max",
     "destAddress": "Zieladresse",
-    "sendRequested": "Sendung angefragt. Warten auf Admin-Genehmigung.",
+    "sendRequested": "Anfrage zur Genehmigung eingereicht",
     "youPay": "Sie zahlen",
     "youReceive": "Sie erhalten",
     "rate": "Kurs",
@@ -217,7 +217,13 @@
     "fromWallet": "Von welcher Wallet",
     "toWallet": "In welche Wallet",
     "confirmTransfer": "Überweisung bestätigen",
-    "transferDone": "Überweisung abgeschlossen"
+    "transferDone": "Überweisung abgeschlossen",
+    "destinationAddress": "Zieladresse",
+    "notesOptional": "Notizen (optional)",
+    "sendPendingHint": "Die Überweisung wird von einem Admin oder Agenten geprüft. Ihr Guthaben ist bis zur Freigabe reserviert.",
+    "requestSend": "Senden anfragen",
+    "invalidAmount": "Ungültiger Betrag",
+    "insufficient": "Unzureichendes Guthaben"
   },
   "tx": {
     "type": "Typ",
@@ -378,17 +384,77 @@
     "market": "Markt",
     "features": "Funktionen",
     "plans": "Pläne",
-    "heroBadge": "System online · Live-Preise",
+    "heroBadge": "Krypto-Tresor mit Sicherheitsfokus",
     "heroTitle": "Der professionelle Weg zu investieren in",
-    "heroTitleAccent": "Krypto",
-    "heroSubtitle": "Sichere Wallet, Tagesrendite-Investitionen, Staking und vollständiges Admin-Panel — alles in einer Plattform.",
+    "heroTitleAccent": "Ihre Identität",
+    "heroSubtitle": "MetaLock erlaubt Überweisungen nur an Wallets, die auf Ihren verifizierten Namen registriert sind. Selbst mit gestohlenen Zugangsdaten kann ein Angreifer keine einzige Coin abziehen.",
     "start": "Loslegen",
     "haveAccount": "Ich habe ein Konto",
     "featuresTitle": "Alles, was Sie brauchen",
     "featuresSubtitle": "Professionelle Tools zum Investieren, Verfolgen und Wachsen.",
     "ctaTitle": "Bereit zu starten?",
     "ctaSubtitle": "Erstellen Sie Ihr Konto in Sekunden.",
-    "ctaButton": "Kostenloses Konto erstellen"
+    "ctaButton": "Kostenloses Konto erstellen",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "heroTitleA": "Ihre Krypto, gebunden an",
+    "heroTitleB": ".",
+    "ctaPrimary": "Sicheres Konto erstellen",
+    "ctaSecondary": "Anmelden",
+    "trust": {
+      "encryption": "Verschlüsselung",
+      "transport": "Transport",
+      "key": "Schlüsselverwahrung",
+      "uptime": "Verfügbarkeit"
+    },
+    "stats": {
+      "title": "Vertrauen von Buildern und Langfrist-Haltern",
+      "protected": "Geschützte Vermögen",
+      "protectedSuffix": "in Verwahrung",
+      "clients": "Verifizierte Kunden",
+      "clientsSuffix": "weltweit",
+      "uptime": "Plattform-Verfügbarkeit",
+      "uptimeSuffix": "letzte 12 Monate",
+      "breaches": "Sicherheitsvorfälle",
+      "breachesSuffix": "seit Start"
+    },
+    "guaranteeKicker": "Die MetaLock-Garantie",
+    "guaranteeTitle": "Ein Hacker mit Ihrem Passwort kann Ihre Krypto trotzdem nicht stehlen.",
+    "guaranteeBody": "Jede Auszahlungsadresse ist kryptographisch an eine Wallet gebunden, die auf Ihre verifizierte Identität registriert ist. Unbekannte Ziele werden auf Protokollebene abgewiesen — nicht durch einen wegklickbaren Warnhinweis. Das ist unsere zentrale Verteidigung und ist standardmäßig für jedes Konto aktiv.",
+    "pillarsTitle": "So schützen wir jedes Konto",
+    "pillarsSubtitle": "Defense in Depth: Identität, Schlüssel, Sitzungen, Transport, Speicher und Audit — auf jeder Ebene gehärtet.",
+    "pillars": {
+      "identity": {
+        "title": "Identitätsgebundene Transfers",
+        "desc": "Sie senden und empfangen nur von Wallets, die auf Ihre verifizierte Identität registriert sind (KYC + Kontoauszug). Ein gestohlenes Passwort bewegt kein Guthaben an Fremde."
+      },
+      "keys": {
+        "title": "Isolierte Schlüsselverwahrung",
+        "desc": "Private Schlüssel werden in hardwaregestützten Enklaven erzeugt und gespeichert, aufgeteilt und nie im Klartext im Browser oder Server sichtbar."
+      },
+      "auth": {
+        "title": "Mehrschichtige Authentifizierung",
+        "desc": "E-Mail + Passwort, verpflichtende 2FA bei Auszahlungen, Geräte-Fingerprinting und Step-up-Verifikation bei jedem hochwertigen Vorgang."
+      },
+      "audit": {
+        "title": "Transparenter Audit-Trail",
+        "desc": "Jede Anmeldung, Rechteänderung, Einzahlung, Überweisung und Admin-Aktion wird signiert und in ein unveränderliches Audit-Log geschrieben — jederzeit prüfbar."
+      },
+      "wallets": {
+        "title": "Segregierte Multi-Asset-Wallets",
+        "desc": "BTC, ETH und Stablecoins liegen in getrennten, einzeln auditierten Wallets — keine Vermischung, keine geteilte Hot-Wallet-Exponierung."
+      },
+      "encryption": {
+        "title": "Ende-zu-Ende-Verschlüsselung",
+        "desc": "AES-256 im Ruhezustand, TLS 1.3 in Übertragung und clientseitig verschlüsselte Eingaben für alle personenbezogenen Daten oder Wallet-Adressen."
+      }
+    },
+    "ctaFinal": {
+      "title": "Öffnen Sie in unter einer Minute einen Tresor.",
+      "subtitle": "Registrieren, Identität verifizieren — Ihr Konto ist an Sie gebunden, Ende zu Ende.",
+      "button": "Loslegen"
+    },
+    "footer": "Alle Rechte vorbehalten."
   },
   "admin": {
     "dashboard": "Übersicht",
