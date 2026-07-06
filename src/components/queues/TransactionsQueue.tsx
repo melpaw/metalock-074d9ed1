@@ -171,10 +171,11 @@ export function TransactionsQueue() {
   }
 }
 
-function TxRow({ r, t, language, onDetail, onApprove, onReject }: any) {
+function TxRow({ r, t, language, onDetail, onApprove, onReject, onQuoteInsurance }: any) {
   const amt = Math.abs(Number(r.amount));
   const sym = r.currencies?.symbol ?? "?";
   const canAct = r.status === "pending" && ["swap", "deposit", "withdrawal"].includes(r.type);
+  const needsQuote = r.type === "withdrawal" && r.metadata?.insurance_requested && !r.metadata?.insurance_percent;
   return (
     <div className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-4 px-5 py-4">
       <TypeIcon type={r.type} />
@@ -194,8 +195,13 @@ function TxRow({ r, t, language, onDetail, onApprove, onReject }: any) {
         {new Date(r.created_at).toLocaleDateString(language)}
         <div>{new Date(r.created_at).toLocaleTimeString(language)}</div>
       </div>
-      <div className="flex gap-1">
+      <div className="flex flex-wrap justify-end gap-1">
         <Button size="sm" variant="outline" onClick={onDetail}><Info className="h-3.5 w-3.5" /></Button>
+        {needsQuote && (
+          <Button size="sm" variant="outline" onClick={onQuoteInsurance} className="border-warning/40 text-warning">
+            <ShieldCheck className="h-3.5 w-3.5 mr-1" />{t("admin.quoteInsurance")}
+          </Button>
+        )}
         {canAct && (
           <>
             <Button size="sm" onClick={onApprove}>{t("common.approve")}</Button>
