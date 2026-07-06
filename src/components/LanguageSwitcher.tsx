@@ -34,7 +34,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size={compact ? "icon" : "sm"} className="gap-2">
           <Globe className="h-4 w-4" />
-          {!compact && <span className="text-sm">{current.flag} {current.label}</span>}
+          {!compact && <span className="text-sm">{mounted ? `${current.flag} ${current.label}` : current.label}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
