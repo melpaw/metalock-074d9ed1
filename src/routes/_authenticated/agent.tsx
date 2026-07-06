@@ -16,7 +16,6 @@ const nav = [
   { to: "/agent/transactions", label: "Transações", icon: Users },
   { to: "/agent/kyc", label: "KYC", icon: Users },
   { to: "/agent/tickets", label: "Tickets", icon: Headphones },
-  { to: "/agent/users", label: "Clientes", icon: Users },
 ];
 
 function AgentLayout() {
