@@ -41,6 +41,8 @@
   "nav": {
     "overview": "Overview",
     "wallet": "Wallet",
+    "wallets": "Wallets",
+    "market": "Market",
     "plans": "Plans",
     "transactions": "Transactions",
     "support": "Support",
@@ -52,6 +54,25 @@
     "team": "Team",
     "currencies": "Currencies",
     "viewAsClient": "View as client"
+  },
+  "market": {
+    "subtitle": "Buy crypto and track your cashback",
+    "livePrices": "Live prices",
+    "buyOneClick": "1-click buy",
+    "buy": "Buy",
+    "cashbackAvailable": "Cashback available",
+    "cashbackHint": "Credited in USDT after approval",
+    "cashbackRate": "Cashback rate",
+    "cashbackRateHint": "Applied on every approved buy",
+    "cashbackHistory": "Cashback history",
+    "cashbackCount": "credits received"
+  },
+  "wallets": {
+    "subtitle": "All your wallets in one place",
+    "name": "Name",
+    "balance": "Balance",
+    "value": "Value",
+    "address": "Address"
   },
   "overview": {
     "title": "Welcome",
