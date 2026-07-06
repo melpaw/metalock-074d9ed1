@@ -98,7 +98,8 @@ function OverviewPage() {
     const cg = w.currencies?.coingecko_id;
     const livePrice = cg ? prices[cg]?.usd : undefined;
     const sym = (w.currencies?.symbol ?? "").toUpperCase();
-    const fallback = Number(w.currencies?.usd_price ?? 0) || (sym === "USDT" || sym === "USD" ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
+    const stables = ["USDT","USDC","DAI","BUSD","TUSD","USD"];
+    const fallback = Number(w.currencies?.usd_price ?? 0) || (stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
     const priceUsd = livePrice ?? fallback;
     const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
     const total = Number(w.available) + Number(w.locked);
