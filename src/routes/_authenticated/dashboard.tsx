@@ -23,6 +23,7 @@ function DashboardRouter() {
 
   const roles = (data ?? []).map((r) => r.role);
   if (roles.includes("admin")) return <Navigate to="/admin" />;
-  if (roles.includes("agent")) return <Navigate to="/agent" />;
+  if (roles.includes("agent")) return <Navigate to="/admin" />;
   return <Navigate to="/app" />;
+
 }

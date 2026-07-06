@@ -18,21 +18,33 @@ function ClientsList() {
   const { data: clients, isLoading } = useQuery({
     queryKey: ["admin-clients"],
     queryFn: async () => {
-      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "client");
-      const ids = (roles ?? []).map((r) => r.user_id);
+      // RLS scopes profiles for agents to their own clients (registered_by = auth.uid());
+      // admins see all. We filter out non-clients using user_roles when readable.
+      const [{ data: profiles }, { data: roles }] = await Promise.all([
+        supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
+      const roleMap = new Map<string, string>();
+      (roles ?? []).forEach((r: any) => roleMap.set(r.user_id, r.role));
+      const clientProfiles = (profiles ?? []).filter((p: any) => {
+        const r = roleMap.get(p.id);
+        // If we cannot see the role (agent RLS), assume it is a client of ours.
+        return !r || r === "client";
+      });
+      const ids = clientProfiles.map((p: any) => p.id);
       if (ids.length === 0) return [];
-      const [profiles, tx, tickets] = await Promise.all([
-        supabase.from("profiles").select("*").in("id", ids),
+      const [tx, tickets] = await Promise.all([
         supabase.from("transactions").select("user_id, status").in("user_id", ids).eq("status", "pending"),
         supabase.from("support_tickets").select("user_id, status").in("user_id", ids).in("status", ["open", "pending"]),
       ]);
-      return (profiles.data ?? []).map((p: any) => ({
+      return clientProfiles.map((p: any) => ({
         ...p,
         pendingTx: (tx.data ?? []).filter((t) => t.user_id === p.id).length,
         openTickets: (tickets.data ?? []).filter((t) => t.user_id === p.id).length,
       }));
     },
   });
+
 
   const filtered = clients?.filter((c: any) =>
     !search ||

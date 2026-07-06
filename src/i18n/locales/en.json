@@ -191,7 +191,7 @@
     "chooseFunded": "Choose a funded currency...",
     "max": "Max",
     "destAddress": "Destination address",
-    "sendRequested": "Send requested. Awaiting admin approval.",
+    "sendRequested": "Send request submitted for approval",
     "youPay": "You pay",
     "youReceive": "You receive",
     "rate": "Rate",
@@ -217,7 +217,13 @@
     "fromWallet": "From which wallet",
     "toWallet": "To which wallet",
     "confirmTransfer": "Confirm transfer",
-    "transferDone": "Transfer completed"
+    "transferDone": "Transfer completed",
+    "destinationAddress": "Destination address",
+    "notesOptional": "Notes (optional)",
+    "sendPendingHint": "The transfer will be reviewed by an admin or agent. Your balance is reserved until approval.",
+    "requestSend": "Request send",
+    "invalidAmount": "Invalid amount",
+    "insufficient": "Insufficient balance"
   },
   "tx": {
     "type": "Type",
@@ -378,17 +384,77 @@
     "market": "Market",
     "features": "Features",
     "plans": "Plans",
-    "heroBadge": "System online · Live prices",
+    "heroBadge": "Security-first crypto vault",
     "heroTitle": "The professional way to invest in",
-    "heroTitleAccent": "crypto",
-    "heroSubtitle": "Secure wallet, daily-yield investments, staking and a complete admin panel — all in one platform.",
+    "heroTitleAccent": "your identity",
+    "heroSubtitle": "MetaLock only lets you transfer to wallets registered in your own verified name. Even if an attacker stole your credentials, they still couldn't move a single coin out.",
     "start": "Get started",
     "haveAccount": "I have an account",
     "featuresTitle": "Everything you need",
     "featuresSubtitle": "Professional tools to invest, track and grow.",
     "ctaTitle": "Ready to start?",
     "ctaSubtitle": "Create your account in seconds.",
-    "ctaButton": "Create a free account"
+    "ctaButton": "Create a free account",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "heroTitleA": "Your crypto, locked to",
+    "heroTitleB": ".",
+    "ctaPrimary": "Create secure account",
+    "ctaSecondary": "Sign in",
+    "trust": {
+      "encryption": "Encryption",
+      "transport": "Transport",
+      "key": "Key custody",
+      "uptime": "Uptime"
+    },
+    "stats": {
+      "title": "Trusted by builders and long-term holders",
+      "protected": "Assets protected",
+      "protectedSuffix": "in custody",
+      "clients": "Verified clients",
+      "clientsSuffix": "worldwide",
+      "uptime": "Platform uptime",
+      "uptimeSuffix": "last 12 months",
+      "breaches": "Security breaches",
+      "breachesSuffix": "since launch"
+    },
+    "guaranteeKicker": "The MetaLock guarantee",
+    "guaranteeTitle": "A hacker with your password still can't steal your crypto.",
+    "guaranteeBody": "Every withdrawal address is cryptographically bound to a wallet registered under your verified identity. Unknown destinations are rejected at the protocol level — not by a warning banner you can click through. This is our headline defence, and it is on by default for every account.",
+    "pillarsTitle": "How we protect every account",
+    "pillarsSubtitle": "Defence in depth: identity, keys, sessions, transport, storage and audit — hardened at every layer.",
+    "pillars": {
+      "identity": {
+        "title": "Identity-locked transfers",
+        "desc": "You can only send to — and receive from — wallets registered under your own verified identity (KYC + bank statement). A stolen password or compromised device cannot move funds to a stranger's wallet."
+      },
+      "keys": {
+        "title": "Isolated key custody",
+        "desc": "Private keys are generated and stored in hardware-backed enclaves, sharded and never exposed to the browser or the server in plaintext."
+      },
+      "auth": {
+        "title": "Layered authentication",
+        "desc": "Email + password, mandatory 2FA on withdrawals, device fingerprinting, and step-up verification on every high-value operation."
+      },
+      "audit": {
+        "title": "Transparent audit trail",
+        "desc": "Every login, permission change, deposit, transfer and admin action is signed and written to an immutable audit log — reviewable at any time."
+      },
+      "wallets": {
+        "title": "Segregated multi-asset wallets",
+        "desc": "BTC, ETH and stablecoins are held in separate, individually-audited wallets — no commingling, no shared hot-wallet exposure."
+      },
+      "encryption": {
+        "title": "End-to-end encryption",
+        "desc": "AES-256 at rest, TLS 1.3 in transit, and encrypted client-side inputs for anything containing personal data or wallet addresses."
+      }
+    },
+    "ctaFinal": {
+      "title": "Open a vault in under a minute.",
+      "subtitle": "Sign up, verify your identity, and your account is locked to you — end to end.",
+      "button": "Get started"
+    },
+    "footer": "All rights reserved."
   },
   "admin": {
     "dashboard": "Overview",

@@ -9,10 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Wallet, Send, ArrowDownToLine, QrCode, ChevronRight, TrendingUp, TrendingDown, ExternalLink } from "lucide-react";
+import { Copy, Wallet, Send, ArrowDownToLine, QrCode, ChevronRight, TrendingUp, TrendingDown, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { WalletActions } from "@/components/wallet/WalletActions";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+
 
 export const Route = createFileRoute("/_authenticated/app/wallets")({
   component: WalletsPage,
@@ -270,16 +274,15 @@ function WalletDetailDialog({ row, onClose, wallets, currencies, prices, copy, l
           </TabsContent>
 
           <TabsContent value="send" className="mt-3">
-            <WalletActions
-              wallets={wallets}
-              currencies={currencies}
-              prices={prices}
+            <SendRequestPanel
+              row={row}
               onDone={() => {
                 qc.invalidateQueries({ queryKey: ["all-my-wallets"] });
                 qc.invalidateQueries({ queryKey: ["wallet-history", row.currency_id] });
               }}
             />
           </TabsContent>
+
 
           <TabsContent value="history" className="mt-3">
             {!history || history.length === 0 ? (
@@ -319,3 +322,64 @@ function WalletDetailDialog({ row, onClose, wallets, currencies, prices, copy, l
     </Dialog>
   );
 }
+
+function SendRequestPanel({ row, onDone }: { row: any; onDone: () => void }) {
+  const { t } = useTranslation();
+  const [toAddress, setToAddress] = useState("");
+  const [amount, setAmount] = useState("");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const available = Number(row.available ?? 0);
+
+  async function submit() {
+    if (!toAddress.trim() || !amount) return toast.error(t("wallet.fillAll"));
+    const amt = Number(amount);
+    if (!(amt > 0)) return toast.error(t("wallet.invalidAmount", { defaultValue: "Valor inválido" }));
+    if (amt > available) return toast.error(t("wallet.insufficient", { defaultValue: "Saldo insuficiente" }));
+    setLoading(true);
+    try {
+      const { error } = await supabase.rpc("client_request_external_send" as any, {
+        _currency_id: row.currency_id,
+        _amount: amt,
+        _to_address: toAddress.trim(),
+        _notes: notes.trim() || null,
+      });
+      if (error) throw error;
+      toast.success(t("wallet.sendRequested", { defaultValue: "Solicitação enviada para aprovação" }));
+      setToAddress(""); setAmount(""); setNotes(""); onDone();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setLoading(false); }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-xs flex items-start gap-2">
+        <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <span>{t("wallet.sendPendingHint", { defaultValue: "O envio será revisado por um administrador ou agente. O saldo fica reservado até a aprovação." })}</span>
+      </div>
+      <div>
+        <Label>{t("wallet.destinationAddress", { defaultValue: "Endereço de destino" })}</Label>
+        <Input value={toAddress} onChange={(e) => setToAddress(e.target.value)} placeholder={row.currencies?.symbol + " address"} />
+      </div>
+      <div>
+        <div className="flex items-end justify-between">
+          <Label>{t("common.amount")}</Label>
+          <button type="button" className="text-xs text-primary hover:underline" onClick={() => setAmount(String(available))}>
+            {t("wallet.max")} · {available.toFixed(6)} {row.currencies?.symbol}
+          </button>
+        </div>
+        <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+      </div>
+      <div>
+        <Label>{t("wallet.notesOptional", { defaultValue: "Observações (opcional)" })}</Label>
+        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="—" />
+      </div>
+      <Button onClick={submit} disabled={loading} className="w-full">
+        <Send className="mr-1 h-4 w-4" />
+        {loading ? t("common.sending") : t("wallet.requestSend", { defaultValue: "Solicitar envio" })}
+      </Button>
+    </div>
+  );
+}
+

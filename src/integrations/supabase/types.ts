@@ -816,6 +816,15 @@ export type Database = {
         Args: { _currency_id: string }
         Returns: string
       }
+      client_request_external_send: {
+        Args: {
+          _amount: number
+          _currency_id: string
+          _notes: string
+          _to_address: string
+        }
+        Returns: string
+      }
       client_request_withdrawal_v2: {
         Args: {
           _amount: number
