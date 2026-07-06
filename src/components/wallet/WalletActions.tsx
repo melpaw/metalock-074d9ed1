@@ -222,6 +222,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const [currencyId, setCurrencyId] = useState("");
   const [amount, setAmount] = useState("");
   const [bankId, setBankId] = useState("");
+  const [insurance, setInsurance] = useState(false);
   const [loading, setLoading] = useState(false);
   const funded = wallets.filter((w) => Number(w.available) > 0);
   const { data: banks } = useQuery({
@@ -231,14 +232,20 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const cur = funded.find((w) => w.currency_id === currencyId);
   const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : cur?.currencies?.symbol === "USDT" ? 1 : 0;
   const usdTotal = Number(amount || 0) * price;
+  const conversionFeeRate = 0.035;
+  const conversionFee = usdTotal * conversionFeeRate;
+  const netUsd = Math.max(usdTotal - conversionFee, 0);
+
   async function submit() {
     if (!currencyId || !amount) return toast.error(t("wallet.fillFields"));
     if (!bankId) return toast.error(t("wallet.noBank"));
     setLoading(true);
     try {
-      const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: `BANK:${bankId}` });
+      const marker = insurance ? "[INSURANCE_QUOTE_REQUESTED] " : "";
+      const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: `${marker}BANK:${bankId}` });
       if (error) throw error;
-      toast.success(t("wallet.withdrawalRequested")); setAmount(""); onDone();
+      toast.success(t("wallet.withdrawalRequested"));
+      setAmount(""); setInsurance(false); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
   return (
@@ -253,7 +260,13 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
       <div>
         <Label>{t("common.amount")}</Label>
         <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
-        {price > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ ${usdTotal.toFixed(2)} USD</div>}
+        {price > 0 && (
+          <div className="mt-2 space-y-0.5 rounded-sm border border-border bg-surface-elevated p-2 text-xs">
+            <div className="flex justify-between"><span className="text-muted-foreground">≈</span><span className="font-mono">${usdTotal.toFixed(2)} USD</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("wallet.conversionFee")} (3.5%)</span><span className="font-mono text-down">−${conversionFee.toFixed(2)}</span></div>
+            <div className="flex justify-between font-semibold"><span>{t("wallet.netReceive")}</span><span className="font-mono">${netUsd.toFixed(2)}</span></div>
+          </div>
+        )}
       </div>
       <div>
         <Label>{t("wallet.bankAccount")}</Label>
@@ -263,9 +276,16 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
             <SelectContent>{banks.map((b) => <SelectItem key={b.id} value={b.id}>{b.bank_name} · •••• {b.last4}</SelectItem>)}</SelectContent>
           </Select>
         ) : (
-          <div className="rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground text-center">{t("wallet.noBank")}</div>
+          <div className="rounded-sm border border-dashed border-border p-3 text-xs text-muted-foreground text-center">{t("wallet.noBank")}</div>
         )}
       </div>
+      <label className="flex items-start gap-2 rounded-sm border border-border bg-surface-elevated p-3 cursor-pointer">
+        <input type="checkbox" checked={insurance} onChange={(e) => setInsurance(e.target.checked)} className="mt-0.5" />
+        <div className="text-xs">
+          <div className="font-medium">{t("wallet.insuranceQuote")}</div>
+          <div className="text-muted-foreground">{t("wallet.insuranceQuoteHint")}</div>
+        </div>
+      </label>
       <Button onClick={submit} disabled={loading || !banks?.length} className="w-full">{loading ? t("common.sending") : t("wallet.requestWithdrawal")}</Button>
     </div>
   );
