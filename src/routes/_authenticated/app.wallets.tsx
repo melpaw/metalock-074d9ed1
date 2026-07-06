@@ -9,9 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Wallet, Send, ArrowDownToLine, QrCode, ChevronRight, TrendingUp, TrendingDown, ExternalLink } from "lucide-react";
+import { Copy, Wallet, Send, ArrowDownToLine, QrCode, ChevronRight, TrendingUp, TrendingDown, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 import { WalletActions } from "@/components/wallet/WalletActions";
 
 export const Route = createFileRoute("/_authenticated/app/wallets")({
