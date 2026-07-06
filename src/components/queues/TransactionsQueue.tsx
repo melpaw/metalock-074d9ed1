@@ -19,9 +19,12 @@ const TABS: { key: Tab; label: string }[] = [
 
 const STATUS_COLOR: Record<string, string> = {
   pending: "bg-warning/15 text-warning border-warning/30",
+  hold: "bg-warning/15 text-warning border-warning/30",
+  processing: "bg-warning/15 text-warning border-warning/30",
+  approved: "bg-up/15 text-up border-up/30",
   completed: "bg-up/15 text-up border-up/30",
   rejected: "bg-down/15 text-down border-down/30",
-  cancelled: "bg-muted/40 text-muted-foreground border-border",
+  cancelled: "bg-down/15 text-down border-down/30",
 };
 
 export function TransactionsQueue() {
@@ -34,7 +37,7 @@ export function TransactionsQueue() {
     queryFn: async () => {
       let q = supabase
         .from("transactions")
-        .select("*, currencies(symbol,name,coingecko_id)")
+        .select("*, currencies(symbol,name,coingecko_id,usd_price)")
         .order("created_at", { ascending: false })
         .limit(200);
       if (tab !== "all") q = q.eq("status", tab);
@@ -188,22 +191,21 @@ function typeLabel(t: string) {
 function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) {
   if (!tx) return null;
   const md = tx.metadata ?? {};
-  const rows: Array<[string, string]> = ([
+  const status = String(md.ui_status || tx.status || "pending").toLowerCase();
+  const statusKey = status === "approved" ? "completed" : status === "canceled" ? "cancelled" : status;
+  const feeUsd = Number(tx.fee ?? 0) * Number(tx.currencies?.usd_price ?? 0);
+  const rows: Array<[string, string, string?]> = ([
+    ["Tipo", typeLabel(tx.type)],
+    ["Valor", `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""} · $${Number(tx.usd_value ?? 0).toFixed(2)}`],
+    ["Taxa", `${Number(tx.fee ?? 0).toFixed(8)} ${tx.currencies?.symbol ?? ""} · $${feeUsd.toFixed(2)}`],
+    ["Status", statusKey, STATUS_COLOR[statusKey] ?? STATUS_COLOR.pending],
+    ["Hash ID", md.tx_hash],
+    ["Referência", tx.reference],
+    ["Data", new Date(tx.created_at).toLocaleString()],
+    ["Nota", tx.note],
     ["Cliente", tx.profile?.full_name || tx.profile?.email],
     ["Email", tx.profile?.email],
-    ["Tipo", typeLabel(tx.type)],
-    ["Status", tx.status],
-    ["Moeda", tx.currencies?.name],
-    ["Valor", `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    ["USD", `$${Number(tx.usd_value ?? 0).toFixed(2)}`],
-    ["Data", new Date(tx.created_at).toLocaleString()],
-    ["Hash", md.tx_hash],
-    ["Endereço remetente", md.sender_address],
-    ["Endereço destino", md.address],
-    ["Nota", tx.note],
-    ["Referência", tx.reference],
-    ["Metadata", JSON.stringify(md)],
-  ] as Array<[string, any]>).filter(([, v]) => v).map(([k, v]) => [k, String(v)] as [string, string]);
+  ] as Array<[string, any, string?]>).filter(([, v]) => v).map(([k, v, c]) => [k, String(v), c] as [string, string, string?]);
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
@@ -212,10 +214,10 @@ function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) 
           <DialogTitle>Detalhes da transação</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2">
-          {rows.map(([k, v]) => (
+          {rows.map(([k, v, c]) => (
             <div key={k} className="grid grid-cols-[10rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
               <span className="text-muted-foreground">{k}</span>
-              <span className="min-w-0 break-words font-medium">{String(v)}</span>
+              <span className={`min-w-0 break-words font-medium ${c ?? ""}`}>{String(v)}</span>
             </div>
           ))}
         </div>

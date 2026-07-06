@@ -148,6 +148,13 @@
     -webkit-font-smoothing: antialiased;
   }
   ::selection { background: oklch(0.82 0.16 90 / 0.3); }
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl {
+    border-radius: var(--radius) !important;
+  }
 }
 
 @utility text-up { color: var(--color-up); }

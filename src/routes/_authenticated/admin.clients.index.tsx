@@ -56,7 +56,7 @@ function ClientsList() {
       {isLoading && <div className="text-center text-muted-foreground py-12">Carregando...</div>}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="rounded-xl border border-border bg-surface p-12 text-center text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-12 text-center text-muted-foreground">
           Nenhum cliente encontrado.
         </div>
       )}
@@ -67,10 +67,10 @@ function ClientsList() {
             key={c.id}
             to="/admin/clients/$userId"
             params={{ userId: c.id }}
-            className="group block rounded-xl border border-border bg-surface p-4 transition hover:border-primary hover:bg-surface-elevated"
+            className="group block rounded-sm border border-border bg-surface p-4 transition hover:border-primary hover:bg-surface-elevated"
           >
             <div className="flex items-start gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-lg gradient-primary font-bold text-primary-foreground">
+              <div className="grid h-12 w-12 place-items-center rounded-sm gradient-primary font-bold text-primary-foreground">
                 {(c.full_name || c.email || "?").slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">

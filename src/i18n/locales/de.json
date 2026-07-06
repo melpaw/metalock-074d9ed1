@@ -112,6 +112,52 @@
     "diffCurrency": "Verschiedene Währungen wählen",
     "noQuote": "Kein Kurs für dieses Paar verfügbar"
   },
+  "market": {
+    "title": "Markt",
+    "subtitle": "Live-Preise · mit einem Klick kaufen",
+    "buy": "Kaufen"
+  },
+  "buy": {
+    "title": "{{asset}} kaufen",
+    "price": "Preis",
+    "payWith": "Bezahlen mit",
+    "selectWallet": "Wallet auswählen",
+    "noWallets": "Keine Wallets mit Guthaben",
+    "amountIn": "Betrag in {{symbol}}",
+    "available": "Verfügbar",
+    "estimate": "Voraussichtlich erhalten",
+    "cashback": "Cashback (0,5%)",
+    "confirm": "Kauf bestätigen",
+    "pendingHint": "Der Kauf bleibt bis zur Freigabe durch das Team ausstehend. Ihr Guthaben wird währenddessen gesperrt.",
+    "sent": "Kaufanfrage gesendet. Warten Sie auf Freigabe.",
+    "errors": {
+      "wallet": "Quell-Wallet auswählen",
+      "amount": "Ungültiger Betrag",
+      "balance": "Unzureichendes Guthaben"
+    }
+  },
+  "cashback": {
+    "title": "Gesammelter Cashback",
+    "hint": "0,5% zurück in USDT bei jedem genehmigten Kauf. Bisher {{count}} Prämien."
+  },
+  "kyc": {
+    "fullName": "Vollständiger Name",
+    "birthDate": "Geburtsdatum",
+    "country": "Land",
+    "docType": "Dokumenttyp",
+    "docNumber": "Dokumentnummer",
+    "address": "Adresse",
+    "documentPhoto": "Dokumentfoto",
+    "bankStatement": "Kontoauszug (PDF oder Bild)",
+    "sent": "KYC eingereicht",
+    "errors": { "files": "Dokument und Kontoauszug sind erforderlich" },
+    "status": {
+      "not_submitted": "Nicht eingereicht",
+      "pending": "Ausstehend",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    }
+  },
   "tx": {
     "type": "Typ",
     "status": "Status",
@@ -130,6 +176,7 @@
     "investment": "Investition",
     "adjustment": "Anpassung",
     "transfer": "Überweisung",
+    "profit": "Gewinn",
     "details": "Details",
     "detailsTitle": "Transaktionsdetails",
     "fee": "Gebühr",

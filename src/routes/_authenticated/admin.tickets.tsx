@@ -34,7 +34,7 @@ function TicketsPage() {
         <h1 className="text-2xl font-bold tracking-tight">{t("support.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("support.adminSubtitle")}</p>
       </div>
-      <div className="rounded-xl border border-border bg-surface divide-y divide-border">
+      <div className="rounded-sm border border-border bg-surface divide-y divide-border">
         {isLoading && <div className="p-12 text-center text-muted-foreground">{t("common.loading")}</div>}
         {error && <div className="p-6 text-sm text-down">{(error as Error).message}</div>}
         {tickets?.map((ticket: any) => (

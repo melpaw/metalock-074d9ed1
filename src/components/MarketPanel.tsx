@@ -7,8 +7,10 @@ import { CryptoIcon } from "@/components/CryptoIcon";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
 import { BuyCryptoDialog } from "@/components/BuyCryptoDialog";
+import { useTranslation } from "react-i18next";
 
 export function MarketPanel() {
+  const { t } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
   const [buyCurrency, setBuyCurrency] = useState<any | null>(null);
 
@@ -31,8 +33,8 @@ export function MarketPanel() {
     <section className="rounded-sm border border-border bg-surface overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
-          <h2 className="font-semibold">Mercado</h2>
-          <p className="text-xs text-muted-foreground">Preços ao vivo · compre em 1 clique</p>
+          <h2 className="font-semibold">{t("market.title")}</h2>
+          <p className="text-xs text-muted-foreground">{t("market.subtitle")}</p>
         </div>
         <ShoppingCart className="h-4 w-4 text-primary" />
       </div>
@@ -55,7 +57,7 @@ export function MarketPanel() {
                   {change >= 0 ? "+" : ""}{change.toFixed(2)}%
                 </div>
               </div>
-              <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>Comprar</Button>
+               <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>{t("market.buy")}</Button>
             </div>
           );
         })}
