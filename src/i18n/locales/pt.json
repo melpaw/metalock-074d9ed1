@@ -41,8 +41,10 @@
   "nav": {
     "overview": "Início",
     "wallet": "Carteira",
+    "wallets": "Carteiras",
+    "market": "Mercado",
     "plans": "Planos",
-    "transactions": "Extrato",
+    "transactions": "Transações",
     "support": "Suporte",
     "profile": "Perfil",
     "clientArea": "Área do cliente",
@@ -52,6 +54,25 @@
     "team": "Equipe",
     "currencies": "Moedas",
     "viewAsClient": "Ver como cliente"
+  },
+  "market": {
+    "subtitle": "Compre criptomoedas e acompanhe o cashback",
+    "livePrices": "Preços ao vivo",
+    "buyOneClick": "Compra em 1 clique",
+    "buy": "Comprar",
+    "cashbackAvailable": "Cashback disponível",
+    "cashbackHint": "Creditado em USDT após aprovação",
+    "cashbackRate": "Taxa de cashback",
+    "cashbackRateHint": "Aplicado em cada compra aprovada",
+    "cashbackHistory": "Histórico de cashback",
+    "cashbackCount": "créditos recebidos"
+  },
+  "wallets": {
+    "subtitle": "Todas as suas carteiras em um só lugar",
+    "name": "Nome",
+    "balance": "Saldo",
+    "value": "Valor",
+    "address": "Endereço"
   },
   "overview": {
     "title": "Bem-vindo",

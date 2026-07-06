@@ -20,8 +20,10 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAgentIndexRouteImport } from './routes/_authenticated/agent.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAppWalletsRouteImport } from './routes/_authenticated/app.wallets'
 import { Route as AuthenticatedAppSupportRouteImport } from './routes/_authenticated/app.support'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
+import { Route as AuthenticatedAppMarketRouteImport } from './routes/_authenticated/app.market'
 import { Route as AuthenticatedAppInvestRouteImport } from './routes/_authenticated/app.invest'
 import { Route as AuthenticatedAgentTransactionsRouteImport } from './routes/_authenticated/agent.transactions'
 import { Route as AuthenticatedAgentTicketsRouteImport } from './routes/_authenticated/agent.tickets'
@@ -93,6 +95,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAppWalletsRoute = AuthenticatedAppWalletsRouteImport.update({
+  id: '/wallets',
+  path: '/wallets',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSupportRoute = AuthenticatedAppSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -101,6 +108,11 @@ const AuthenticatedAppSupportRoute = AuthenticatedAppSupportRouteImport.update({
 const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppMarketRoute = AuthenticatedAppMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppInvestRoute = AuthenticatedAppInvestRouteImport.update({
@@ -213,8 +225,10 @@ export interface FileRoutesByFullPath {
   '/agent/tickets': typeof AuthenticatedAgentTicketsRouteWithChildren
   '/agent/transactions': typeof AuthenticatedAgentTransactionsRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/market': typeof AuthenticatedAppMarketRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/app/wallets': typeof AuthenticatedAppWalletsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/agent/': typeof AuthenticatedAgentIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -240,8 +254,10 @@ export interface FileRoutesByTo {
   '/agent/tickets': typeof AuthenticatedAgentTicketsRouteWithChildren
   '/agent/transactions': typeof AuthenticatedAgentTransactionsRoute
   '/app/invest': typeof AuthenticatedAppInvestRoute
+  '/app/market': typeof AuthenticatedAppMarketRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/app/wallets': typeof AuthenticatedAppWalletsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/agent': typeof AuthenticatedAgentIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -272,8 +288,10 @@ export interface FileRoutesById {
   '/_authenticated/agent/tickets': typeof AuthenticatedAgentTicketsRouteWithChildren
   '/_authenticated/agent/transactions': typeof AuthenticatedAgentTransactionsRoute
   '/_authenticated/app/invest': typeof AuthenticatedAppInvestRoute
+  '/_authenticated/app/market': typeof AuthenticatedAppMarketRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/support': typeof AuthenticatedAppSupportRouteWithChildren
+  '/_authenticated/app/wallets': typeof AuthenticatedAppWalletsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/agent/': typeof AuthenticatedAgentIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -304,8 +322,10 @@ export interface FileRouteTypes {
     | '/agent/tickets'
     | '/agent/transactions'
     | '/app/invest'
+    | '/app/market'
     | '/app/profile'
     | '/app/support'
+    | '/app/wallets'
     | '/admin/'
     | '/agent/'
     | '/app/'
@@ -331,8 +351,10 @@ export interface FileRouteTypes {
     | '/agent/tickets'
     | '/agent/transactions'
     | '/app/invest'
+    | '/app/market'
     | '/app/profile'
     | '/app/support'
+    | '/app/wallets'
     | '/admin'
     | '/agent'
     | '/app'
@@ -362,8 +384,10 @@ export interface FileRouteTypes {
     | '/_authenticated/agent/tickets'
     | '/_authenticated/agent/transactions'
     | '/_authenticated/app/invest'
+    | '/_authenticated/app/market'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/support'
+    | '/_authenticated/app/wallets'
     | '/_authenticated/admin/'
     | '/_authenticated/agent/'
     | '/_authenticated/app/'
@@ -460,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/app/wallets': {
+      id: '/_authenticated/app/wallets'
+      path: '/wallets'
+      fullPath: '/app/wallets'
+      preLoaderRoute: typeof AuthenticatedAppWalletsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/support': {
       id: '/_authenticated/app/support'
       path: '/support'
@@ -472,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile'
       preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/market': {
+      id: '/_authenticated/app/market'
+      path: '/market'
+      fullPath: '/app/market'
+      preLoaderRoute: typeof AuthenticatedAppMarketRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/invest': {
@@ -681,15 +719,19 @@ const AuthenticatedAppSupportRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppInvestRoute: typeof AuthenticatedAppInvestRoute
+  AuthenticatedAppMarketRoute: typeof AuthenticatedAppMarketRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppSupportRoute: typeof AuthenticatedAppSupportRouteWithChildren
+  AuthenticatedAppWalletsRoute: typeof AuthenticatedAppWalletsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppInvestRoute: AuthenticatedAppInvestRoute,
+  AuthenticatedAppMarketRoute: AuthenticatedAppMarketRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppSupportRoute: AuthenticatedAppSupportRouteWithChildren,
+  AuthenticatedAppWalletsRoute: AuthenticatedAppWalletsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
