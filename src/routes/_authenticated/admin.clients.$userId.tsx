@@ -318,9 +318,10 @@ function KycIsland({ userId }: { userId: string }) {
               {viewer?.doc ? <img src={viewer.doc} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
             <div>
-              <div className="mb-2 text-sm font-medium">Selfie</div>
+              <div className="mb-2 text-sm font-medium">Bank statement</div>
               {viewer?.selfie ? <img src={viewer.selfie} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
+
           </div>
         </DialogContent>
       </Dialog>
