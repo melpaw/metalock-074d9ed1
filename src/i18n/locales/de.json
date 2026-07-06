@@ -240,7 +240,13 @@
     "sender": "Absenderadresse",
     "note": "Notiz",
     "destination": "Zieladresse",
-    "buySwap": "Kauf/Tausch"
+    "buySwap": "Kauf/Tausch",
+    "insuranceQuoted": "Versicherungsangebot verfügbar: {{percent}}%",
+    "insurancePaymentNote": "Bei Zustimmung wird ein Ticket zur Zahlung geöffnet. Bitte eine Notiz hinterlassen (bevorzugte Methode, Bank usw.).",
+    "insurancePaymentPlaceholder": "z. B. Überweisung, Bank X",
+    "insuranceApprove": "Versicherung annehmen",
+    "insuranceReject": "Versicherung ablehnen",
+    "insuranceTicketOpen": "Zahlungsticket öffnen"
   },
   "profile": {
     "title": "Mein Profil",
