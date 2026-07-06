@@ -274,16 +274,15 @@ function WalletDetailDialog({ row, onClose, wallets, currencies, prices, copy, l
           </TabsContent>
 
           <TabsContent value="send" className="mt-3">
-            <WalletActions
-              wallets={wallets}
-              currencies={currencies}
-              prices={prices}
+            <SendRequestPanel
+              row={row}
               onDone={() => {
                 qc.invalidateQueries({ queryKey: ["all-my-wallets"] });
                 qc.invalidateQueries({ queryKey: ["wallet-history", row.currency_id] });
               }}
             />
           </TabsContent>
+
 
           <TabsContent value="history" className="mt-3">
             {!history || history.length === 0 ? (
