@@ -169,7 +169,14 @@
     "walletActionsSubtitle": "Einzahlen, senden, tauschen und abheben — alles an einem Ort",
     "recentTx": "Letzte Auszüge",
     "lastNTx": "Letzte {{n}} Transaktionen",
-    "noTx": "Noch keine Transaktionen."
+    "noTx": "Noch keine Transaktionen.",
+    "available": "Verfügbar",
+    "locked": "Gesperrt",
+    "invested": "Investiert",
+    "walletsCount": "Wallets",
+    "topAsset": "Top-Asset",
+    "portfolio24h": "Portfolio 24h",
+    "distribution": "Verteilung"
   },
   "wallet": {
     "deposit": "Einzahlen",
