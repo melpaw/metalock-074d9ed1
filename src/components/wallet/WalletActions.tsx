@@ -55,7 +55,7 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
   function copy(text: string) { navigator.clipboard.writeText(text); toast.success(t("wallet.copied")); }
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-dashed border-border p-3">
+        <div className="rounded-sm border border-dashed border-border p-3">
         <Label className="text-xs uppercase text-muted-foreground">{t("wallet.chooseCurrency")}</Label>
         <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <Select value={currencyId} onValueChange={setCurrencyId}>
@@ -72,7 +72,7 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
         <div className="text-xs uppercase text-muted-foreground">{t("wallet.myAddresses")}</div>
         {!my?.length && <div className="rounded-md bg-surface-elevated p-4 text-sm text-muted-foreground text-center">{t("wallet.noAddresses")}</div>}
         {my?.map((a) => (
-          <div key={a.id} className="rounded-lg border border-border bg-surface-elevated p-3 space-y-2">
+          <div key={a.id} className="rounded-sm border border-border bg-surface-elevated p-3 space-y-2">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="font-semibold">{a.currencies?.symbol}</span>
@@ -168,8 +168,8 @@ function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; cu
   const funded = wallets.filter((w) => Number(w.available) > 0);
   const fromCur = currencies.find((c) => c.id === fromId);
   const toCur = currencies.find((c) => c.id === toId);
-  const fromPrice = fromCur?.coingecko_id ? prices[fromCur.coingecko_id]?.usd ?? 0 : fromCur?.symbol === "USDT" ? 1 : 0;
-  const toPrice = toCur?.coingecko_id ? prices[toCur.coingecko_id]?.usd ?? 0 : toCur?.symbol === "USDT" ? 1 : 0;
+  const fromPrice = fromCur?.coingecko_id ? prices[fromCur.coingecko_id]?.usd ?? Number(fromCur?.usd_price ?? 0) : fromCur?.symbol === "USDT" ? 1 : Number(fromCur?.usd_price ?? 0);
+  const toPrice = toCur?.coingecko_id ? prices[toCur.coingecko_id]?.usd ?? Number(toCur?.usd_price ?? 0) : toCur?.symbol === "USDT" ? 1 : Number(toCur?.usd_price ?? 0);
   const rate = fromPrice && toPrice ? fromPrice / toPrice : 0;
   const receive = Number(amount || 0) * rate;
   async function submit() {
@@ -229,7 +229,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
     queryFn: async () => (await supabase.from("bank_accounts" as any).select("*")).data as any[] ?? [],
   });
   const cur = funded.find((w) => w.currency_id === currencyId);
-  const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : cur?.currencies?.symbol === "USDT" ? 1 : 0;
+  const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? Number(cur?.currencies?.usd_price ?? 0) : cur?.currencies?.symbol === "USDT" ? 1 : Number(cur?.currencies?.usd_price ?? 0);
   const usdTotal = Number(amount || 0) * price;
   async function submit() {
     if (!currencyId || !amount) return toast.error(t("wallet.fillFields"));

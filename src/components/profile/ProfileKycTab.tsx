@@ -11,9 +11,9 @@ import { ShieldCheck, ShieldAlert, Clock, ShieldX } from "lucide-react";
 
 const STATUS_META: Record<string, { label: string; icon: any; color: string }> = {
   not_submitted: { label: "—", icon: ShieldAlert, color: "bg-muted text-muted-foreground" },
-  pending: { label: "…", icon: Clock, color: "bg-yellow-500/20 text-yellow-500" },
-  approved: { label: "✓", icon: ShieldCheck, color: "bg-emerald-500/20 text-emerald-500" },
-  rejected: { label: "✕", icon: ShieldX, color: "bg-red-500/20 text-red-500" },
+  pending: { label: "…", icon: Clock, color: "bg-warning/20 text-warning" },
+  approved: { label: "✓", icon: ShieldCheck, color: "bg-up/20 text-up" },
+  rejected: { label: "✕", icon: ShieldX, color: "bg-down/20 text-down" },
 };
 
 export function ProfileKycTab() {
@@ -46,7 +46,7 @@ export function ProfileKycTab() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (!docFile || !statementFile) throw new Error("Document + bank statement required");
+      if (!docFile || !statementFile) throw new Error(t("kyc.errors.files"));
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Session");
       const document_path = await upload(docFile, "document", u.user.id);
@@ -56,7 +56,7 @@ export function ProfileKycTab() {
         user_id: u.user.id, ...form, document_path, selfie_path,
       } as any);
       if (error) throw error;
-      toast.success("KYC ✓");
+      toast.success(t("kyc.sent"));
       qc.invalidateQueries({ queryKey: ["my-kyc"] });
       setDocFile(null); setStatementFile(null);
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
@@ -65,25 +65,25 @@ export function ProfileKycTab() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-border bg-surface p-6 flex items-center justify-between">
+      <div className="rounded-sm border border-border bg-surface p-6 flex items-center justify-between">
         <div>
           <div className="text-xs uppercase tracking-wider text-muted-foreground">{t("common.status")}</div>
-          <div className="text-lg font-semibold capitalize">{status.replace("_", " ")}</div>
+          <div className="text-lg font-semibold capitalize">{t(`kyc.status.${status}`)}</div>
           {latest?.review_notes && <p className="mt-2 text-sm text-muted-foreground">"{latest.review_notes}"</p>}
         </div>
         <Badge className={meta.color}><StatusIcon className="mr-1 h-3 w-3" />{meta.label}</Badge>
       </div>
 
       {canSubmit && (
-        <form onSubmit={submit} className="rounded-2xl border border-border bg-surface p-6 grid gap-4 md:grid-cols-2">
-          <div className="md:col-span-2 space-y-1.5"><Label>Nome completo</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required /></div>
-          <div className="space-y-1.5"><Label>Data de nascimento</Label><Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} required /></div>
-          <div className="space-y-1.5"><Label>País</Label><Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} required /></div>
-          <div className="space-y-1.5"><Label>Tipo de documento</Label><Input value={form.doc_type} onChange={(e) => setForm({ ...form, doc_type: e.target.value })} required /></div>
-          <div className="space-y-1.5"><Label>Número do documento</Label><Input value={form.doc_number} onChange={(e) => setForm({ ...form, doc_number: e.target.value })} required /></div>
-          <div className="md:col-span-2 space-y-1.5"><Label>Endereço</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
-          <div className="space-y-1.5"><Label>Foto do documento</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setDocFile(e.target.files?.[0] ?? null)} required /></div>
-          <div className="space-y-1.5"><Label>Bank statement (PDF or image)</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)} required /></div>
+        <form onSubmit={submit} className="rounded-sm border border-border bg-surface p-6 grid gap-4 md:grid-cols-2">
+          <div className="md:col-span-2 space-y-1.5"><Label>{t("kyc.fullName")}</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.birthDate")}</Label><Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.country")}</Label><Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.docType")}</Label><Input value={form.doc_type} onChange={(e) => setForm({ ...form, doc_type: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.docNumber")}</Label><Input value={form.doc_number} onChange={(e) => setForm({ ...form, doc_number: e.target.value })} required /></div>
+          <div className="md:col-span-2 space-y-1.5"><Label>{t("kyc.address")}</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.documentPhoto")}</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setDocFile(e.target.files?.[0] ?? null)} required /></div>
+          <div className="space-y-1.5"><Label>{t("kyc.bankStatement")}</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)} required /></div>
           <div className="md:col-span-2"><Button type="submit" disabled={busy}>{busy ? "..." : t("common.send")}</Button></div>
         </form>
       )}

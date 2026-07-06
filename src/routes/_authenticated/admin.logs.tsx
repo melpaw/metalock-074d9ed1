@@ -18,7 +18,7 @@ function LogsPage() {
         <h1 className="text-2xl font-bold tracking-tight">Auditoria</h1>
         <p className="text-sm text-muted-foreground">Últimas 200 ações administrativas</p>
       </div>
-      <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="overflow-hidden rounded-sm border border-border bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-surface-elevated text-xs uppercase text-muted-foreground">

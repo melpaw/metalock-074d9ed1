@@ -5,7 +5,7 @@ const inputSchema = z.object({
   ids: z.array(z.string()).min(1).max(50),
 });
 
-type PriceMap = Record<string, { usd: number; usd_24h_change: number }>;
+type PriceMap = Record<string, { usd: number; eur?: number; usd_24h_change: number }>;
 
 let cache: { at: number; key: string; data: PriceMap } | null = null;
 const TTL = 60_000;
@@ -22,7 +22,7 @@ export const getMarketPrices = createServerFn({ method: "GET" })
       return { data: cache.data, cached: true };
     }
     try {
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(key)}&vs_currencies=usd&include_24hr_change=true`;
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(key)}&vs_currencies=usd,eur&include_24hr_change=true`;
       const res = await fetch(url, { headers: { accept: "application/json" } });
       if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
       const json = (await res.json()) as PriceMap;

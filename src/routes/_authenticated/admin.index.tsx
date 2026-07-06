@@ -43,9 +43,15 @@ function AdminDashboard() {
   });
 
   const fetchPrices = useServerFn(getMarketPrices);
+  const { data: currencies } = useQuery({
+    queryKey: ["admin-market-currencies"],
+    queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
+  });
+  const priceIds = Array.from(new Set((currencies ?? []).map((c: any) => c.coingecko_id).filter(Boolean))) as string[];
   const { data: prices } = useQuery({
-    queryKey: ["market-prices"],
-    queryFn: () => fetchPrices({ data: { ids: ["bitcoin", "ethereum", "solana", "binancecoin", "ripple", "cardano"] } }),
+    queryKey: ["market-prices", priceIds.join(",")],
+    queryFn: () => fetchPrices({ data: { ids: priceIds.length ? priceIds : ["bitcoin"] } }),
+    enabled: priceIds.length > 0,
     refetchInterval: 60_000,
   });
 
@@ -111,22 +117,27 @@ function AdminDashboard() {
           <h3 className="text-sm font-semibold">{t("admin.liveMarket")}</h3>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {prices?.data ? (
-            Object.entries(prices.data).map(([id, p]: [string, any]) => (
-              <div key={id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-sm border border-border bg-surface-elevated/45 px-3 py-3">
-                <CryptoIcon id={id} className="h-10 w-10" />
+          {currencies ? (
+            currencies.map((c: any) => {
+              const p = c.coingecko_id ? (prices as any)?.data?.[c.coingecko_id] : undefined;
+              const usd = p?.usd ?? Number(c.usd_price ?? 0);
+              const change = p?.usd_24h_change ?? 0;
+              return (
+              <div key={c.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-sm border border-border bg-surface-elevated/45 px-3 py-3">
+                <CryptoIcon id={c.coingecko_id} symbol={c.symbol} className="h-10 w-10" />
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold capitalize">{id.replaceAll("-", " ")}</div>
+                  <div className="truncate text-sm font-semibold">{c.name}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{c.symbol}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold tabular-nums">${p.usd?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                  <div className={`flex items-center justify-end gap-1 text-xs tabular-nums ${p.usd_24h_change >= 0 ? "text-up" : "text-down"}`}>
-                    <ArrowUpRight className={`h-3 w-3 ${p.usd_24h_change < 0 ? "rotate-90" : ""}`} />
-                    {p.usd_24h_change >= 0 ? "+" : ""}{p.usd_24h_change?.toFixed(2)}%
+                  <div className="font-semibold tabular-nums">${usd.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                  <div className={`flex items-center justify-end gap-1 text-xs tabular-nums ${change >= 0 ? "text-up" : "text-down"}`}>
+                    <ArrowUpRight className={`h-3 w-3 ${change < 0 ? "rotate-90" : ""}`} />
+                    {change >= 0 ? "+" : ""}{change.toFixed(2)}%
                   </div>
                 </div>
               </div>
-            ))
+            );})
           ) : (
             <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
           )}

@@ -65,7 +65,7 @@ export function ProfileSecurityTab() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-surface p-6 space-y-4">
+      <div className="rounded-sm border border-border bg-surface p-6 space-y-4">
         <h3 className="flex items-center gap-2 font-semibold"><KeyRound className="h-4 w-4 text-primary" /> {t("profile.security.changePassword")}</h3>
         <div className="space-y-2">
           <Label>{t("profile.security.changePassword")}</Label>
@@ -74,7 +74,7 @@ export function ProfileSecurityTab() {
         <Button onClick={changePass} disabled={busy || newPass.length < 8}>{t("common.save")}</Button>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-6 space-y-4">
+      <div className="rounded-sm border border-border bg-surface p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4 text-primary" /> {t("profile.security.twofa")}</h3>
           {verified
