@@ -37,7 +37,7 @@ function OverviewPage() {
     },
   });
 
-  const { data: wallets, isLoading: walletsLoading } = useQuery({
+  const { data: wallets } = useQuery({
     queryKey: ["my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
     placeholderData: keepPreviousData,
