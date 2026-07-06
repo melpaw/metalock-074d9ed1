@@ -5,13 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMarketPrices } from "@/lib/prices.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { TrendingUp, TrendingDown, Wallet, ChevronRight, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, ChevronRight, Info, ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMemo, useState } from "react";
 import { WalletActions } from "@/components/wallet/WalletActions";
 import { CryptoIcon } from "@/components/CryptoIcon";
+import { MarketPanel } from "@/components/MarketPanel";
+import { CashbackCard } from "@/components/CashbackCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: OverviewPage,
@@ -70,12 +72,15 @@ function OverviewPage() {
 
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const priceUsd = cg ? prices[cg]?.usd ?? 0 : w.currencies?.symbol === "USDT" ? 1 : 0;
+    const livePrice = cg ? prices[cg]?.usd : undefined;
+    const sym = (w.currencies?.symbol ?? "").toUpperCase();
+    const fallback = Number(w.currencies?.usd_price ?? 0) || (sym === "USDT" || sym === "USD" ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
+    const priceUsd = livePrice ?? fallback;
     const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
     const total = Number(w.available) + Number(w.locked);
     const valueUsd = total * priceUsd;
     return { ...w, priceUsd, change24, valueUsd, total };
-  }).filter((r: any) => r.total > 0).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
+  }).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
 
   const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0);
   const chartData = rows.map((r: any, i: number) => ({
