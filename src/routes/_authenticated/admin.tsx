@@ -69,8 +69,9 @@ function AdminLayout() {
           <img src="/favicon.png" alt="MetaLock" className="h-8 w-8 rounded-sm" />
           <div>
             <div className="text-sm font-bold leading-tight">MetaLock</div>
-            <div className="text-[10px] uppercase tracking-widest text-primary">{t("roles.admin")}</div>
+            <div className="text-[10px] uppercase tracking-widest text-primary">{isAdmin ? t("roles.admin") : t("roles.agent")}</div>
           </div>
+
         </div>
         <nav className="p-3 space-y-1">
           {nav.map((item) => {
