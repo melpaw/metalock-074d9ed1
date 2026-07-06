@@ -457,6 +457,7 @@
     "pendingKyc": "Pending KYC",
     "pendingChats": "Pending chats",
     "openQueue": "Open queue",
+    "totalCount": "{{count}} total",
     "backToQueue": "Back to queue",
     "restricted": "Access restricted to administrators.",
     "statusUpdated": "Status updated",

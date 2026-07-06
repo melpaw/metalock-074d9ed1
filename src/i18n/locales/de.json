@@ -457,6 +457,7 @@
     "pendingKyc": "Ausstehende KYC-Prüfungen",
     "pendingChats": "Ausstehende Chats",
     "openQueue": "Warteschlange öffnen",
+    "totalCount": "{{count}} gesamt",
     "backToQueue": "Zurück zur Warteschlange",
     "restricted": "Zugriff nur für Administratoren.",
     "statusUpdated": "Status aktualisiert",

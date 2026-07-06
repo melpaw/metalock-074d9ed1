@@ -457,6 +457,7 @@
     "pendingKyc": "KYC pendentes",
     "pendingChats": "Chats pendentes",
     "openQueue": "Abrir fila",
+    "totalCount": "{{count}} total",
     "backToQueue": "Voltar à fila",
     "restricted": "Acesso restrito a administradores.",
     "statusUpdated": "Status atualizado",
