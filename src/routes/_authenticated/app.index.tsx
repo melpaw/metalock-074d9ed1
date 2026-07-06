@@ -96,24 +96,38 @@ function OverviewPage() {
 
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const livePrice = cg ? prices[cg]?.usd : undefined;
+    const livePrice = cg ? Number(prices[cg]?.usd) : undefined;
     const sym = (w.currencies?.symbol ?? "").toUpperCase();
     const stables = ["USDT","USDC","DAI","BUSD","TUSD","USD"];
-    const fallback = Number(w.currencies?.usd_price ?? 0) || (stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
-    const priceUsd = livePrice ?? fallback;
-    const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
+    const dbPrice = Number(w.currencies?.usd_price ?? 0);
+    const fallback = dbPrice > 0
+      ? dbPrice
+      : stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0;
+    // Prefer live price, but only when it's a valid positive number. Never let a
+    // transient 0/undefined zero-out the whole portfolio.
+    const priceUsd = livePrice && livePrice > 0 ? livePrice : fallback;
+    const change24 = cg ? Number(prices[cg]?.usd_24h_change ?? 0) : 0;
     const total = Number(w.available) + Number(w.locked);
     const valueUsd = total * priceUsd;
-    return { ...w, priceUsd, change24, valueUsd, total };
+    return { ...w, priceUsd, change24, valueUsd, total, availableNum: Number(w.available), lockedNum: Number(w.locked) };
   }).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
 
   const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0);
-  const chartData = rows.map((r: any, i: number) => ({
-    name: r.currencies?.symbol ?? "?",
-    value: r.valueUsd,
-    percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
-    color: PALETTE[i % PALETTE.length],
-  }));
+  const availableUsd = rows.reduce((s: number, r: any) => s + r.availableNum * r.priceUsd, 0);
+  const lockedUsd = rows.reduce((s: number, r: any) => s + r.lockedNum * r.priceUsd, 0);
+  const weighted24h = totalUsd > 0
+    ? rows.reduce((s: number, r: any) => s + r.change24 * r.valueUsd, 0) / totalUsd
+    : 0;
+  const topAsset = rows[0];
+  const chartData = rows
+    .filter((r: any) => r.valueUsd > 0)
+    .map((r: any, i: number) => ({
+      name: r.currencies?.symbol ?? "?",
+      value: r.valueUsd,
+      percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
+      color: PALETTE[i % PALETTE.length],
+    }));
+
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["my-wallets"] });
