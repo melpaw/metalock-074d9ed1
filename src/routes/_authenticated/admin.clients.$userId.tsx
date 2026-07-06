@@ -792,6 +792,7 @@ function Empty({ text }: { text: string }) {
 
 /* ---------- KPI Header: donut + stats ---------- */
 function ClientKpiHeader({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
 
   const { data: wallets } = useQuery({
