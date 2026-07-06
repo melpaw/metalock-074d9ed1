@@ -41,6 +41,8 @@
   "nav": {
     "overview": "Übersicht",
     "wallet": "Wallet",
+    "wallets": "Wallets",
+    "market": "Markt",
     "plans": "Pläne",
     "transactions": "Transaktionen",
     "support": "Support",
@@ -52,6 +54,25 @@
     "team": "Team",
     "currencies": "Währungen",
     "viewAsClient": "Als Kunde ansehen"
+  },
+  "market": {
+    "subtitle": "Kaufen Sie Krypto und verfolgen Sie Ihr Cashback",
+    "livePrices": "Live-Preise",
+    "buyOneClick": "1-Klick-Kauf",
+    "buy": "Kaufen",
+    "cashbackAvailable": "Cashback verfügbar",
+    "cashbackHint": "In USDT nach Genehmigung gutgeschrieben",
+    "cashbackRate": "Cashback-Rate",
+    "cashbackRateHint": "Auf jeden genehmigten Kauf angewendet",
+    "cashbackHistory": "Cashback-Verlauf",
+    "cashbackCount": "erhaltene Gutschriften"
+  },
+  "wallets": {
+    "subtitle": "Alle Ihre Wallets an einem Ort",
+    "name": "Name",
+    "balance": "Guthaben",
+    "value": "Wert",
+    "address": "Adresse"
   },
   "overview": {
     "title": "Willkommen",
