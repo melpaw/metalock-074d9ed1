@@ -61,16 +61,16 @@ function AdminDashboard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <QueueCard to="/admin/transactions" title="Transações pendentes" value={counts?.txs ?? 0} icon={Coins} tone="warning" />
-        <QueueCard to="/admin/kyc" title="KYC pendentes" value={counts?.kyc ?? 0} icon={Shield} tone="primary" />
-        <QueueCard to="/admin/tickets" title="Chats pendentes" value={counts?.tickets ?? 0} icon={MessageSquare} tone="down" />
+        <QueueCard to="/admin/transactions" title={t("admin.pendingTransactions")} value={counts?.txs ?? 0} icon={Coins} tone="warning" openLabel={t("admin.openQueue")} />
+        <QueueCard to="/admin/kyc" title={t("admin.pendingKyc")} value={counts?.kyc ?? 0} icon={Shield} tone="primary" openLabel={t("admin.openQueue")} />
+        <QueueCard to="/admin/tickets" title={t("admin.pendingChats")} value={counts?.tickets ?? 0} icon={MessageSquare} tone="down" openLabel={t("admin.openQueue")} />
       </div>
 
       <section className="rounded-sm border border-border bg-surface overflow-hidden">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
             <h2 className="font-semibold">{t("admin.clients")}</h2>
-            <p className="text-xs text-muted-foreground">{clients?.length ?? 0} total</p>
+            <p className="text-xs text-muted-foreground">{t("admin.totalCount", { count: clients?.length ?? 0 })}</p>
           </div>
           <div className="flex items-center gap-3">
             <Input placeholder={t("admin.searchClient")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-44 sm:w-64" />
@@ -136,7 +136,7 @@ function AdminDashboard() {
   );
 }
 
-function QueueCard({ to, title, value, icon: Icon, tone }: { to: any; title: string; value: number; icon: any; tone: "warning" | "primary" | "down" }) {
+function QueueCard({ to, title, value, icon: Icon, tone, openLabel }: { to: any; title: string; value: number; icon: any; tone: "warning" | "primary" | "down"; openLabel: string }) {
   const toneMap = {
     warning: "border-warning/30 text-warning bg-warning/10",
     primary: "border-primary/30 text-primary bg-primary/10",
@@ -154,7 +154,7 @@ function QueueCard({ to, title, value, icon: Icon, tone }: { to: any; title: str
         </div>
       </div>
       <div className="mt-3 flex items-center gap-1 text-xs text-primary opacity-70 group-hover:opacity-100">
-        Abrir fila <ChevronRight className="h-3.5 w-3.5" />
+        {openLabel} <ChevronRight className="h-3.5 w-3.5" />
       </div>
     </Link>
   );
