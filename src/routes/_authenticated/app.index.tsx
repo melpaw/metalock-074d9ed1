@@ -356,9 +356,27 @@ function WalletDetailsDialog({ wallet, onClose, fmt, totalUsd }: { wallet: any |
 
 function DetailTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border p-3">
+    <div className="rounded-sm border border-border p-3">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 font-semibold tabular-nums">{value}</div>
     </div>
   );
 }
+
+function TxTypeIcon({ type }: { type: string }) {
+  const map: Record<string, { icon: any; color: string; bg: string }> = {
+    deposit: { icon: ArrowDownLeft, color: "text-up", bg: "bg-up/15" },
+    withdrawal: { icon: ArrowUpRight, color: "text-down", bg: "bg-down/15" },
+    swap: { icon: ArrowLeftRight, color: "text-primary", bg: "bg-primary/15" },
+    investment: { icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
+    adjustment: { icon: Info, color: "text-muted-foreground", bg: "bg-muted/40" },
+  };
+  const cfg = map[type] ?? map.adjustment;
+  const Icon = cfg.icon;
+  return (
+    <span className={`grid h-6 w-6 place-items-center rounded-sm ${cfg.bg}`}>
+      <Icon className={`h-3.5 w-3.5 ${cfg.color}`} />
+    </span>
+  );
+}
+
