@@ -253,8 +253,9 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
     if (!bankId) return toast.error(t("wallet.noBank"));
     setLoading(true);
     try {
-      const marker = insurance ? "[INSURANCE_QUOTE_REQUESTED] " : "";
-      const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: `${marker}BANK:${bankId}` });
+      const { error } = await supabase.rpc("client_request_withdrawal_v2" as any, {
+        _currency_id: currencyId, _amount: Number(amount), _bank_id: bankId, _insurance_requested: insurance,
+      });
       if (error) throw error;
       toast.success(t("wallet.withdrawalRequested"));
       setAmount(""); setInsurance(false); onDone();
