@@ -267,6 +267,9 @@ function OverviewPage() {
 
 function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: any | null; onClose: () => void; language: string; fmtDisplay: (usd: number) => string }) {
   const { t } = useTranslation();
+  const qc = useQueryClient();
+  const [note, setNote] = useState("");
+  const [respLoading, setRespLoading] = useState(false);
   if (!tx) return null;
 
   const metadata = tx.metadata ?? {};
@@ -277,6 +280,22 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
     tx.status === "completed" ? "text-up" :
     tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "text-warning" :
     "text-down";
+  const insStatus = metadata.insurance_status as string | undefined;
+  const insPct = metadata.insurance_percent;
+
+  async function respondInsurance(approve: boolean) {
+    setRespLoading(true);
+    try {
+      const { error } = await supabase.rpc("client_respond_insurance" as any, { _tx_id: tx.id, _approve: approve, _payment_note: note });
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["my-transactions"] });
+      onClose();
+    } catch (e: any) {
+      // eslint-disable-next-line no-alert
+      alert(e.message);
+    } finally { setRespLoading(false); }
+  }
+
   const rows: Array<[string, React.ReactNode]> = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
     [t("tx.amount"), amountLine],
@@ -310,6 +329,28 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
               </div>
             ))}
           </div>
+          {insStatus === "quoted" && (
+            <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 space-y-2">
+              <div className="text-sm font-semibold">{t("tx.insuranceQuoted", { percent: insPct })}</div>
+              <div className="text-xs text-muted-foreground">{t("tx.insurancePaymentNote")}</div>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={t("tx.insurancePaymentPlaceholder")}
+                className="w-full rounded-sm border border-border bg-background p-2 text-xs"
+                rows={2}
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => respondInsurance(true)} disabled={respLoading}>{t("tx.insuranceApprove")}</Button>
+                <Button size="sm" variant="outline" onClick={() => respondInsurance(false)} disabled={respLoading}>{t("tx.insuranceReject")}</Button>
+              </div>
+            </div>
+          )}
+          {insStatus === "approved" && metadata.insurance_ticket_id && (
+            <div className="rounded-sm border border-up/40 bg-up/10 p-3 text-xs">
+              <a className="font-semibold underline" href={`/app/support/${metadata.insurance_ticket_id}`}>{t("tx.insuranceTicketOpen")}</a>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
