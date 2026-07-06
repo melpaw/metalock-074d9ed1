@@ -773,6 +773,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_insurance_quote: {
+        Args: { _percent: number; _tx_id: string }
+        Returns: undefined
+      }
       admin_set_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -806,6 +810,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      client_internal_transfer: {
+        Args: { _amount: number; _from_currency: string; _to_currency: string }
+        Returns: undefined
+      }
       client_request_buy: {
         Args: {
           _from_amount: number
@@ -816,6 +824,19 @@ export type Database = {
       }
       client_request_deposit_address: {
         Args: { _currency_id: string }
+        Returns: string
+      }
+      client_request_withdrawal_v2: {
+        Args: {
+          _amount: number
+          _bank_id: string
+          _currency_id: string
+          _insurance_requested: boolean
+        }
+        Returns: string
+      }
+      client_respond_insurance: {
+        Args: { _approve: boolean; _payment_note: string; _tx_id: string }
         Returns: string
       }
       client_swap: {
