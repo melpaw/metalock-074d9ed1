@@ -81,8 +81,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "MetaLock — Secure crypto vault with identity-locked transfers" },
       { name: "twitter:description", content: "MetaLock is a security-first crypto platform. Send and receive only from wallets registered to your own verified identity — even a stolen password cannot move your funds." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/78b3994d-3ae5-49da-9b6b-d9edc7850a66/id-preview-ea4f44cc--fd982da1-5040-4894-8ad3-ca17e203409c.lovable.app-1783296080008.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/78b3994d-3ae5-49da-9b6b-d9edc7850a66/id-preview-ea4f44cc--fd982da1-5040-4894-8ad3-ca17e203409c.lovable.app-1783296080008.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/39ee9fdc-0f1f-41f7-a054-f1c8133bba6a" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/39ee9fdc-0f1f-41f7-a054-f1c8133bba6a" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
