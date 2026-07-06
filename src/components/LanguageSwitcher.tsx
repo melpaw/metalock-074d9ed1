@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import i18nInstance from "@/i18n";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -14,10 +15,11 @@ const langs = [
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { i18n } = useTranslation();
-  const current = langs.find((l) => l.code === i18n.language.slice(0, 2)) ?? langs[0];
+  const activeLanguage = (i18n?.language || i18nInstance.language || "en").slice(0, 2);
+  const current = langs.find((l) => l.code === activeLanguage) ?? langs[1];
 
   async function change(code: string) {
-    i18n.changeLanguage(code);
+    await (i18n?.changeLanguage ?? i18nInstance.changeLanguage.bind(i18nInstance))(code);
     try {
       const { data } = await supabase.auth.getUser();
       if (data.user) await supabase.from("profiles").update({ locale: code }).eq("id", data.user.id);
