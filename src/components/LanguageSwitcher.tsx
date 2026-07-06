@@ -16,6 +16,8 @@ const langs = [
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { i18n } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const activeLanguage = (i18n?.language || i18nInstance.language || "en").slice(0, 2);
   const current = langs.find((l) => l.code === activeLanguage) ?? langs[1];
 
