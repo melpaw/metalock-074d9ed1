@@ -239,9 +239,9 @@ function OverviewPage() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className={
-                        tx.status === "completed" ? "border-up/30 text-up" :
-                        tx.status === "pending" ? "border-warning/30 text-warning" :
-                        "border-down/30 text-down"
+                        tx.status === "completed" ? "border-up/40 text-up bg-up/10" :
+                        tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "border-warning/40 text-warning bg-warning/10" :
+                        "border-down/40 text-down bg-down/10"
                       }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
