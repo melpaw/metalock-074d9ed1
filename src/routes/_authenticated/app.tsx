@@ -48,7 +48,7 @@ function AppLayout() {
     <div className="flex min-h-screen bg-background">
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-border bg-sidebar transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary font-black text-primary-foreground">C</div>
+          <img src="/favicon.png" alt="MetaLock" className="h-8 w-8 rounded-sm" />
           <div>
             <div className="text-sm font-bold leading-tight">MetaLock</div>
             <div className="text-[10px] uppercase tracking-widest text-primary">{t("nav.clientArea")}</div>

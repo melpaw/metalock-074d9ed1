@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
+import { AgentPermissionsDialog } from "@/components/AgentPermissionsDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/team")({
   component: TeamPage,
@@ -78,6 +78,7 @@ function TeamPage() {
                           <SelectItem value="admin">Admin</SelectItem>
                         </SelectContent>
                       </Select>
+                      {currentRole === "agent" && <AgentPermissionsDialog agentId={u.id} />}
                     </div>
                   </td>
                 </tr>
