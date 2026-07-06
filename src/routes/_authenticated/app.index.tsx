@@ -261,28 +261,34 @@ function OverviewPage() {
         )}
       </section>
 
-      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} />
+      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} fmtDisplay={(usd: number) => fmt(toDisplay(usd))} />
       <WalletDetailsDialog wallet={selectedWallet} onClose={() => setSelectedWallet(null)} fmt={(v) => fmt(toDisplay(v))} totalUsd={totalUsd} />
     </div>
   );
 }
 
-function TransactionDetailsDialog({ tx, onClose, language }: { tx: any | null; onClose: () => void; language: string }) {
+function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: any | null; onClose: () => void; language: string; fmtDisplay: (usd: number) => string }) {
   const { t } = useTranslation();
   if (!tx) return null;
 
   const metadata = tx.metadata ?? {};
-  const rows = [
+  const symbol = tx.currencies?.symbol ?? "";
+  const usdValue = Number(tx.usd_value ?? 0);
+  const amountLine = `${Number(tx.amount).toFixed(8)} ${symbol}${usdValue ? ` · ${fmtDisplay(usdValue)}` : ""}`;
+  const statusColor =
+    tx.status === "completed" ? "text-up" :
+    tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "text-warning" :
+    "text-down";
+  const rows: Array<[string, React.ReactNode]> = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
-    [t("tx.status"), t(`tx.${tx.status}`, { defaultValue: tx.status })],
-    [t("tx.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    [t("tx.reference"), tx.reference],
-    [t("tx.hash"), metadata.tx_hash],
-    [t("tx.sender"), metadata.sender_address],
-    [t("tx.note"), tx.note],
+    [t("tx.amount"), amountLine],
+    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${symbol}`],
+    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
+    [t("tx.hash"), metadata.tx_hash ?? "—"],
+    [t("tx.reference"), tx.reference ?? "—"],
     [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
-  ].filter(([, value]) => value !== undefined && value !== null && value !== "");
+    [t("tx.note"), tx.note ?? "—"],
+  ];
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -291,17 +297,18 @@ function TransactionDetailsDialog({ tx, onClose, language }: { tx: any | null; o
           <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="rounded-xl border border-border bg-surface-elevated p-4">
+          <div className="rounded-sm border border-border bg-surface-elevated p-4">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{t(`tx.${tx.type}`, { defaultValue: tx.type })}</div>
             <div className={`mt-1 text-2xl font-black tabular-nums ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
-              {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
+              {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {symbol}
             </div>
+            {usdValue > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ {fmtDisplay(usdValue)}</div>}
           </div>
           <div className="grid gap-2">
             {rows.map(([label, value]) => (
-              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-lg border border-border px-3 py-2 text-sm">
+              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
                 <span className="text-muted-foreground">{label}</span>
-                <span className="min-w-0 break-words font-medium">{String(value)}</span>
+                <span className="min-w-0 break-words font-medium">{value}</span>
               </div>
             ))}
           </div>
