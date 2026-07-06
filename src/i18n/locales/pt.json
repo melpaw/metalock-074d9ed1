@@ -131,7 +131,11 @@
     "fillAll": "Preencha todos os campos",
     "fillFields": "Preencha os campos",
     "diffCurrency": "Escolha moedas diferentes",
-    "noQuote": "Cotação indisponível para este par"
+    "noQuote": "Cotação indisponível para este par",
+    "conversionFee": "Taxa de conversão",
+    "netReceive": "Você receberá",
+    "insuranceQuote": "Solicitar orçamento de seguro",
+    "insuranceQuoteHint": "Um agente enviará uma proposta com o percentual do seguro antes do saque."
   },
   "tx": {
     "type": "Tipo",
@@ -150,8 +154,8 @@
     "swap": "Swap",
     "investment": "Investimento",
     "adjustment": "Ajuste",
-    "transfer": "Transferência"
-    ,"details": "Detalhes",
+    "transfer": "Transferência",
+    "details": "Detalhes",
     "detailsTitle": "Detalhes da transação",
     "fee": "Taxa",
     "reference": "Referência",
@@ -162,7 +166,11 @@
   "profile": {
     "title": "Meu perfil",
     "subtitle": "Suas informações, segurança e verificação",
-    "tabs": { "info": "Informações", "security": "Segurança", "kyc": "KYC & Documentos" },
+    "tabs": {
+      "info": "Informações",
+      "security": "Segurança",
+      "kyc": "KYC & Documentos"
+    },
     "info": {
       "fullName": "Nome completo",
       "email": "E-mail",

@@ -131,7 +131,11 @@
     "fillAll": "Alle Felder ausfüllen",
     "fillFields": "Felder ausfüllen",
     "diffCurrency": "Verschiedene Währungen wählen",
-    "noQuote": "Kein Kurs für dieses Paar verfügbar"
+    "noQuote": "Kein Kurs für dieses Paar verfügbar",
+    "conversionFee": "Umrechnungsgebühr",
+    "netReceive": "Sie erhalten",
+    "insuranceQuote": "Versicherungsangebot anfordern",
+    "insuranceQuoteHint": "Ein Agent sendet vor der Auszahlung einen Vorschlag mit dem Versicherungsprozentsatz."
   },
   "tx": {
     "type": "Typ",
@@ -162,7 +166,11 @@
   "profile": {
     "title": "Mein Profil",
     "subtitle": "Ihre Informationen, Sicherheit und Verifizierung",
-    "tabs": { "info": "Informationen", "security": "Sicherheit", "kyc": "KYC & Dokumente" },
+    "tabs": {
+      "info": "Informationen",
+      "security": "Sicherheit",
+      "kyc": "KYC & Dokumente"
+    },
     "info": {
       "fullName": "Vollständiger Name",
       "email": "E-Mail",
