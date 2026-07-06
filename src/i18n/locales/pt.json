@@ -212,7 +212,12 @@
     "netReceive": "Você receberá",
     "insuranceQuote": "Solicitar orçamento de seguro",
     "insuranceQuoteHint": "Um agente enviará uma proposta com o percentual do seguro antes do saque.",
-    "memoTag": "Memo/Tag"
+    "memoTag": "Memo/Tag",
+    "internalTransferHint": "Transferência interna entre suas carteiras. Para enviar a terceiros, use a aba Sacar.",
+    "fromWallet": "De qual carteira",
+    "toWallet": "Para qual carteira",
+    "confirmTransfer": "Confirmar transferência",
+    "transferDone": "Transferência concluída"
   },
   "tx": {
     "type": "Tipo",
