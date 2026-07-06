@@ -12,8 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useMemo, useState } from "react";
 import { WalletActions } from "@/components/wallet/WalletActions";
 import { CryptoIcon } from "@/components/CryptoIcon";
-import { MarketPanel } from "@/components/MarketPanel";
-import { CashbackCard } from "@/components/CashbackCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: OverviewPage,
