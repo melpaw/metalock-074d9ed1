@@ -33,8 +33,8 @@ export function MarketPanel() {
     <section className="rounded-sm border border-border bg-surface overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
-          <h2 className="font-semibold">Mercado</h2>
-          <p className="text-xs text-muted-foreground">Preços ao vivo · compre em 1 clique</p>
+          <h2 className="font-semibold">{t("nav.market")}</h2>
+          <p className="text-xs text-muted-foreground">{t("market.buyOneClick")}</p>
         </div>
         <ShoppingCart className="h-4 w-4 text-primary" />
       </div>
