@@ -12,8 +12,11 @@ export const Route = createFileRoute("/_authenticated/agent")({
 });
 
 const nav = [
-  { to: "/agent", label: "Fila de tickets", icon: LayoutDashboard, exact: true },
-  { to: "/agent/users", label: "Consultar cliente", icon: Users },
+  { to: "/agent", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/agent/transactions", label: "Transações", icon: Users },
+  { to: "/agent/kyc", label: "KYC", icon: Users },
+  { to: "/agent/tickets", label: "Tickets", icon: Headphones },
+  { to: "/agent/users", label: "Clientes", icon: Users },
 ];
 
 function AgentLayout() {
@@ -50,7 +53,7 @@ function AgentLayout() {
     <div className="flex min-h-screen bg-background">
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-border bg-sidebar transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary/20 text-primary"><Headphones className="h-4 w-4" /></div>
+          <img src="/favicon.png" alt="MetaLock" className="h-8 w-8 rounded-sm" />
           <div>
             <div className="text-sm font-bold leading-tight">MetaLock</div>
             <div className="text-[10px] uppercase tracking-widest text-primary">Suporte</div>

@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_permissions: {
+        Row: {
+          agent_id: string
+          can_add_wallets: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          agent_id: string
+          can_add_wallets?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          agent_id?: string
+          can_add_wallets?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -442,6 +463,7 @@ export type Database = {
           locale: string
           phone: string | null
           postal_code: string | null
+          registered_by: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
         }
@@ -462,6 +484,7 @@ export type Database = {
           locale?: string
           phone?: string | null
           postal_code?: string | null
+          registered_by?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
         }
@@ -482,6 +505,7 @@ export type Database = {
           locale?: string
           phone?: string | null
           postal_code?: string | null
+          registered_by?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
         }
@@ -564,6 +588,7 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
+          cashback_amount: number
           created_at: string
           created_by: string | null
           currency_id: string | null
@@ -580,6 +605,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          cashback_amount?: number
           created_at?: string
           created_by?: string | null
           currency_id?: string | null
@@ -596,6 +622,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          cashback_amount?: number
           created_at?: string
           created_by?: string | null
           currency_id?: string | null
@@ -713,6 +740,7 @@ export type Database = {
         Args: { _approve: boolean; _tx_id: string }
         Returns: undefined
       }
+      admin_register_client: { Args: { _email: string }; Returns: string }
       admin_review_kyc: {
         Args: { _approve: boolean; _id: string; _notes: string }
         Returns: undefined
@@ -761,6 +789,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      client_request_buy: {
+        Args: {
+          _from_amount: number
+          _from_currency: string
+          _to_currency: string
+        }
+        Returns: string
+      }
       client_request_deposit_address: {
         Args: { _currency_id: string }
         Returns: string
@@ -785,6 +821,7 @@ export type Database = {
         Args: { _amount: number; _currency_id: string; _plan_id: string }
         Returns: string
       }
+      is_my_client: { Args: { _user_id: string }; Returns: boolean }
       request_deposit: {
         Args: { _amount: number; _currency_id: string; _tx_hash: string }
         Returns: string
@@ -795,6 +832,10 @@ export type Database = {
       }
       set_agent_display_name: {
         Args: { _display_name: string }
+        Returns: undefined
+      }
+      staff_process_swap: {
+        Args: { _approve: boolean; _tx_id: string }
         Returns: undefined
       }
     }
