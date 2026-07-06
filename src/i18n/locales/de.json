@@ -213,7 +213,7 @@
     "insuranceQuote": "Versicherungsangebot anfordern",
     "insuranceQuoteHint": "Ein Agent sendet vor der Auszahlung einen Vorschlag mit dem Versicherungsprozentsatz.",
     "memoTag": "Memo/Tag",
-    "internalTransferHint": "Interne Überweisung zwischen Ihren Wallets. Für Drittempfänger den Tab „Abheben" verwenden.",
+    "internalTransferHint": "Interne Überweisung zwischen Ihren Wallets. Für Drittempfänger den Tab Abheben verwenden.",
     "fromWallet": "Von welcher Wallet",
     "toWallet": "In welche Wallet",
     "confirmTransfer": "Überweisung bestätigen",
