@@ -792,6 +792,7 @@ function Empty({ text }: { text: string }) {
 
 /* ---------- KPI Header: donut + stats ---------- */
 function ClientKpiHeader({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
 
   const { data: wallets } = useQuery({
@@ -850,15 +851,15 @@ function ClientKpiHeader({ userId }: { userId: string }) {
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <div className="text-[9px] uppercase text-muted-foreground">USD</div>
               <div className="text-sm font-black tabular-nums">${totalUsd.toLocaleString("en-US", { maximumFractionDigits: 2 })}</div>
-              <div className="text-[9px] text-muted-foreground">{rows.length} ativos</div>
+              <div className="text-[9px] text-muted-foreground">{rows.length} {t("admin.assetsShort")}</div>
             </div>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <KpiTile icon={WalletIcon} label="Patrimônio" value={`$${totalUsd.toLocaleString("en-US", { maximumFractionDigits: 2 })}`} sub={`${rows.length} moeda(s) com saldo`} />
-          <KpiTile icon={Clock} label="Tx pendentes" value={pendingTx?.length ?? 0} sub="Aguardando revisão" accent={pendingTx?.length ? "warning" : undefined} />
-          <KpiTile icon={TicketIcon} label="Tickets abertos" value={openTickets?.length ?? 0} sub="Suporte em andamento" accent={openTickets?.length ? "down" : undefined} />
+          <KpiTile icon={WalletIcon} label={t("admin.portfolio")} value={`$${totalUsd.toLocaleString("en-US", { maximumFractionDigits: 2 })}`} sub={t("admin.coinsWithBalance", { count: rows.length })} />
+          <KpiTile icon={Clock} label={t("admin.pendingTx")} value={pendingTx?.length ?? 0} sub={t("admin.awaitingReview")} accent={pendingTx?.length ? "warning" : undefined} />
+          <KpiTile icon={TicketIcon} label={t("admin.openTickets")} value={openTickets?.length ?? 0} sub={t("admin.supportInProgress")} accent={openTickets?.length ? "down" : undefined} />
         </div>
       </div>
 
