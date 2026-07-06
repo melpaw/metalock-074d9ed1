@@ -21,7 +21,7 @@ export function ProfileKycTab() {
   const qc = useQueryClient();
   const [form, setForm] = useState({ full_name: "", birth_date: "", doc_type: "CPF", doc_number: "", country: "", address: "" });
   const [docFile, setDocFile] = useState<File | null>(null);
-  const [selfieFile, setSelfieFile] = useState<File | null>(null);
+  const [statementFile, setStatementFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
   const { data: latest } = useQuery({
@@ -46,20 +46,22 @@ export function ProfileKycTab() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (!docFile || !selfieFile) throw new Error("Documento + selfie");
+      if (!docFile || !statementFile) throw new Error("Document + bank statement required");
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error("Sessão");
+      if (!u.user) throw new Error("Session");
       const document_path = await upload(docFile, "document", u.user.id);
-      const selfie_path = await upload(selfieFile, "selfie", u.user.id);
+      // Reuse the existing selfie_path column to store the bank statement file.
+      const selfie_path = await upload(statementFile, "bank-statement", u.user.id);
       const { error } = await supabase.from("kyc_submissions").insert({
         user_id: u.user.id, ...form, document_path, selfie_path,
       } as any);
       if (error) throw error;
       toast.success("KYC ✓");
       qc.invalidateQueries({ queryKey: ["my-kyc"] });
-      setDocFile(null); setSelfieFile(null);
+      setDocFile(null); setStatementFile(null);
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   }
+
 
   return (
     <div className="space-y-4">
@@ -81,7 +83,7 @@ export function ProfileKycTab() {
           <div className="space-y-1.5"><Label>Número do documento</Label><Input value={form.doc_number} onChange={(e) => setForm({ ...form, doc_number: e.target.value })} required /></div>
           <div className="md:col-span-2 space-y-1.5"><Label>Endereço</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
           <div className="space-y-1.5"><Label>Foto do documento</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setDocFile(e.target.files?.[0] ?? null)} required /></div>
-          <div className="space-y-1.5"><Label>Selfie com documento</Label><Input type="file" accept="image/*" onChange={(e) => setSelfieFile(e.target.files?.[0] ?? null)} required /></div>
+          <div className="space-y-1.5"><Label>Bank statement (PDF or image)</Label><Input type="file" accept="image/*,application/pdf" onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)} required /></div>
           <div className="md:col-span-2"><Button type="submit" disabled={busy}>{busy ? "..." : t("common.send")}</Button></div>
         </form>
       )}
