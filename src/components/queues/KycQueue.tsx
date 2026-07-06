@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Fila de KYC pendente — lista todos os clientes com kyc_status="pending".
@@ -10,6 +11,7 @@ import { ChevronRight } from "lucide-react";
  * A rota destino difere entre admin e agente (mesma tela de detalhes está em /admin/clients/$userId).
  */
 export function KycQueue({ detailRoute = "/admin/clients/$userId" as const }: { detailRoute?: "/admin/clients/$userId" }) {
+  const { t } = useTranslation();
   const { data: rows, isLoading } = useQuery({
     queryKey: ["kyc-pending"],
     queryFn: async () => {
@@ -31,9 +33,9 @@ export function KycQueue({ detailRoute = "/admin/clients/$userId" as const }: { 
   return (
     <div className="rounded-sm border border-border bg-surface">
       {isLoading ? (
-        <div className="p-8 text-center text-sm text-muted-foreground">Carregando…</div>
+        <div className="p-8 text-center text-sm text-muted-foreground">{t("common.loading")}</div>
       ) : !rows || rows.length === 0 ? (
-        <div className="p-12 text-center text-sm text-muted-foreground">Nenhum KYC pendente.</div>
+        <div className="p-12 text-center text-sm text-muted-foreground">{t("admin.noPendingKyc")}</div>
       ) : (
         <div className="divide-y divide-border">
           {rows.map((r: any) => (
@@ -46,11 +48,11 @@ export function KycQueue({ detailRoute = "/admin/clients/$userId" as const }: { 
                 <div className="truncate text-xs text-muted-foreground">{r.profile?.email}</div>
               </div>
               <span className="rounded-sm border border-warning/30 bg-warning/15 px-2 py-0.5 text-[10px] font-medium text-warning">
-                KYC pendente
+                {t("admin.kycPendingFull")}
               </span>
               <Button asChild size="sm" variant="outline">
                 <Link to={detailRoute} params={{ userId: r.user_id }}>
-                  Verificar <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                  {t("admin.verify")} <ChevronRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
             </div>

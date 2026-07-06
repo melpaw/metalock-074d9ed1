@@ -11,12 +11,14 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
 import { AgentPermissionsDialog } from "@/components/AgentPermissionsDialog";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/admin/team")({
   component: TeamPage,
 });
 
 function TeamPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
 
@@ -30,7 +32,7 @@ function TeamPage() {
       const { error } = await supabase.rpc("admin_set_role", { _user_id: userId, _role: role });
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["team-users"] }); toast.success("Função atualizada"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["team-users"] }); toast.success(t("admin.roleUpdated")); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -44,25 +46,25 @@ function TeamPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Equipe & Permissões</h1>
-          <p className="text-sm text-muted-foreground">Promova usuários a agentes ou administradores</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("admin.teamPermissions")}</h1>
+          <p className="text-sm text-muted-foreground">{t("admin.teamPermissionsHint")}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
-          <Button onClick={() => setAddOpen(true)}><UserPlus className="h-4 w-4 mr-1" /> Adicionar agente</Button>
+          <Input placeholder={t("common.search")} value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+          <Button onClick={() => setAddOpen(true)}><UserPlus className="h-4 w-4 mr-1" /> {t("admin.addAgent")}</Button>
         </div>
       </div>
 
       <AddAgentDialog open={addOpen} onClose={() => setAddOpen(false)} onDone={() => qc.invalidateQueries({ queryKey: ["team-users"] })} />
 
 
-      <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="overflow-hidden rounded-sm border border-border bg-surface">
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-surface-elevated text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 text-left">Usuário</th>
-              <th className="px-4 py-3 text-left">Função atual</th>
-              <th className="px-4 py-3 text-right">Alterar</th>
+              <th className="px-4 py-3 text-left">{t("admin.user")}</th>
+              <th className="px-4 py-3 text-left">{t("admin.currentRole")}</th>
+              <th className="px-4 py-3 text-right">{t("common.edit")}</th>
             </tr>
           </thead>
           <tbody>
@@ -85,9 +87,9 @@ function TeamPage() {
                       <Select value={currentRole} onValueChange={(v: any) => setRole.mutate({ userId: u.id, role: v })}>
                         <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="client">Cliente</SelectItem>
-                          <SelectItem value="agent">Agente</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="client">{t("roles.client")}</SelectItem>
+                          <SelectItem value="agent">{t("roles.agent")}</SelectItem>
+                          <SelectItem value="admin">{t("roles.admin")}</SelectItem>
                         </SelectContent>
                       </Select>
                       {currentRole === "agent" && <AgentPermissionsDialog agentId={u.id} />}
@@ -104,19 +106,20 @@ function TeamPage() {
 }
 
 function AddAgentDialog({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: () => void }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function submit() {
-    if (!email.trim()) return toast.error("Informe o e-mail");
+    if (!email.trim()) return toast.error(t("admin.enterEmail"));
     setLoading(true);
     try {
       const { data: userId, error } = await supabase.rpc("admin_register_client" as any, { _email: email.trim() });
       if (error) throw error;
-      if (!userId) throw new Error("Usuário não encontrado. Peça para ele criar uma conta primeiro.");
+      if (!userId) throw new Error(t("admin.userNotFound"));
       const { error: e2 } = await supabase.rpc("admin_set_role", { _user_id: userId, _role: "agent" });
       if (e2) throw e2;
-      toast.success("Agente adicionado com sucesso");
+      toast.success(t("admin.agentAdded"));
       setEmail(""); onDone(); onClose();
     } catch (e: any) {
       toast.error(e.message || String(e));
@@ -128,15 +131,15 @@ function AddAgentDialog({ open, onClose, onDone }: { open: boolean; onClose: () 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Adicionar agente</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("admin.addAgent")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label>E-mail do usuário</Label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="agente@exemplo.com" />
-            <p className="mt-1 text-xs text-muted-foreground">O usuário precisa ter uma conta criada. A função dele será alterada para Agente.</p>
+            <Label>{t("admin.userEmail")}</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("admin.agentEmailPlaceholder")} />
+            <p className="mt-1 text-xs text-muted-foreground">{t("admin.addAgentHint")}</p>
           </div>
           <Button onClick={submit} disabled={loading} className="w-full">
-            {loading ? "Adicionando..." : "Adicionar agente"}
+            {loading ? t("admin.adding") : t("admin.addAgent")}
           </Button>
         </div>
       </DialogContent>

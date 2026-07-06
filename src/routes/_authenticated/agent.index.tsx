@@ -2,12 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Coins, ChevronRight, Shield, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/agent/")({
   component: AgentDashboard,
 });
 
 function AgentDashboard() {
+  const { t } = useTranslation();
   const { data: counts } = useQuery({
     queryKey: ["agent-counts"],
     queryFn: async () => {
@@ -25,20 +27,20 @@ function AgentDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Painel do agente</h1>
-        <p className="text-sm text-muted-foreground">Acompanhe as pendências dos seus clientes.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("agent.panel")}</h1>
+        <p className="text-sm text-muted-foreground">{t("agent.subtitle")}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <QueueCard to="/agent/transactions" title="Transações pendentes" value={counts?.txs ?? 0} icon={Coins} tone="warning" />
-        <QueueCard to="/agent/kyc" title="KYC pendentes" value={counts?.kyc ?? 0} icon={Shield} tone="primary" />
-        <QueueCard to="/agent/tickets" title="Chats pendentes" value={counts?.tickets ?? 0} icon={MessageSquare} tone="down" />
+        <QueueCard to="/agent/transactions" title={t("admin.pendingTransactions")} value={counts?.txs ?? 0} icon={Coins} tone="warning" openLabel={t("admin.openQueue")} />
+        <QueueCard to="/agent/kyc" title={t("admin.pendingKyc")} value={counts?.kyc ?? 0} icon={Shield} tone="primary" openLabel={t("admin.openQueue")} />
+        <QueueCard to="/agent/tickets" title={t("admin.pendingChats")} value={counts?.tickets ?? 0} icon={MessageSquare} tone="down" openLabel={t("admin.openQueue")} />
       </div>
     </div>
   );
 }
 
-function QueueCard({ to, title, value, icon: Icon, tone }: { to: any; title: string; value: number; icon: any; tone: "warning" | "primary" | "down" }) {
+function QueueCard({ to, title, value, icon: Icon, tone, openLabel }: { to: any; title: string; value: number; icon: any; tone: "warning" | "primary" | "down"; openLabel: string }) {
   const toneMap = {
     warning: "border-warning/30 text-warning bg-warning/10",
     primary: "border-primary/30 text-primary bg-primary/10",
@@ -56,7 +58,7 @@ function QueueCard({ to, title, value, icon: Icon, tone }: { to: any; title: str
         </div>
       </div>
       <div className="mt-3 flex items-center gap-1 text-xs text-primary opacity-70 group-hover:opacity-100">
-        Abrir fila <ChevronRight className="h-3.5 w-3.5" />
+        {openLabel} <ChevronRight className="h-3.5 w-3.5" />
       </div>
     </Link>
   );

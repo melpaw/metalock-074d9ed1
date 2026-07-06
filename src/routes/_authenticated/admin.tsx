@@ -39,10 +39,10 @@ function AdminLayout() {
 
   useEffect(() => {
     if (!isLoading && roleCheck && !roleCheck.isAdmin) {
-      toast.error("Acesso restrito a administradores.");
+      toast.error(t("admin.restricted"));
       navigate({ to: "/dashboard" });
     }
-  }, [isLoading, roleCheck, navigate]);
+  }, [isLoading, roleCheck, navigate, t]);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -61,7 +61,7 @@ function AdminLayout() {
           <img src="/favicon.png" alt="MetaLock" className="h-8 w-8 rounded-sm" />
           <div>
             <div className="text-sm font-bold leading-tight">MetaLock</div>
-            <div className="text-[10px] uppercase tracking-widest text-primary">Admin</div>
+            <div className="text-[10px] uppercase tracking-widest text-primary">{t("roles.admin")}</div>
           </div>
         </div>
         <nav className="p-3 space-y-1">

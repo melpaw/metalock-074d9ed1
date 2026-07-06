@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export function AgentPermissionsDialog({ agentId }: { agentId: string }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [canAddWallets, setCanAddWallets] = useState(false);
@@ -35,7 +37,7 @@ export function AgentPermissionsDialog({ agentId }: { agentId: string }) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Permissões atualizadas");
+      toast.success(t("admin.permissionsUpdated"));
       qc.invalidateQueries({ queryKey: ["agent-perms", agentId] });
       setOpen(false);
     },
@@ -45,25 +47,25 @@ export function AgentPermissionsDialog({ agentId }: { agentId: string }) {
   return (
     <>
       <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        <Shield className="mr-1 h-3.5 w-3.5" /> Permissões
+        <Shield className="mr-1 h-3.5 w-3.5" /> {t("admin.permissions")}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Permissões do agente</DialogTitle>
+            <DialogTitle>{t("admin.agentPermissions")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-sm border border-border bg-surface-elevated p-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium">Adicionar carteiras nos clientes</div>
+                <div className="text-sm font-medium">{t("admin.canAddWallets")}</div>
                 <div className="text-xs text-muted-foreground">
-                  Se ativado, este agente pode adicionar novas moedas na carteira de seus clientes.
+                  {t("admin.canAddWalletsHint")}
                 </div>
               </div>
               <Switch checked={canAddWallets} onCheckedChange={setCanAddWallets} />
             </div>
             <Button className="w-full" onClick={() => save.mutate()} disabled={save.isPending}>
-              {save.isPending ? "Salvando..." : "Salvar permissões"}
+              {save.isPending ? t("common.saving") : t("admin.savePermissions")}
             </Button>
           </div>
         </DialogContent>

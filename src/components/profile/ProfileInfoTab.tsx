@@ -51,7 +51,7 @@ export function ProfileInfoTab() {
   if (!form) return <div className="text-muted-foreground text-sm">{t("common.loading")}</div>;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6 space-y-5">
+    <div className="rounded-sm border border-border bg-surface p-6 space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label={t("profile.info.fullName")}>
           <Input value={form.full_name ?? ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />

@@ -9,12 +9,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { useState } from "react";
 import { TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/app/invest")({
   component: InvestPage,
 });
 
 function InvestPage() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const { data: plans } = useQuery({
     queryKey: ["plans-active"],
@@ -32,38 +34,38 @@ function InvestPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Investir</h1>
-        <p className="text-sm text-muted-foreground">Escolha um plano e aloque seu saldo</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("plans.invest")}</h1>
+        <p className="text-sm text-muted-foreground">{t("plans.investSubtitle")}</p>
       </div>
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">Planos disponíveis</h2>
+        <h2 className="text-lg font-semibold mb-3">{t("plans.available")}</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {plans?.map((p: any) => (
-            <div key={p.id} className="rounded-xl border border-border bg-surface p-5 flex flex-col">
+            <div key={p.id} className="rounded-sm border border-border bg-surface p-5 flex flex-col">
               <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-5 w-5" /><span className="font-bold">{p.name}</span></div>
-              <div className="mt-3 text-3xl font-bold">{p.daily_rate}<span className="text-base text-muted-foreground">%/dia</span></div>
+              <div className="mt-3 text-3xl font-bold">{p.daily_rate}<span className="text-base text-muted-foreground">{t("plans.percentPerDay")}</span></div>
               <div className="mt-2 text-xs text-muted-foreground">
-                Min: {p.min_amount} · Max: {p.max_amount}<br />Duração: {p.duration_days} dias
+                {t("plans.minShort")}: {p.min_amount} · {t("plans.maxShort")}: {p.max_amount}<br />{t("plans.duration")}: {t("plans.days", { days: p.duration_days })}
               </div>
               <InvestDialog plan={p} wallets={wallets ?? []} onDone={() => qc.invalidateQueries()} />
             </div>
           ))}
-          {plans?.length === 0 && <div className="text-muted-foreground col-span-full text-center py-8">Nenhum plano disponível.</div>}
+          {plans?.length === 0 && <div className="text-muted-foreground col-span-full text-center py-8">{t("plans.noneAvailable")}</div>}
         </div>
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">Meus investimentos</h2>
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+        <h2 className="text-lg font-semibold mb-3">{t("plans.myInvestments")}</h2>
+        <div className="overflow-hidden rounded-sm border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-surface-elevated text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 text-left">Plano</th>
-                <th className="px-4 py-3 text-right">Valor</th>
-                <th className="px-4 py-3 text-right">Taxa</th>
-                <th className="px-4 py-3 text-right">Encerra</th>
-                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-left">{t("plans.plan")}</th>
+                <th className="px-4 py-3 text-right">{t("common.value")}</th>
+                <th className="px-4 py-3 text-right">{t("plans.rate")}</th>
+                <th className="px-4 py-3 text-right">{t("plans.ends")}</th>
+                <th className="px-4 py-3 text-left">{t("common.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -71,12 +73,12 @@ function InvestPage() {
                 <tr key={i.id} className="border-b border-border/50 last:border-0">
                   <td className="px-4 py-3">{i.plans?.name}</td>
                   <td className="px-4 py-3 text-right font-mono">{Number(i.amount).toFixed(4)} {i.currencies?.symbol}</td>
-                  <td className="px-4 py-3 text-right">{i.daily_rate}%/dia</td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{new Date(i.end_date).toLocaleDateString("pt-BR")}</td>
+                  <td className="px-4 py-3 text-right">{i.daily_rate}{t("plans.percentPerDay")}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground">{new Date(i.end_date).toLocaleDateString(i18n.language)}</td>
                   <td className="px-4 py-3 capitalize">{i.status}</td>
                 </tr>
               ))}
-              {investments?.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Nenhum investimento ainda.</td></tr>}
+              {investments?.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">{t("plans.noInvestments")}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -86,43 +88,44 @@ function InvestPage() {
 }
 
 function InvestDialog({ plan, wallets, onDone }: { plan: any; wallets: any[]; onDone: () => void }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [currencyId, setCurrencyId] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function submit() {
-    if (!currencyId || !amount) return toast.error("Preencha todos os campos");
+    if (!currencyId || !amount) return toast.error(t("wallet.fillAll"));
     setLoading(true);
     try {
       const { error } = await supabase.rpc("invest_in_plan", {
         _plan_id: plan.id, _currency_id: currencyId, _amount: Number(amount),
       });
       if (error) throw error;
-      toast.success("Investimento criado!");
+      toast.success(t("plans.investmentCreated"));
       setOpen(false); setAmount(""); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="mt-4 w-full">Investir</Button></DialogTrigger>
+      <DialogTrigger asChild><Button className="mt-4 w-full">{t("plans.invest")}</Button></DialogTrigger>
       <DialogContent>
-        <DialogHeader><DialogTitle>Investir em {plan.name}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("plans.investIn", { plan: plan.name })}</DialogTitle></DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-2"><Label>Moeda</Label>
+          <div className="space-y-2"><Label>{t("common.currency")}</Label>
             <Select value={currencyId} onValueChange={setCurrencyId}>
-              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-              <SelectContent>{wallets.filter(w => Number(w.available) > 0).map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — disp: {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
+              <SelectTrigger><SelectValue placeholder={t("wallet.select")} /></SelectTrigger>
+              <SelectContent>{wallets.filter(w => Number(w.available) > 0).map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {t("buy.available")}: {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div className="space-y-2"><Label>Valor ({plan.min_amount} – {plan.max_amount})</Label>
+          <div className="space-y-2"><Label>{t("common.value")} ({plan.min_amount} – {plan.max_amount})</Label>
             <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button onClick={submit} disabled={loading}>{loading ? "..." : "Confirmar"}</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+          <Button onClick={submit} disabled={loading}>{loading ? "..." : t("common.confirm")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
