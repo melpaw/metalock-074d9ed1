@@ -90,6 +90,19 @@ export function TransactionsQueue() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const setInsurance = useMutation({
+    mutationFn: async ({ id, percent }: { id: string; percent: number }) => {
+      const { error } = await supabase.rpc("admin_set_insurance_quote" as any, { _tx_id: id, _percent: percent });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("admin.quoteSaved"));
+      setInsTx(null); setInsPct("");
+      qc.invalidateQueries({ queryKey: ["staff-transactions"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
@@ -115,13 +128,38 @@ export function TransactionsQueue() {
           <div className="divide-y divide-border">
             {rows.map((r: any) => (
               <TxRow key={r.id} r={r} t={t} language={i18n.language} onDetail={() => setDetail(r)}
-                onApprove={() => act(r, true)} onReject={() => act(r, false)} />
+                onApprove={() => act(r, true)} onReject={() => act(r, false)}
+                onQuoteInsurance={() => { setInsTx(r); setInsPct(String(r.metadata?.insurance_percent ?? "")); }} />
             ))}
           </div>
         )}
       </div>
 
       <DetailDialog tx={detail} onClose={() => setDetail(null)} />
+
+      {insTx && (
+        <Dialog open onOpenChange={(o) => !o && setInsTx(null)}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader><DialogTitle>{t("admin.quoteInsuranceTitle")}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="text-xs text-muted-foreground">
+                {insTx.profile?.email} · ${Number(insTx.usd_value ?? 0).toFixed(2)}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">{t("admin.percentLabel")}</label>
+                <Input type="number" min="0" max="100" step="0.01" value={insPct} onChange={(e) => setInsPct(e.target.value)} />
+              </div>
+              <Button
+                onClick={() => setInsurance.mutate({ id: insTx.id, percent: Number(insPct) })}
+                disabled={setInsurance.isPending || !insPct}
+                className="w-full"
+              >
+                {t("admin.saveQuote")}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 
