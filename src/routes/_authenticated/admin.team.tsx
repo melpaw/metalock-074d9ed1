@@ -35,7 +35,7 @@ function TeamPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | Role>("all");
+  const [roleFilter] = useState<"all" | Role>("agent");
   const [addOpen, setAddOpen] = useState(false);
   const [editUser, setEditUser] = useState<any | null>(null);
   const [permUser, setPermUser] = useState<any | null>(null);
