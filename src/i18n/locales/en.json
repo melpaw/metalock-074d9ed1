@@ -212,7 +212,12 @@
     "netReceive": "You receive",
     "insuranceQuote": "Request insurance quote",
     "insuranceQuoteHint": "An agent will send an insurance percentage proposal before the withdrawal.",
-    "memoTag": "Memo/Tag"
+    "memoTag": "Memo/Tag",
+    "internalTransferHint": "Internal transfer between your wallets. To send to a third party, use the Withdraw tab.",
+    "fromWallet": "From which wallet",
+    "toWallet": "To which wallet",
+    "confirmTransfer": "Confirm transfer",
+    "transferDone": "Transfer completed"
   },
   "tx": {
     "type": "Type",
