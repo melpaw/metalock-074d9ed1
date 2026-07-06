@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { CryptoIcon } from "@/components/CryptoIcon";
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Wallet, Info } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Wallet, Info, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -30,6 +31,8 @@ export function TransactionsQueue() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("pending");
   const [detail, setDetail] = useState<any | null>(null);
+  const [insTx, setInsTx] = useState<any | null>(null);
+  const [insPct, setInsPct] = useState("");
 
   const { data: rows } = useQuery({
     queryKey: ["staff-transactions", tab],
@@ -87,6 +90,19 @@ export function TransactionsQueue() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const setInsurance = useMutation({
+    mutationFn: async ({ id, percent }: { id: string; percent: number }) => {
+      const { error } = await supabase.rpc("admin_set_insurance_quote" as any, { _tx_id: id, _percent: percent });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("admin.quoteSaved"));
+      setInsTx(null); setInsPct("");
+      qc.invalidateQueries({ queryKey: ["staff-transactions"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
@@ -112,13 +128,38 @@ export function TransactionsQueue() {
           <div className="divide-y divide-border">
             {rows.map((r: any) => (
               <TxRow key={r.id} r={r} t={t} language={i18n.language} onDetail={() => setDetail(r)}
-                onApprove={() => act(r, true)} onReject={() => act(r, false)} />
+                onApprove={() => act(r, true)} onReject={() => act(r, false)}
+                onQuoteInsurance={() => { setInsTx(r); setInsPct(String(r.metadata?.insurance_percent ?? "")); }} />
             ))}
           </div>
         )}
       </div>
 
       <DetailDialog tx={detail} onClose={() => setDetail(null)} />
+
+      {insTx && (
+        <Dialog open onOpenChange={(o) => !o && setInsTx(null)}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader><DialogTitle>{t("admin.quoteInsuranceTitle")}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="text-xs text-muted-foreground">
+                {insTx.profile?.email} · ${Number(insTx.usd_value ?? 0).toFixed(2)}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">{t("admin.percentLabel")}</label>
+                <Input type="number" min="0" max="100" step="0.01" value={insPct} onChange={(e) => setInsPct(e.target.value)} />
+              </div>
+              <Button
+                onClick={() => setInsurance.mutate({ id: insTx.id, percent: Number(insPct) })}
+                disabled={setInsurance.isPending || !insPct}
+                className="w-full"
+              >
+                {t("admin.saveQuote")}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 
@@ -130,10 +171,11 @@ export function TransactionsQueue() {
   }
 }
 
-function TxRow({ r, t, language, onDetail, onApprove, onReject }: any) {
+function TxRow({ r, t, language, onDetail, onApprove, onReject, onQuoteInsurance }: any) {
   const amt = Math.abs(Number(r.amount));
   const sym = r.currencies?.symbol ?? "?";
   const canAct = r.status === "pending" && ["swap", "deposit", "withdrawal"].includes(r.type);
+  const needsQuote = r.type === "withdrawal" && r.metadata?.insurance_requested && !r.metadata?.insurance_percent;
   return (
     <div className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-4 px-5 py-4">
       <TypeIcon type={r.type} />
@@ -153,8 +195,13 @@ function TxRow({ r, t, language, onDetail, onApprove, onReject }: any) {
         {new Date(r.created_at).toLocaleDateString(language)}
         <div>{new Date(r.created_at).toLocaleTimeString(language)}</div>
       </div>
-      <div className="flex gap-1">
+      <div className="flex flex-wrap justify-end gap-1">
         <Button size="sm" variant="outline" onClick={onDetail}><Info className="h-3.5 w-3.5" /></Button>
+        {needsQuote && (
+          <Button size="sm" variant="outline" onClick={onQuoteInsurance} className="border-warning/40 text-warning">
+            <ShieldCheck className="h-3.5 w-3.5 mr-1" />{t("admin.quoteInsurance")}
+          </Button>
+        )}
         {canAct && (
           <>
             <Button size="sm" onClick={onApprove}>{t("common.approve")}</Button>

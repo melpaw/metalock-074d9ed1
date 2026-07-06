@@ -212,7 +212,12 @@
     "netReceive": "Sie erhalten",
     "insuranceQuote": "Versicherungsangebot anfordern",
     "insuranceQuoteHint": "Ein Agent sendet vor der Auszahlung einen Vorschlag mit dem Versicherungsprozentsatz.",
-    "memoTag": "Memo/Tag"
+    "memoTag": "Memo/Tag",
+    "internalTransferHint": "Interne Überweisung zwischen Ihren Wallets. Für Drittempfänger den Tab Abheben verwenden.",
+    "fromWallet": "Von welcher Wallet",
+    "toWallet": "In welche Wallet",
+    "confirmTransfer": "Überweisung bestätigen",
+    "transferDone": "Überweisung abgeschlossen"
   },
   "tx": {
     "type": "Typ",
@@ -240,7 +245,13 @@
     "sender": "Absenderadresse",
     "note": "Notiz",
     "destination": "Zieladresse",
-    "buySwap": "Kauf/Tausch"
+    "buySwap": "Kauf/Tausch",
+    "insuranceQuoted": "Versicherungsangebot verfügbar: {{percent}}%",
+    "insurancePaymentNote": "Bei Zustimmung wird ein Ticket zur Zahlung geöffnet. Bitte eine Notiz hinterlassen (bevorzugte Methode, Bank usw.).",
+    "insurancePaymentPlaceholder": "z. B. Überweisung, Bank X",
+    "insuranceApprove": "Versicherung annehmen",
+    "insuranceReject": "Versicherung ablehnen",
+    "insuranceTicketOpen": "Zahlungsticket öffnen"
   },
   "profile": {
     "title": "Mein Profil",
@@ -436,6 +447,11 @@
     "canAddWalletsHint": "Wenn aktiviert, kann dieser Agent neue Währungen zu den Wallets seiner Kunden hinzufügen.",
     "savePermissions": "Berechtigungen speichern",
     "actionRecorded": "Aktion gespeichert",
+    "quoteInsurance": "Versicherung anbieten",
+    "quoteInsuranceTitle": "Versicherung für Abhebung anbieten",
+    "percentLabel": "Prozentsatz (%)",
+    "saveQuote": "Angebot senden",
+    "quoteSaved": "Angebot an Kunde gesendet",
     "depositProcessed": "Einzahlung verarbeitet",
     "withdrawalProcessed": "Auszahlung verarbeitet",
     "noTransactions": "Keine Transaktionen.",

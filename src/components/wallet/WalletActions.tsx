@@ -22,7 +22,7 @@ export function WalletActions({ wallets, currencies, prices, onDone }: { wallets
         <TabsTrigger value="withdraw" className="min-h-10 px-2 text-xs"><Building2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.withdraw")}</span></TabsTrigger>
       </TabsList>
       <TabsContent value="deposit" className="mt-3"><DepositPanel currencies={currencies} onDone={onDone} /></TabsContent>
-      <TabsContent value="send" className="mt-3"><SendPanel wallets={wallets} onDone={onDone} /></TabsContent>
+      <TabsContent value="send" className="mt-3"><SendPanel wallets={wallets} currencies={currencies} onDone={onDone} /></TabsContent>
       <TabsContent value="swap" className="mt-3"><SwapPanel wallets={wallets} currencies={currencies} prices={prices} onDone={onDone} /></TabsContent>
       <TabsContent value="withdraw" className="mt-3"><WithdrawPanel wallets={wallets} prices={prices} onDone={onDone} /></TabsContent>
     </Tabs>
@@ -119,42 +119,54 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
   );
 }
 
-function SendPanel({ wallets, onDone }: { wallets: any[]; onDone: () => void }) {
+function SendPanel({ wallets, currencies, onDone }: { wallets: any[]; currencies: any[]; onDone: () => void }) {
   const { t } = useTranslation();
-  const [currencyId, setCurrencyId] = useState("");
+  const [fromId, setFromId] = useState("");
+  const [toId, setToId] = useState("");
   const [amount, setAmount] = useState("");
-  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const funded = wallets.filter((w) => Number(w.available) > 0);
   async function submit() {
-    if (!currencyId || !amount || !address) return toast.error(t("wallet.fillAll"));
+    if (!fromId || !toId || !amount) return toast.error(t("wallet.fillAll"));
+    if (fromId === toId) return toast.error(t("wallet.diffCurrency"));
     setLoading(true);
     try {
-      const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: address });
+      const { error } = await supabase.rpc("client_internal_transfer" as any, { _from_currency: fromId, _to_currency: toId, _amount: Number(amount) });
       if (error) throw error;
-      toast.success(t("wallet.sendRequested"));
-      setAmount(""); setAddress(""); onDone();
+      toast.success(t("wallet.transferDone"));
+      setAmount(""); onDone();
     } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
   }
   return (
     <div className="space-y-3">
+      <div className="rounded-sm border border-dashed border-border p-2 text-xs text-muted-foreground">
+        {t("wallet.internalTransferHint")}
+      </div>
       <div>
-        <Label>{t("wallet.currency")}</Label>
-        <Select value={currencyId} onValueChange={setCurrencyId}>
+        <Label>{t("wallet.fromWallet")}</Label>
+        <Select value={fromId} onValueChange={setFromId}>
           <SelectTrigger><SelectValue placeholder={t("wallet.chooseFunded")} /></SelectTrigger>
           <SelectContent>
             {funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
+      <div>
+        <Label>{t("wallet.toWallet")}</Label>
+        <Select value={toId} onValueChange={setToId}>
+          <SelectTrigger><SelectValue placeholder={t("wallet.select")} /></SelectTrigger>
+          <SelectContent>
+            {currencies.filter((c) => c.id !== fromId).map((c) => <SelectItem key={c.id} value={c.id}>{c.symbol} — {c.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div><Label>{t("common.amount")}</Label><Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
         <div className="flex items-end">
-          {currencyId && <Button variant="ghost" size="sm" onClick={() => { const w = funded.find((x) => x.currency_id === currencyId); if (w) setAmount(String(w.available)); }}>{t("wallet.max")}</Button>}
+          {fromId && <Button variant="ghost" size="sm" onClick={() => { const w = funded.find((x) => x.currency_id === fromId); if (w) setAmount(String(w.available)); }}>{t("wallet.max")}</Button>}
         </div>
       </div>
-      <div><Label>{t("wallet.destAddress")}</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... / bc1..." /></div>
-      <Button onClick={submit} disabled={loading} className="w-full">{loading ? t("common.sending") : t("common.send")}</Button>
+      <Button onClick={submit} disabled={loading} className="w-full">{loading ? t("common.sending") : t("wallet.confirmTransfer")}</Button>
     </div>
   );
 }
@@ -241,8 +253,9 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
     if (!bankId) return toast.error(t("wallet.noBank"));
     setLoading(true);
     try {
-      const marker = insurance ? "[INSURANCE_QUOTE_REQUESTED] " : "";
-      const { error } = await supabase.rpc("request_withdrawal", { _currency_id: currencyId, _amount: Number(amount), _address: `${marker}BANK:${bankId}` });
+      const { error } = await supabase.rpc("client_request_withdrawal_v2" as any, {
+        _currency_id: currencyId, _amount: Number(amount), _bank_id: bankId, _insurance_requested: insurance,
+      });
       if (error) throw error;
       toast.success(t("wallet.withdrawalRequested"));
       setAmount(""); setInsurance(false); onDone();

@@ -212,7 +212,12 @@
     "netReceive": "Você receberá",
     "insuranceQuote": "Solicitar orçamento de seguro",
     "insuranceQuoteHint": "Um agente enviará uma proposta com o percentual do seguro antes do saque.",
-    "memoTag": "Memo/Tag"
+    "memoTag": "Memo/Tag",
+    "internalTransferHint": "Transferência interna entre suas carteiras. Para enviar a terceiros, use a aba Sacar.",
+    "fromWallet": "De qual carteira",
+    "toWallet": "Para qual carteira",
+    "confirmTransfer": "Confirmar transferência",
+    "transferDone": "Transferência concluída"
   },
   "tx": {
     "type": "Tipo",
@@ -240,7 +245,13 @@
     "sender": "Endereço de origem",
     "note": "Observação",
     "destination": "Endereço de destino",
-    "buySwap": "Compra/Swap"
+    "buySwap": "Compra/Swap",
+    "insuranceQuoted": "Cotação de seguro disponível: {{percent}}%",
+    "insurancePaymentNote": "Se aprovar, um ticket será aberto para acertar o pagamento. Deixe uma observação (forma preferida, banco, etc.).",
+    "insurancePaymentPlaceholder": "Ex.: pago via TED, banco X",
+    "insuranceApprove": "Aprovar seguro",
+    "insuranceReject": "Recusar seguro",
+    "insuranceTicketOpen": "Abrir ticket do pagamento do seguro"
   },
   "profile": {
     "title": "Meu perfil",
@@ -436,6 +447,11 @@
     "canAddWalletsHint": "Se ativado, este agente pode adicionar novas moedas na carteira de seus clientes.",
     "savePermissions": "Salvar permissões",
     "actionRecorded": "Ação registrada",
+    "quoteInsurance": "Cotar seguro",
+    "quoteInsuranceTitle": "Cotar seguro do saque",
+    "percentLabel": "Percentual (%)",
+    "saveQuote": "Enviar cotação",
+    "quoteSaved": "Cotação enviada ao cliente",
     "depositProcessed": "Depósito processado",
     "withdrawalProcessed": "Saque processado",
     "noTransactions": "Nenhuma transação.",

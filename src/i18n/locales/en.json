@@ -212,7 +212,12 @@
     "netReceive": "You receive",
     "insuranceQuote": "Request insurance quote",
     "insuranceQuoteHint": "An agent will send an insurance percentage proposal before the withdrawal.",
-    "memoTag": "Memo/Tag"
+    "memoTag": "Memo/Tag",
+    "internalTransferHint": "Internal transfer between your wallets. To send to a third party, use the Withdraw tab.",
+    "fromWallet": "From which wallet",
+    "toWallet": "To which wallet",
+    "confirmTransfer": "Confirm transfer",
+    "transferDone": "Transfer completed"
   },
   "tx": {
     "type": "Type",
@@ -240,7 +245,13 @@
     "sender": "Sender address",
     "note": "Note",
     "destination": "Destination address",
-    "buySwap": "Buy/Swap"
+    "buySwap": "Buy/Swap",
+    "insuranceQuoted": "Insurance quote available: {{percent}}%",
+    "insurancePaymentNote": "If approved, a ticket will be opened to arrange the payment. Leave a note (preferred method, bank, etc.).",
+    "insurancePaymentPlaceholder": "e.g. wire transfer, bank X",
+    "insuranceApprove": "Approve insurance",
+    "insuranceReject": "Decline insurance",
+    "insuranceTicketOpen": "Open insurance payment ticket"
   },
   "profile": {
     "title": "My profile",
@@ -436,6 +447,11 @@
     "canAddWalletsHint": "When enabled, this agent can add new currencies to their clients' wallets.",
     "savePermissions": "Save permissions",
     "actionRecorded": "Action recorded",
+    "quoteInsurance": "Quote insurance",
+    "quoteInsuranceTitle": "Quote withdrawal insurance",
+    "percentLabel": "Percentage (%)",
+    "saveQuote": "Send quote",
+    "quoteSaved": "Quote sent to client",
     "depositProcessed": "Deposit processed",
     "withdrawalProcessed": "Withdrawal processed",
     "noTransactions": "No transactions.",
