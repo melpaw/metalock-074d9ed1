@@ -38,15 +38,23 @@ function TeamPage() {
     !search || u.email.toLowerCase().includes(search.toLowerCase()) || u.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const [addOpen, setAddOpen] = useState(false);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Equipe & Permissões</h1>
           <p className="text-sm text-muted-foreground">Promova usuários a agentes ou administradores</p>
         </div>
-        <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+        <div className="flex items-center gap-2">
+          <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+          <Button onClick={() => setAddOpen(true)}><UserPlus className="h-4 w-4 mr-1" /> Adicionar agente</Button>
+        </div>
       </div>
+
+      <AddAgentDialog open={addOpen} onClose={() => setAddOpen(false)} onDone={() => qc.invalidateQueries({ queryKey: ["team-users"] })} />
+
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-sm">
