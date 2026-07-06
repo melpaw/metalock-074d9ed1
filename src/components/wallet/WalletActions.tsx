@@ -22,7 +22,7 @@ export function WalletActions({ wallets, currencies, prices, onDone }: { wallets
         <TabsTrigger value="withdraw" className="min-h-10 px-2 text-xs"><Building2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">{t("wallet.withdraw")}</span></TabsTrigger>
       </TabsList>
       <TabsContent value="deposit" className="mt-3"><DepositPanel currencies={currencies} onDone={onDone} /></TabsContent>
-      <TabsContent value="send" className="mt-3"><SendPanel wallets={wallets} onDone={onDone} /></TabsContent>
+      <TabsContent value="send" className="mt-3"><SendPanel wallets={wallets} currencies={currencies} onDone={onDone} /></TabsContent>
       <TabsContent value="swap" className="mt-3"><SwapPanel wallets={wallets} currencies={currencies} prices={prices} onDone={onDone} /></TabsContent>
       <TabsContent value="withdraw" className="mt-3"><WithdrawPanel wallets={wallets} prices={prices} onDone={onDone} /></TabsContent>
     </Tabs>
