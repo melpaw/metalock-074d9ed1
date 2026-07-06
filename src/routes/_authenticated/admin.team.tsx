@@ -23,8 +23,13 @@ import { useTranslation } from "react-i18next";
 type Role = "admin" | "agent" | "client";
 
 export const Route = createFileRoute("/_authenticated/admin/team")({
+  beforeLoad: async () => {
+    const { data } = await supabase.from("user_roles").select("role").eq("role", "admin");
+    if (!data || data.length === 0) throw (await import("@tanstack/react-router")).redirect({ to: "/admin" });
+  },
   component: TeamPage,
 });
+
 
 function TeamPage() {
   const { t, i18n } = useTranslation();
