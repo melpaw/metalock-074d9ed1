@@ -6,27 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export function AddClientDialog() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
 
   const add = useMutation({
     mutationFn: async () => {
-      if (!email.trim()) throw new Error("Informe o email");
+      if (!email.trim()) throw new Error(t("admin.enterEmail"));
       const { error } = await supabase.rpc("admin_register_client", { _email: email.trim() });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Cliente vinculado com sucesso");
+      toast.success(t("admin.clientLinked"));
       setOpen(false);
       setEmail("");
       qc.invalidateQueries({ queryKey: ["admin-clients"] });
     },
     onError: (e: any) => {
-      const msg = e.message || "Erro";
-      if (msg.includes("user_not_found")) toast.error("Usuário com esse email não encontrado. Peça para ele criar a conta primeiro.");
+      const msg = e.message || t("common.error");
+      if (msg.includes("user_not_found")) toast.error(t("admin.userNotFound"));
       else toast.error(msg);
     },
   });
@@ -34,26 +36,26 @@ export function AddClientDialog() {
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        <UserPlus className="mr-2 h-4 w-4" /> Adicionar cliente
+        <UserPlus className="mr-2 h-4 w-4" /> {t("admin.addClient")}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Vincular cliente</DialogTitle>
+            <DialogTitle>{t("admin.linkClient")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Informe o email de um usuário já cadastrado. Ele passará a ser seu cliente e você poderá gerenciá-lo.
+              {t("admin.linkClientHint")}
             </p>
             <Input
               type="email"
-              placeholder="cliente@exemplo.com"
+              placeholder={t("admin.clientEmailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && add.mutate()}
             />
             <Button className="w-full" onClick={() => add.mutate()} disabled={add.isPending}>
-              {add.isPending ? "Adicionando..." : "Adicionar"}
+              {add.isPending ? t("admin.adding") : t("common.add")}
             </Button>
           </div>
         </DialogContent>

@@ -104,9 +104,7 @@ function OverviewPage() {
       </div>
 
       {/* Hero: donut + balance */}
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated p-6 shadow-lg">
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden rounded-sm border border-border bg-surface p-6 shadow-lg">
         <div className="relative grid gap-6 items-center md:grid-cols-[260px_1fr]">
           {/* Donut */}
           <div className="mx-auto md:mx-0">
@@ -119,7 +117,7 @@ function OverviewPage() {
                         {chartData.map((c) => <Cell key={c.name} fill={c.color} />)}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ background: "hsl(var(--surface-elevated))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                        contentStyle={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 12 }}
                         formatter={(v: any, _n: any, p: any) => [fmt(toDisplay(Number(v))), p.payload.name]}
                       />
                     </PieChart>
@@ -209,7 +207,7 @@ function OverviewPage() {
 
 
       {/* Recent transactions */}
-      <section className="rounded-2xl border border-border bg-surface overflow-hidden">
+      <section className="rounded-sm border border-border bg-surface overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="font-semibold">{t("overview.recentTx")}</h2>
           <span className="text-xs text-muted-foreground">{t("overview.lastNTx", { n: Math.min(txs?.length ?? 0, 20) })}</span>
@@ -330,7 +328,7 @@ function WalletDetailsDialog({ wallet, onClose, fmt, totalUsd }: { wallet: any |
           <DialogTitle>{wallet.currencies?.name ?? wallet.currencies?.symbol}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="flex items-center gap-4 rounded-xl border border-border bg-surface-elevated p-4">
+          <div className="flex items-center gap-4 rounded-sm border border-border bg-surface-elevated p-4">
             <CryptoIcon id={wallet.currencies?.coingecko_id} symbol={wallet.currencies?.symbol} className="h-12 w-12" />
             <div className="min-w-0">
               <div className="text-xs uppercase tracking-widest text-muted-foreground">{wallet.currencies?.symbol}</div>

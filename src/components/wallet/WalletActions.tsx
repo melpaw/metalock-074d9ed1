@@ -55,7 +55,7 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
   function copy(text: string) { navigator.clipboard.writeText(text); toast.success(t("wallet.copied")); }
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-dashed border-border p-3">
+      <div className="rounded-sm border border-dashed border-border p-3">
         <Label className="text-xs uppercase text-muted-foreground">{t("wallet.chooseCurrency")}</Label>
         <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <Select value={currencyId} onValueChange={setCurrencyId}>
@@ -72,27 +72,27 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
         <div className="text-xs uppercase text-muted-foreground">{t("wallet.myAddresses")}</div>
         {!my?.length && <div className="rounded-md bg-surface-elevated p-4 text-sm text-muted-foreground text-center">{t("wallet.noAddresses")}</div>}
         {my?.map((a) => (
-          <div key={a.id} className="rounded-lg border border-border bg-surface-elevated p-3 space-y-2">
+          <div key={a.id} className="rounded-sm border border-border bg-surface-elevated p-3 space-y-2">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="font-semibold">{a.currencies?.symbol}</span>
                 <span className="truncate text-xs text-muted-foreground">{a.currencies?.name}</span>
-                {a.network && <span className="text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary">{a.network}</span>}
+                {a.network && <span className="text-[10px] px-2 py-0.5 rounded-sm bg-primary/15 text-primary">{a.network}</span>}
               </div>
               {a.status === "ready"
-                ? <span className="text-[10px] px-2 py-0.5 rounded bg-up/20 text-up">{t("wallet.ready")}</span>
-                : <span className="text-[10px] px-2 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-1"><Clock className="h-3 w-3" />{t("wallet.waitingAdmin")}</span>}
+                ? <span className="text-[10px] px-2 py-0.5 rounded-sm bg-up/20 text-up">{t("wallet.ready")}</span>
+                : <span className="text-[10px] px-2 py-0.5 rounded-sm bg-warning/20 text-warning flex items-center gap-1"><Clock className="h-3 w-3" />{t("wallet.waitingAdmin")}</span>}
             </div>
             {a.status === "ready" ? (
               <>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 rounded bg-background px-2 py-1.5 text-xs font-mono break-all">{a.address}</code>
+                  <code className="flex-1 rounded-sm bg-background px-2 py-1.5 text-xs font-mono break-all">{a.address}</code>
                   <Button size="icon" variant="ghost" onClick={() => copy(a.address)}><Copy className="h-4 w-4" /></Button>
                 </div>
                 {a.memo_tag && (
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="text-muted-foreground">Memo/Tag:</span>
-                    <code className="rounded bg-background px-2 py-0.5 font-mono">{a.memo_tag}</code>
+                    <span className="text-muted-foreground">{t("wallet.memoTag")}:</span>
+                    <code className="rounded-sm bg-background px-2 py-0.5 font-mono">{a.memo_tag}</code>
                     <Button size="icon" variant="ghost" onClick={() => copy(a.memo_tag)}><Copy className="h-3 w-3" /></Button>
                   </div>
                 )}
@@ -110,7 +110,7 @@ function DepositPanel({ currencies, onDone }: { currencies: any[]; onDone: () =>
         <Dialog open onOpenChange={(o) => !o && setViewer(null)}>
           <DialogContent>
             <DialogHeader><DialogTitle>QR · {viewer.currencies?.symbol}</DialogTitle></DialogHeader>
-            {viewer.signedUrl ? <img src={viewer.signedUrl} alt="QR" className="mx-auto max-h-80 rounded-lg bg-white p-2" /> : <p className="text-sm text-muted-foreground">—</p>}
+            {viewer.signedUrl ? <img src={viewer.signedUrl} alt="QR" className="mx-auto max-h-80 rounded-sm bg-background p-2" /> : <p className="text-sm text-muted-foreground">—</p>}
             <div className="text-xs font-mono break-all text-center">{viewer.address}</div>
           </DialogContent>
         </Dialog>

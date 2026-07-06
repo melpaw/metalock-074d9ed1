@@ -7,14 +7,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { CryptoIcon } from "@/components/CryptoIcon";
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Wallet, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 type Tab = "all" | "pending" | "completed" | "rejected" | "cancelled";
-const TABS: { key: Tab; label: string }[] = [
-  { key: "all", label: "Todas" },
-  { key: "pending", label: "Pendentes" },
-  { key: "completed", label: "Aprovadas" },
-  { key: "rejected", label: "Rejeitadas" },
-  { key: "cancelled", label: "Canceladas" },
+const TABS: { key: Tab; labelKey: string }[] = [
+  { key: "all", labelKey: "common.all" },
+  { key: "pending", labelKey: "tx.pending" },
+  { key: "completed", labelKey: "tx.completed" },
+  { key: "rejected", labelKey: "tx.rejected" },
+  { key: "cancelled", labelKey: "tx.cancelled" },
 ];
 
 const STATUS_COLOR: Record<string, string> = {
@@ -25,6 +26,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export function TransactionsQueue() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("pending");
   const [detail, setDetail] = useState<any | null>(null);
@@ -55,7 +57,7 @@ export function TransactionsQueue() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Ação registrada");
+      toast.success(t("admin.actionRecorded"));
       qc.invalidateQueries({ queryKey: ["staff-transactions"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -67,7 +69,7 @@ export function TransactionsQueue() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Depósito processado");
+      toast.success(t("admin.depositProcessed"));
       qc.invalidateQueries({ queryKey: ["staff-transactions"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -79,7 +81,7 @@ export function TransactionsQueue() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Saque processado");
+      toast.success(t("admin.withdrawalProcessed"));
       qc.invalidateQueries({ queryKey: ["staff-transactions"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -88,28 +90,28 @@ export function TransactionsQueue() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => (
+        {TABS.map((tabItem) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tabItem.key}
+            onClick={() => setTab(tabItem.key)}
             className={`rounded-sm border px-3 py-1.5 text-xs font-medium transition ${
-              tab === t.key
+              tab === tabItem.key
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
-            {t.label}
+            {t(tabItem.labelKey)}
           </button>
         ))}
       </div>
 
       <div className="rounded-sm border border-border bg-surface overflow-hidden">
         {!rows || rows.length === 0 ? (
-          <div className="p-12 text-center text-sm text-muted-foreground">Nenhuma transação.</div>
+          <div className="p-12 text-center text-sm text-muted-foreground">{t("admin.noTransactions")}</div>
         ) : (
           <div className="divide-y divide-border">
             {rows.map((r: any) => (
-              <TxRow key={r.id} r={r} onDetail={() => setDetail(r)}
+              <TxRow key={r.id} r={r} t={t} language={i18n.language} onDetail={() => setDetail(r)}
                 onApprove={() => act(r, true)} onReject={() => act(r, false)} />
             ))}
           </div>
@@ -124,11 +126,11 @@ export function TransactionsQueue() {
     if (r.type === "swap") approveSwap.mutate({ id: r.id, approve });
     else if (r.type === "deposit") processDeposit.mutate({ id: r.id, approve });
     else if (r.type === "withdrawal") processWithdrawal.mutate({ id: r.id, approve });
-    else toast.error("Tipo de transação sem ação disponível");
+    else toast.error(t("admin.transactionNoAction"));
   }
 }
 
-function TxRow({ r, onDetail, onApprove, onReject }: any) {
+function TxRow({ r, t, language, onDetail, onApprove, onReject }: any) {
   const amt = Math.abs(Number(r.amount));
   const sym = r.currencies?.symbol ?? "?";
   const canAct = r.status === "pending" && ["swap", "deposit", "withdrawal"].includes(r.type);
@@ -138,25 +140,25 @@ function TxRow({ r, onDetail, onApprove, onReject }: any) {
       <CryptoIcon id={r.currencies?.coingecko_id} symbol={sym} className="h-8 w-8" />
       <div className="min-w-0">
         <div className="truncate text-sm font-semibold">{r.profile?.full_name || r.profile?.email?.split("@")[0] || "—"}</div>
-        <div className="truncate text-[11px] text-muted-foreground">{r.profile?.email} · {typeLabel(r.type)}</div>
+        <div className="truncate text-[11px] text-muted-foreground">{r.profile?.email} · {typeLabel(r.type, t)}</div>
       </div>
       <div className="text-right">
         <div className="font-bold tabular-nums text-up">{amt.toFixed(8)} {sym}</div>
         <div className="text-[10px] text-muted-foreground tabular-nums">${Number(r.usd_value ?? 0).toFixed(2)}</div>
       </div>
       <Badge className={`rounded-sm border ${STATUS_COLOR[r.status] ?? STATUS_COLOR.pending}`} variant="outline">
-        {r.status}
+        {t(`tx.${r.status}`, { defaultValue: r.status })}
       </Badge>
       <div className="text-right text-[11px] text-muted-foreground tabular-nums">
-        {new Date(r.created_at).toLocaleDateString()}
-        <div>{new Date(r.created_at).toLocaleTimeString()}</div>
+        {new Date(r.created_at).toLocaleDateString(language)}
+        <div>{new Date(r.created_at).toLocaleTimeString(language)}</div>
       </div>
       <div className="flex gap-1">
         <Button size="sm" variant="outline" onClick={onDetail}><Info className="h-3.5 w-3.5" /></Button>
         {canAct && (
           <>
-            <Button size="sm" onClick={onApprove}>Aprovar</Button>
-            <Button size="sm" variant="outline" onClick={onReject}>Rejeitar</Button>
+            <Button size="sm" onClick={onApprove}>{t("common.approve")}</Button>
+            <Button size="sm" variant="outline" onClick={onReject}>{t("common.reject")}</Button>
           </>
         )}
       </div>
@@ -181,27 +183,28 @@ function TypeIcon({ type }: { type: string }) {
   );
 }
 
-function typeLabel(t: string) {
-  return ({ deposit: "Depósito", withdrawal: "Saque", swap: "Compra/Swap", investment: "Investimento", adjustment: "Ajuste" } as any)[t] ?? t;
+function typeLabel(type: string, t: (key: string, opts?: any) => string) {
+  return type === "swap" ? t("tx.buySwap") : t(`tx.${type}`, { defaultValue: type });
 }
 
 function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) {
+  const { t, i18n } = useTranslation();
   if (!tx) return null;
   const md = tx.metadata ?? {};
   const rows: Array<[string, string]> = ([
-    ["Cliente", tx.profile?.full_name || tx.profile?.email],
-    ["Email", tx.profile?.email],
-    ["Tipo", typeLabel(tx.type)],
-    ["Status", tx.status],
-    ["Moeda", tx.currencies?.name],
-    ["Valor", `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
+    [t("support.client"), tx.profile?.full_name || tx.profile?.email],
+    [t("auth.email"), tx.profile?.email],
+    [t("tx.type"), typeLabel(tx.type, t)],
+    [t("tx.status"), t(`tx.${tx.status}`, { defaultValue: tx.status })],
+    [t("common.currency"), tx.currencies?.name],
+    [t("common.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
     ["USD", `$${Number(tx.usd_value ?? 0).toFixed(2)}`],
-    ["Data", new Date(tx.created_at).toLocaleString()],
-    ["Hash", md.tx_hash],
-    ["Endereço remetente", md.sender_address],
-    ["Endereço destino", md.address],
-    ["Nota", tx.note],
-    ["Referência", tx.reference],
+    [t("common.date"), new Date(tx.created_at).toLocaleString(i18n.language)],
+    [t("tx.hash"), md.tx_hash],
+    [t("tx.sender"), md.sender_address],
+    [t("tx.destination"), md.address],
+    [t("tx.note"), tx.note],
+    [t("tx.reference"), tx.reference],
     ["Metadata", JSON.stringify(md)],
   ] as Array<[string, any]>).filter(([, v]) => v).map(([k, v]) => [k, String(v)] as [string, string]);
 
@@ -209,7 +212,7 @@ function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) 
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Detalhes da transação</DialogTitle>
+          <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2">
           {rows.map(([k, v]) => (

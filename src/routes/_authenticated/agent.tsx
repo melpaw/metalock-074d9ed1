@@ -6,20 +6,23 @@ import { Headphones, Users, LogOut, Menu, X, LayoutDashboard } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { toast } from "sonner";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/agent")({
   component: AgentLayout,
 });
 
-const nav = [
-  { to: "/agent", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/agent/transactions", label: "Transações", icon: Users },
-  { to: "/agent/kyc", label: "KYC", icon: Users },
-  { to: "/agent/tickets", label: "Tickets", icon: Headphones },
-];
-
 function AgentLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const nav = [
+    { to: "/agent", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
+    { to: "/agent/transactions", label: t("nav.transactions"), icon: Users },
+    { to: "/agent/kyc", label: "KYC", icon: Users },
+    { to: "/agent/tickets", label: t("support.title"), icon: Headphones },
+  ];
+
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
@@ -34,7 +37,7 @@ function AgentLayout() {
 
   useEffect(() => {
     if (!isLoading && roleCheck && !roleCheck.ok) {
-      toast.error("Acesso restrito à equipe de suporte.");
+      toast.error(t("agent.restricted"));
       navigate({ to: "/dashboard" });
     }
   }, [isLoading, roleCheck, navigate]);
@@ -45,7 +48,7 @@ function AgentLayout() {
   }
 
   if (isLoading || !roleCheck?.ok) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Verificando permissões...</div>;
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("agent.verifying")}</div>;
   }
 
   return (
@@ -55,7 +58,7 @@ function AgentLayout() {
           <img src="/favicon.png" alt="MetaLock" className="h-8 w-8 rounded-sm" />
           <div>
             <div className="text-sm font-bold leading-tight">MetaLock</div>
-            <div className="text-[10px] uppercase tracking-widest text-primary">Suporte</div>
+            <div className="text-[10px] uppercase tracking-widest text-primary">{t("support.title")}</div>
           </div>
         </div>
         <nav className="p-3 space-y-1">
@@ -73,7 +76,7 @@ function AgentLayout() {
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t border-border p-3">
           <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+            <LogOut className="mr-2 h-4 w-4" /> {t("common.logout")}
           </Button>
         </div>
       </aside>
@@ -83,8 +86,8 @@ function AgentLayout() {
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="text-sm text-muted-foreground hidden lg:block">Painel do agente</div>
-          <NotificationBell />
+          <div className="text-sm text-muted-foreground hidden lg:block">{t("agent.panel")}</div>
+          <div className="flex items-center gap-2"><LanguageSwitcher /><NotificationBell /></div>
         </header>
         <main className="flex-1 p-6"><Outlet /></main>
       </div>

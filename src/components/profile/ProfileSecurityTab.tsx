@@ -40,13 +40,13 @@ export function ProfileSecurityTab() {
       if (chal.error) throw chal.error;
       const ver = await supabase.auth.mfa.verify({ factorId: enrollState.factorId, challengeId: chal.data.id, code });
       if (ver.error) throw ver.error;
-      toast.success("2FA " + t("profile.security.twofaActive"));
+      toast.success(t("profile.security.twofaEnabled"));
       setEnrollState(null); setCode("");
       qc.invalidateQueries({ queryKey: ["mfa-factors"] });
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   }
   async function removeFactor(id: string) {
-    if (!confirm("2FA?")) return;
+    if (!confirm(t("profile.security.confirmRemove"))) return;
     setBusy(true);
     const { error } = await supabase.auth.mfa.unenroll({ factorId: id });
     setBusy(false);
@@ -54,7 +54,7 @@ export function ProfileSecurityTab() {
     qc.invalidateQueries({ queryKey: ["mfa-factors"] });
   }
   async function changePass() {
-    if (newPass.length < 8) return toast.error("min 8");
+    if (newPass.length < 8) return toast.error(t("profile.security.minPassword"));
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: newPass });
     setBusy(false);
@@ -65,7 +65,7 @@ export function ProfileSecurityTab() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-surface p-6 space-y-4">
+      <div className="rounded-sm border border-border bg-surface p-6 space-y-4">
         <h3 className="flex items-center gap-2 font-semibold"><KeyRound className="h-4 w-4 text-primary" /> {t("profile.security.changePassword")}</h3>
         <div className="space-y-2">
           <Label>{t("profile.security.changePassword")}</Label>
@@ -74,7 +74,7 @@ export function ProfileSecurityTab() {
         <Button onClick={changePass} disabled={busy || newPass.length < 8}>{t("common.save")}</Button>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-6 space-y-4">
+      <div className="rounded-sm border border-border bg-surface p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4 text-primary" /> {t("profile.security.twofa")}</h3>
           {verified
@@ -85,8 +85,8 @@ export function ProfileSecurityTab() {
           <Button variant="destructive" onClick={() => removeFactor(verified.id)} disabled={busy}>{t("profile.security.remove")}</Button>
         ) : enrollState ? (
           <div className="space-y-3">
-            <div className="rounded-lg bg-white p-3 w-fit" dangerouslySetInnerHTML={{ __html: enrollState.qr }} />
-            <p className="text-xs text-muted-foreground">Secret: <code className="rounded bg-muted px-1 py-0.5">{enrollState.secret}</code></p>
+            <div className="rounded-sm bg-background p-3 w-fit" dangerouslySetInnerHTML={{ __html: enrollState.qr }} />
+            <p className="text-xs text-muted-foreground">{t("profile.security.secret")}: <code className="rounded-sm bg-muted px-1 py-0.5">{enrollState.secret}</code></p>
             <div className="flex gap-2">
               <Input inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} placeholder="000000" className="max-w-[140px]" />
               <Button onClick={confirmEnroll} disabled={busy || code.length !== 6}>{t("common.confirm")}</Button>

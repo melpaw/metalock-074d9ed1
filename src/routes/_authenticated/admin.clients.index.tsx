@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Circle, Ticket as TicketIcon, Clock } from "lucide-react";
 import { AddClientDialog } from "@/components/AddClientDialog";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/")({
   component: ClientsList,
 });
 
 function ClientsList() {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
 
   const { data: clients, isLoading } = useQuery({
@@ -42,22 +44,22 @@ function ClientsList() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Clientes</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("nav.clients")}</h1>
           <p className="text-sm text-muted-foreground">
-            {clients?.length ?? 0} clientes cadastrados. Clique em um card para gerenciar.
+            {t("admin.clientsRegistered", { count: clients?.length ?? 0 })}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Input placeholder="Buscar por email ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+          <Input placeholder={t("admin.searchClient")} value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
           <AddClientDialog />
         </div>
       </div>
 
-      {isLoading && <div className="text-center text-muted-foreground py-12">Carregando...</div>}
+      {isLoading && <div className="text-center text-muted-foreground py-12">{t("common.loading")}</div>}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="rounded-xl border border-border bg-surface p-12 text-center text-muted-foreground">
-          Nenhum cliente encontrado.
+        <div className="rounded-sm border border-border bg-surface p-12 text-center text-muted-foreground">
+          {t("admin.noClient")}
         </div>
       )}
 
@@ -67,10 +69,10 @@ function ClientsList() {
             key={c.id}
             to="/admin/clients/$userId"
             params={{ userId: c.id }}
-            className="group block rounded-xl border border-border bg-surface p-4 transition hover:border-primary hover:bg-surface-elevated"
+            className="group block rounded-sm border border-border bg-surface p-4 transition hover:border-primary hover:bg-surface-elevated"
           >
             <div className="flex items-start gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-lg gradient-primary font-bold text-primary-foreground">
+              <div className="grid h-12 w-12 place-items-center rounded-sm gradient-primary font-bold text-primary-foreground">
                 {(c.full_name || c.email || "?").slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -80,19 +82,19 @@ function ClientsList() {
                 </div>
                 <div className="truncate text-xs text-muted-foreground">{c.email}</div>
                 <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Cadastro {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                  {t("admin.signupDate")} {new Date(c.created_at).toLocaleDateString(i18n.language)}
                 </div>
               </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <Metric icon={Clock} label="Tx pendentes" value={c.pendingTx} highlight={c.pendingTx > 0 ? "warning" : undefined} />
-              <Metric icon={TicketIcon} label="Tickets" value={c.openTickets} highlight={c.openTickets > 0 ? "down" : undefined} />
+              <Metric icon={Clock} label={t("admin.pendingTx")} value={c.pendingTx} highlight={c.pendingTx > 0 ? "warning" : undefined} />
+              <Metric icon={TicketIcon} label={t("admin.openTickets")} value={c.openTickets} highlight={c.openTickets > 0 ? "down" : undefined} />
             </div>
 
             <div className="mt-3 flex items-center justify-between text-xs">
-              <KycBadge status={c.kyc_status} />
-              <span className="text-primary opacity-0 transition group-hover:opacity-100">Gerenciar →</span>
+              <KycBadge status={c.kyc_status} t={t} />
+              <span className="text-primary opacity-0 transition group-hover:opacity-100">{t("admin.manage")} →</span>
             </div>
           </Link>
         ))}
@@ -119,7 +121,7 @@ function Metric({ icon: Icon, label, value, highlight }: { icon: any; label: str
   );
 }
 
-function KycBadge({ status }: { status: string | null }) {
+function KycBadge({ status, t }: { status: string | null; t: (key: string) => string }) {
   const s = status ?? "not_started";
   const map: Record<string, string> = {
     approved: "bg-up/15 text-up border-up/30",
@@ -128,10 +130,10 @@ function KycBadge({ status }: { status: string | null }) {
     not_started: "bg-muted/30 text-muted-foreground border-border",
   };
   const label: Record<string, string> = {
-    approved: "KYC verificado",
-    pending: "KYC pendente",
-    rejected: "KYC recusado",
-    not_started: "Sem KYC",
+    approved: t("admin.kycOk"),
+    pending: t("admin.kycPendingFull"),
+    rejected: t("admin.kycRejectedFull"),
+    not_started: t("admin.noKyc"),
   };
-  return <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium ${map[s]}`}>{label[s]}</span>;
+  return <span className={`inline-flex rounded-sm border px-2 py-0.5 text-[10px] font-medium ${map[s]}`}>{label[s]}</span>;
 }

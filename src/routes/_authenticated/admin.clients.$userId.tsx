@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useServerFn } from "@tanstack/react-start";
 import { getMarketPrices } from "@/lib/prices.functions";
+import { useTranslation } from "react-i18next";
 
 const KPI_PALETTE = ["#f7931a", "#627eea", "#26a17b", "#f0b90b", "#14f195", "#8247e5", "#e84142", "#0033ad"];
 
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/admin/clients/$userId")({
 });
 
 function ClientDetail() {
+  const { t, i18n } = useTranslation();
   const { userId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -39,35 +41,35 @@ function ClientDetail() {
       const { error } = await supabase.from("profiles").update({ status }).eq("id", userId);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["client-detail", userId] }); toast.success("Status atualizado"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["client-detail", userId] }); toast.success(t("admin.statusUpdated")); },
   });
 
-  if (isLoading) return <div className="text-center text-muted-foreground py-12">Carregando...</div>;
-  if (!client) return <div className="text-center text-muted-foreground py-12">Cliente não encontrado.</div>;
+  if (isLoading) return <div className="text-center text-muted-foreground py-12">{t("common.loading")}</div>;
+  if (!client) return <div className="text-center text-muted-foreground py-12">{t("admin.clientNotFound")}</div>;
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="rounded-sm border border-border bg-surface p-5">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="grid h-14 w-14 place-items-center rounded-xl gradient-primary text-lg font-bold text-primary-foreground">
+          <div className="grid h-14 w-14 place-items-center rounded-sm gradient-primary text-lg font-bold text-primary-foreground">
             {(client.full_name || client.email).slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="truncate text-xl font-bold">{client.email}</div>
             <div className="text-sm text-muted-foreground">
-              {client.full_name || "Sem nome"} · Cadastro em {new Date(client.created_at).toLocaleDateString("pt-BR")}
+              {client.full_name || t("admin.noName")} · {t("admin.signupDate")} {new Date(client.created_at).toLocaleDateString(i18n.language)}
             </div>
           </div>
           <StatusPill status={client.status} />
           <div className="flex gap-2">
             {client.status !== "frozen" && (
-              <Button size="sm" variant="outline" onClick={() => setStatus.mutate("frozen")}><Snowflake className="h-4 w-4 mr-1" /> Congelar</Button>
+              <Button size="sm" variant="outline" onClick={() => setStatus.mutate("frozen")}><Snowflake className="h-4 w-4 mr-1" /> {t("admin.freeze")}</Button>
             )}
             {client.status !== "active" && (
-              <Button size="sm" variant="outline" onClick={() => setStatus.mutate("active")}><CheckCircle2 className="h-4 w-4 mr-1 text-up" /> Ativar</Button>
+              <Button size="sm" variant="outline" onClick={() => setStatus.mutate("active")}><CheckCircle2 className="h-4 w-4 mr-1 text-up" /> {t("admin.activate")}</Button>
             )}
             <Button size="sm" variant="ghost" onClick={() => navigate({ to: "/admin/clients" })}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
+              <ArrowLeft className="h-4 w-4 mr-1" /> {t("common.back")}
             </Button>
           </div>
         </div>
@@ -77,10 +79,10 @@ function ClientDetail() {
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="flex flex-wrap w-full h-auto">
-          <TabsTrigger value="profile">Perfil</TabsTrigger>
-          <TabsTrigger value="wallet">Carteira</TabsTrigger>
-          <TabsTrigger value="tx">Transações</TabsTrigger>
-          <TabsTrigger value="support"><LifeBuoy className="h-4 w-4 mr-1" /> Suporte</TabsTrigger>
+          <TabsTrigger value="profile">{t("nav.profile")}</TabsTrigger>
+          <TabsTrigger value="wallet">{t("nav.wallet")}</TabsTrigger>
+          <TabsTrigger value="tx">{t("nav.transactions")}</TabsTrigger>
+          <TabsTrigger value="support"><LifeBuoy className="h-4 w-4 mr-1" /> {t("nav.support")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -107,27 +109,28 @@ function ClientDetail() {
 
 /* ---------- Support tickets for this client ---------- */
 function SupportTab({ userId }: { userId: string }) {
+  const { t, i18n } = useTranslation();
   const { data: tickets } = useQuery({
     queryKey: ["admin-client-tickets", userId],
     queryFn: async () => (await supabase.from("support_tickets").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
   });
   return (
-    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-      <div className="border-b border-border px-5 py-3 text-sm font-semibold">Tickets deste cliente</div>
+    <div className="rounded-sm border border-border bg-surface overflow-hidden">
+      <div className="border-b border-border px-5 py-3 text-sm font-semibold">{t("admin.clientTickets")}</div>
       {!tickets?.length ? (
-        <div className="p-12 text-center text-sm text-muted-foreground">Sem tickets.</div>
+        <div className="p-12 text-center text-sm text-muted-foreground">{t("support.emptyAdmin")}</div>
       ) : (
         <div className="divide-y divide-border">
-          {tickets.map((t: any) => (
-            <Link key={t.id} to="/admin/tickets/$ticketId" params={{ ticketId: t.id }}
+          {tickets.map((ticket: any) => (
+            <Link key={ticket.id} to="/admin/tickets/$ticketId" params={{ ticketId: ticket.id }}
               className="flex items-center gap-3 px-5 py-3 hover:bg-surface-elevated transition">
               <MessageCircle className="h-4 w-4 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="font-medium truncate text-sm">{t.subject}</div>
-                <div className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString()} · {t.category}</div>
+                <div className="font-medium truncate text-sm">{ticket.subject}</div>
+                <div className="text-xs text-muted-foreground">{new Date(ticket.created_at).toLocaleString(i18n.language)} · {t(`support.categories.${ticket.category}`, { defaultValue: ticket.category })}</div>
               </div>
-              <Badge variant="outline" className="capitalize text-xs">{t.priority}</Badge>
-              <Badge variant="outline" className="capitalize text-xs">{t.status}</Badge>
+              <Badge variant="outline" className="text-xs">{t(`support.priorities.${ticket.priority}`, { defaultValue: ticket.priority })}</Badge>
+              <Badge variant="outline" className="text-xs">{t(`support.statuses.${ticket.status}`, { defaultValue: ticket.status })}</Badge>
             </Link>
           ))}
         </div>
@@ -147,6 +150,7 @@ function StatusPill({ status }: { status: string }) {
 
 /* ---------- Profile ---------- */
 function ProfileCard({ client, onSaved }: { client: any; onSaved: () => void }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     full_name: client.full_name ?? "",
     date_of_birth: client.date_of_birth ?? "",
@@ -171,24 +175,24 @@ function ProfileCard({ client, onSaved }: { client: any; onSaved: () => void }) 
       });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Perfil atualizado"); onSaved(); },
+    onSuccess: () => { toast.success(t("profile.info.saved")); onSaved(); },
     onError: (e: any) => toast.error(e.message),
   });
 
   return (
-    <Card title="Dados pessoais" action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
+    <Card title={t("admin.personalData")} action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> {t("common.save")}</Button>}>
       <div className="grid gap-3">
-        <Field label="Nome completo"><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+        <Field label={t("profile.info.fullName")}><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Data de nascimento"><Input type="date" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} /></Field>
-          <Field label="Telefone"><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></Field>
+          <Field label={t("profile.info.dob")}><Input type="date" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} /></Field>
+          <Field label={t("profile.info.phone")}><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="CEP"><Input value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} /></Field>
-          <Field label="Cidade"><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <Field label={t("profile.info.postal")}><Input value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} /></Field>
+          <Field label={t("profile.info.city")}><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
         </div>
-        <Field label="País"><Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></Field>
-        <Field label="Endereço completo"><Textarea rows={2} value={form.full_address} onChange={(e) => setForm({ ...form, full_address: e.target.value })} /></Field>
+        <Field label={t("profile.info.country")}><Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></Field>
+        <Field label={t("profile.info.address")}><Textarea rows={2} value={form.full_address} onChange={(e) => setForm({ ...form, full_address: e.target.value })} /></Field>
       </div>
     </Card>
   );
@@ -196,6 +200,7 @@ function ProfileCard({ client, onSaved }: { client: any; onSaved: () => void }) 
 
 /* ---------- Permissions (compact grid) ---------- */
 function PermissionsCard({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["client-perms", userId],
@@ -213,17 +218,17 @@ function PermissionsCard({ userId }: { userId: string }) {
       const { error } = await supabase.from("client_permissions" as any).upsert({ user_id: userId, ...local, updated_at: new Date().toISOString() });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Permissões salvas"); qc.invalidateQueries({ queryKey: ["client-perms", userId] }); },
+    onSuccess: () => { toast.success(t("admin.permissionsUpdated")); qc.invalidateQueries({ queryKey: ["client-perms", userId] }); },
     onError: (e: any) => toast.error(e.message),
   });
 
   if (!local) return null;
   const toggles: Array<[string, string]> = [
-    ["allow_send", "Enviar"], ["allow_buy", "Comprar"], ["allow_swap", "Trocar"],
-    ["allow_deposit", "Depositar"], ["allow_withdrawal", "Sacar"], ["allow_stake", "Stake"],
+    ["allow_send", t("wallet.send")], ["allow_buy", t("market.buy")], ["allow_swap", t("wallet.swap")],
+    ["allow_deposit", t("wallet.deposit")], ["allow_withdrawal", t("wallet.withdraw")], ["allow_stake", t("plans.invest")],
   ];
   return (
-    <Card title="Permissões" action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
+    <Card title={t("admin.permissions")} action={<Button size="sm" onClick={() => save.mutate()} disabled={save.isPending}><Save className="h-4 w-4 mr-1" /> {t("common.save")}</Button>}>
       <div className="grid grid-cols-2 gap-2">
         {toggles.map(([k, label]) => (
           <label key={k} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 cursor-pointer">
@@ -238,6 +243,7 @@ function PermissionsCard({ userId }: { userId: string }) {
 
 /* ---------- KYC island (list + review) ---------- */
 function KycIsland({ userId }: { userId: string }) {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["client-kyc-island", userId],
@@ -257,18 +263,18 @@ function KycIsland({ userId }: { userId: string }) {
 
   async function review(id: string, approve: boolean) {
     const note = notes[id] ?? "";
-    if (!approve && !note.trim()) return toast.error("Informe o motivo da recusa");
+    if (!approve && !note.trim()) return toast.error(t("admin.rejectionReasonRequired"));
     const { error } = await supabase.rpc("admin_review_kyc", { _id: id, _approve: approve, _notes: note });
     if (error) return toast.error(error.message);
-    toast.success(approve ? "KYC aprovado" : "KYC recusado");
+    toast.success(approve ? t("admin.kycApproved") : t("admin.kycRejectedToast"));
     qc.invalidateQueries({ queryKey: ["client-kyc-island", userId] });
     qc.invalidateQueries({ queryKey: ["client-detail", userId] });
   }
 
   return (
-    <Card title="KYC & Documentos">
+    <Card title={t("profile.tabs.kyc")}>
       {!data?.length ? (
-        <div className="py-4 text-center text-sm text-muted-foreground">Cliente ainda não enviou documentos.</div>
+        <div className="py-4 text-center text-sm text-muted-foreground">{t("admin.noClientDocuments")}</div>
       ) : (
         <div className="space-y-2">
           {data.map((k: any) => (
@@ -276,33 +282,33 @@ function KycIsland({ userId }: { userId: string }) {
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{k.full_name || k.doc_type} · {k.doc_number}</div>
-                  <div className="text-xs text-muted-foreground">{new Date(k.created_at).toLocaleString("pt-BR")}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(k.created_at).toLocaleString(i18n.language)}</div>
                 </div>
                 <Badge variant="outline" className={
                   k.status === "approved" ? "border-up/40 text-up" :
                   k.status === "rejected" ? "border-down/40 text-down" :
                   "border-warning/40 text-warning"
-                }>{k.status}</Badge>
+                }>{t(`profile.kyc.statuses.${k.status}`, { defaultValue: k.status })}</Badge>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => openViewer(k)}><Eye className="h-4 w-4 mr-1" /> Ver docs</Button>
+                <Button size="sm" variant="outline" onClick={() => openViewer(k)}><Eye className="h-4 w-4 mr-1" /> {t("admin.viewDocs")}</Button>
               </div>
               {k.status === "pending" && (
                 <div className="space-y-2">
-                  <Textarea rows={2} placeholder="Nota (obrigatório para recusar)"
+                  <Textarea rows={2} placeholder={t("admin.rejectNotePlaceholder")}
                     value={notes[k.id] ?? ""} onChange={(e) => setNotes({ ...notes, [k.id]: e.target.value })} />
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-up hover:bg-up/90 text-white" onClick={() => review(k.id, true)}>
-                      <Check className="h-4 w-4 mr-1" /> Autorizar
+                    <Button size="sm" className="bg-success text-success-foreground hover:bg-success/90" onClick={() => review(k.id, true)}>
+                      <Check className="h-4 w-4 mr-1" /> {t("common.approve")}
                     </Button>
                     <Button size="sm" variant="destructive" onClick={() => review(k.id, false)}>
-                      <X className="h-4 w-4 mr-1" /> Reprovar
+                      <X className="h-4 w-4 mr-1" /> {t("common.reject")}
                     </Button>
                   </div>
                 </div>
               )}
               {k.review_notes && k.status !== "pending" && (
-                <div className="text-xs text-muted-foreground border-t border-border pt-2">Nota: {k.review_notes}</div>
+                <div className="text-xs text-muted-foreground border-t border-border pt-2">{t("tx.note")}: {k.review_notes}</div>
               )}
             </div>
           ))}
@@ -311,14 +317,14 @@ function KycIsland({ userId }: { userId: string }) {
 
       <Dialog open={!!viewer} onOpenChange={(o) => !o && setViewer(null)}>
         <DialogContent className="max-w-3xl">
-          <DialogHeader><DialogTitle>Documentos KYC</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("admin.kycDocuments")}</DialogTitle></DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <div className="mb-2 text-sm font-medium">Documento</div>
+              <div className="mb-2 text-sm font-medium">{t("admin.document")}</div>
               {viewer?.doc ? <img src={viewer.doc} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
             <div>
-              <div className="mb-2 text-sm font-medium">Bank statement</div>
+              <div className="mb-2 text-sm font-medium">{t("profile.kyc.bankStatement")}</div>
               {viewer?.selfie ? <img src={viewer.selfie} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
 
@@ -331,6 +337,7 @@ function KycIsland({ userId }: { userId: string }) {
 
 /* ---------- Admin note ---------- */
 function AdminNoteCard({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["client-note", userId],
@@ -344,29 +351,30 @@ function AdminNoteCard({ userId }: { userId: string }) {
       const { error } = await supabase.from("client_admin_notes" as any).upsert({ user_id: userId, note, updated_at: new Date().toISOString() });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Nota salva"); qc.invalidateQueries({ queryKey: ["client-note", userId] }); },
+    onSuccess: () => { toast.success(t("admin.noteSaved")); qc.invalidateQueries({ queryKey: ["client-note", userId] }); },
   });
 
   return (
-    <Card title="Nota interna" action={<Button size="sm" onClick={() => save.mutate()}><Save className="h-4 w-4 mr-1" /> Salvar</Button>}>
-      <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Anotações visíveis apenas para equipe..." />
+    <Card title={t("support.internalNote")} action={<Button size="sm" onClick={() => save.mutate()}><Save className="h-4 w-4 mr-1" /> {t("common.save")}</Button>}>
+      <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("admin.notePlaceholder")} />
     </Card>
   );
 }
 
 /* ---------- Danger ---------- */
 function DangerCard({ userId, status, onDone }: { userId: string; status: string; onDone: () => void }) {
+  const { t } = useTranslation();
   async function ban() {
-    if (!confirm("Bloquear este cliente? Ele não poderá fazer login.")) return;
+    if (!confirm(t("admin.confirmBlockClient"))) return;
     const { error } = await supabase.from("profiles").update({ status: "blocked" }).eq("id", userId);
     if (error) return toast.error(error.message);
-    toast.success("Cliente bloqueado"); onDone();
+    toast.success(t("admin.clientBlocked")); onDone();
   }
   return (
-    <div className="rounded-xl border border-down/40 bg-down/5 p-4">
-      <div className="text-sm font-semibold text-down">Zona de perigo</div>
+    <div className="rounded-sm border border-down/40 bg-down/5 p-4">
+      <div className="text-sm font-semibold text-down">{t("admin.dangerZone")}</div>
       <Button variant="destructive" size="sm" className="mt-2" onClick={ban} disabled={status === "blocked"}>
-        <Ban className="h-4 w-4 mr-1" /> {status === "blocked" ? "Já bloqueado" : "Bloquear conta"}
+        <Ban className="h-4 w-4 mr-1" /> {status === "blocked" ? t("admin.alreadyBlocked") : t("admin.blockAccount")}
       </Button>
     </div>
   );
@@ -384,15 +392,16 @@ function WalletTab({ userId }: { userId: string }) {
 }
 
 function WalletsIsland({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["client-wallets", userId],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)").eq("user_id", userId)).data ?? [],
   });
   return (
-    <Card title="Saldos">
-      {!data?.length ? <Empty text="Nenhuma carteira." /> : (
+    <Card title={t("wallets.balance")}>
+      {!data?.length ? <Empty text={t("admin.noWallets")} /> : (
         <Table>
-          <TableHeader><TableRow><TableHead>Moeda</TableHead><TableHead className="text-right">Disponível</TableHead><TableHead className="text-right">Bloqueado</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>{t("common.currency")}</TableHead><TableHead className="text-right">{t("buy.available")}</TableHead><TableHead className="text-right">{t("admin.locked")}</TableHead></TableRow></TableHeader>
           <TableBody>
             {data.map((w: any) => (
               <TableRow key={w.id}>
@@ -409,6 +418,7 @@ function WalletsIsland({ userId }: { userId: string }) {
 }
 
 function DepositRequestsIsland({ userId }: { userId: string }) {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["client-deposit-addresses", userId],
@@ -418,9 +428,9 @@ function DepositRequestsIsland({ userId }: { userId: string }) {
   const [editing, setEditing] = useState<any | null>(null);
 
   return (
-    <Card title="Solicitações de endereços de depósito">
+    <Card title={t("admin.depositAddressRequests")}>
       {!data?.length ? (
-        <Empty text="Cliente ainda não solicitou nenhum endereço." />
+        <Empty text={t("admin.noDepositAddressRequests")} />
       ) : (
         <div className="space-y-2">
           {(data as any[]).map((d) => (
@@ -430,13 +440,13 @@ function DepositRequestsIsland({ userId }: { userId: string }) {
                   <div className="text-sm font-medium">{d.currencies?.symbol} · {d.currencies?.name}
                     {d.currencies?.network && <span className="text-xs text-muted-foreground"> · {d.currencies.network}</span>}
                   </div>
-                  <div className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleString("pt-BR")}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleString(i18n.language)}</div>
                   {d.status === "ready" && <div className="text-xs font-mono break-all mt-1">{d.address}</div>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={d.status === "ready" ? "default" : "secondary"}>{d.status === "ready" ? "Pronto" : "Pendente"}</Badge>
+                  <Badge variant={d.status === "ready" ? "default" : "secondary"}>{d.status === "ready" ? t("wallet.ready") : t("tx.pending")}</Badge>
                   <Button size="sm" variant="outline" onClick={() => setEditing(d)}>
-                    <Upload className="h-4 w-4 mr-1" /> {d.status === "ready" ? "Atualizar" : "Cadastrar"}
+                    <Upload className="h-4 w-4 mr-1" /> {d.status === "ready" ? t("common.update") : t("common.add")}
                   </Button>
                 </div>
               </div>
@@ -452,6 +462,7 @@ function DepositRequestsIsland({ userId }: { userId: string }) {
 }
 
 function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const [address, setAddress] = useState(record.address ?? "");
   const [network, setNetwork] = useState(record.network ?? record.currencies?.network ?? "");
   const [memo, setMemo] = useState(record.memo_tag ?? "");
@@ -460,7 +471,7 @@ function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose:
   const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!address) return toast.error("Informe o endereço");
+    if (!address) return toast.error(t("admin.enterAddress"));
     setSaving(true);
     try {
       let qrPath: string | null = record.qr_image_path ?? null;
@@ -475,7 +486,7 @@ function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose:
         _memo_tag: memo || null, _qr_image_path: qrPath, _notes: notes || null,
       });
       if (error) throw error;
-      toast.success("Endereço enviado ao cliente");
+      toast.success(t("admin.addressSent"));
       onSaved();
     } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }
   }
@@ -483,23 +494,23 @@ function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose:
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Cadastrar endereço · {record.currencies?.symbol}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("admin.registerAddress")} · {record.currencies?.symbol}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div><Label>Endereço da carteira</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... / bc1..." /></div>
+          <div><Label>{t("wallet.destAddress")}</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x... / bc1..." /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><Label>Rede</Label><Input value={network} onChange={(e) => setNetwork(e.target.value)} placeholder="ERC20, BEP20..." /></div>
-            <div><Label>Memo / Tag (opcional)</Label><Input value={memo} onChange={(e) => setMemo(e.target.value)} /></div>
+            <div><Label>{t("admin.network")}</Label><Input value={network} onChange={(e) => setNetwork(e.target.value)} placeholder="ERC20, BEP20..." /></div>
+            <div><Label>{t("wallet.memoTag")} ({t("common.optional")})</Label><Input value={memo} onChange={(e) => setMemo(e.target.value)} /></div>
           </div>
           <div>
             <Label className="flex items-center gap-2"><QrCode className="h-4 w-4" /> QR code (PNG/JPG)</Label>
             <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-            {record.qr_image_path && !file && <p className="text-xs text-muted-foreground mt-1">Já existe um QR cadastrado. Envie um novo para substituir.</p>}
+            {record.qr_image_path && !file && <p className="text-xs text-muted-foreground mt-1">{t("admin.qrExists")}</p>}
           </div>
-          <div><Label>Observações (opcional)</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+          <div><Label>{t("tx.note")} ({t("common.optional")})</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={save} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Salvar & notificar"}</Button>
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={save} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? t("common.saving") : t("admin.saveNotify")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -507,14 +518,15 @@ function DepositEditDialog({ record, onClose, onSaved }: { record: any; onClose:
 }
 
 function BankAccountsIsland({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["client-banks", userId],
     queryFn: async () => (await supabase.from("bank_accounts" as any).select("*").eq("user_id", userId)).data as any[] ?? [],
   });
   return (
-    <Card title="Contas bancárias conectadas">
-      <p className="mb-3 text-xs text-muted-foreground">Por segurança, apenas os últimos 4 dígitos são exibidos.</p>
-      {!data?.length ? <Empty text="Nenhuma conta bancária conectada." /> : (
+    <Card title={t("admin.connectedBankAccounts")}>
+      <p className="mb-3 text-xs text-muted-foreground">{t("admin.bankSecurityHint")}</p>
+      {!data?.length ? <Empty text={t("admin.noBankAccounts")} /> : (
         <div className="space-y-2">
           {data.map((b: any) => (
             <div key={b.id} className="rounded-md bg-surface-elevated px-3 py-2 text-sm">
@@ -530,6 +542,7 @@ function BankAccountsIsland({ userId }: { userId: string }) {
 
 /* =============== TRANSACTIONS TAB =============== */
 function TxTab({ userId }: { userId: string }) {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [editTx, setEditTx] = useState<any | null>(null);
@@ -552,41 +565,41 @@ function TxTab({ userId }: { userId: string }) {
 
   return (
     <Card
-      title="Histórico de transações"
-      action={<Button size="sm" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1" /> Adicionar transação</Button>}
+      title={t("admin.transactionHistory")}
+      action={<Button size="sm" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1" /> {t("admin.addTransaction")}</Button>}
     >
       <div className="flex gap-1 mb-3 flex-wrap">
         {[
-          ["all", "Todas"], ["pending", "Pendente"], ["completed", "Aprovadas"], ["rejected", "Recusadas"],
+          ["all", t("common.all")], ["pending", t("tx.pending")], ["completed", t("tx.completed")], ["rejected", t("tx.rejected")],
         ].map(([v, l]) => (
           <button key={v} onClick={() => setFilter(v)}
-            className={`text-xs rounded-md px-3 py-1 border ${filter === v ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>{l}</button>
+            className={`text-xs rounded-sm px-3 py-1 border ${filter === v ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>{l}</button>
         ))}
       </div>
-      {!filtered.length ? <Empty text="Sem transações." /> : (
+      {!filtered.length ? <Empty text={t("admin.noTransactions")} /> : (
         <Table>
           <TableHeader><TableRow>
-            <TableHead>Data</TableHead><TableHead>Tipo</TableHead><TableHead>Moeda</TableHead>
-            <TableHead className="text-right">Valor</TableHead><TableHead className="text-right">USD</TableHead>
-            <TableHead>Status</TableHead><TableHead></TableHead>
+            <TableHead>{t("common.date")}</TableHead><TableHead>{t("common.type")}</TableHead><TableHead>{t("common.currency")}</TableHead>
+            <TableHead className="text-right">{t("common.value")}</TableHead><TableHead className="text-right">USD</TableHead>
+            <TableHead>{t("common.status")}</TableHead><TableHead></TableHead>
           </TableRow></TableHeader>
           <TableBody>
-            {filtered.map((t: any) => (
-              <TableRow key={t.id} className={t.hidden ? "opacity-50" : ""}>
-                <TableCell className="text-xs">{new Date(t.created_at).toLocaleString("pt-BR")}</TableCell>
-                <TableCell className="capitalize">{t.type}</TableCell>
-                <TableCell>{t.currencies?.symbol}</TableCell>
-                <TableCell className={`text-right tabular-nums ${Number(t.amount) < 0 ? "text-down" : "text-up"}`}>{Number(t.amount).toFixed(8)}</TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">${Number(t.usd_value ?? (Number(t.currencies?.usd_price ?? 0) * Math.abs(Number(t.amount)))).toFixed(2)}</TableCell>
+            {filtered.map((tx: any) => (
+              <TableRow key={tx.id} className={tx.hidden ? "opacity-50" : ""}>
+                <TableCell className="text-xs">{new Date(tx.created_at).toLocaleString(i18n.language)}</TableCell>
+                <TableCell>{t(`tx.${tx.type}`, { defaultValue: tx.type })}</TableCell>
+                <TableCell>{tx.currencies?.symbol}</TableCell>
+                <TableCell className={`text-right tabular-nums ${Number(tx.amount) < 0 ? "text-down" : "text-up"}`}>{Number(tx.amount).toFixed(8)}</TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">${Number(tx.usd_value ?? (Number(tx.currencies?.usd_price ?? 0) * Math.abs(Number(tx.amount)))).toFixed(2)}</TableCell>
                 <TableCell>
                   <Badge variant="outline" className={
-                    t.status === "completed" ? "border-up/40 text-up" :
-                    t.status === "rejected" ? "border-down/40 text-down" :
+                    tx.status === "completed" ? "border-up/40 text-up" :
+                    tx.status === "rejected" ? "border-down/40 text-down" :
                     "border-warning/40 text-warning"
-                  }>{(t.metadata?.ui_status || t.status)}</Badge>
+                  }>{t(`tx.${(tx.metadata?.ui_status || tx.status)}`, { defaultValue: (tx.metadata?.ui_status || tx.status) })}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button size="icon" variant="ghost" onClick={() => setEditTx(t)}><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setEditTx(tx)}><Pencil className="h-4 w-4" /></Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -601,13 +614,14 @@ function TxTab({ userId }: { userId: string }) {
 }
 
 const TX_STATUSES: Array<[string, string]> = [
-  ["hold", "Hold"], ["processing", "Processing"], ["approved", "Aprovada"], ["rejected", "Recusada"],
+  ["hold", "tx.hold"], ["processing", "tx.processing"], ["approved", "tx.approved"], ["rejected", "tx.rejected"],
 ];
 const TX_TYPES: Array<[string, string]> = [
-  ["deposit", "Depósito"], ["withdrawal", "Saque"], ["adjustment", "Ajuste"], ["transfer", "Transferência"],
+  ["deposit", "tx.deposit"], ["withdrawal", "tx.withdrawal"], ["adjustment", "tx.adjustment"], ["transfer", "tx.transfer"],
 ];
 
 function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const { data: currencies } = useQuery({
     queryKey: ["currencies-active"],
     queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
@@ -629,8 +643,8 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
   const usd = currency ? (Number(amount || 0) * Number(currency.usd_price ?? 0)) : 0;
 
   async function submit() {
-    if (!currencyId) return toast.error("Selecione a moeda");
-    if (!amount || Number(amount) <= 0) return toast.error("Informe um valor válido");
+    if (!currencyId) return toast.error(t("admin.selectCurrency"));
+    if (!amount || Number(amount) <= 0) return toast.error(t("buy.invalidAmount"));
     setSaving(true);
     const { error } = await supabase.rpc("admin_add_transaction" as any, {
       _user_id: userId,
@@ -646,61 +660,61 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
     });
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("Transação adicionada");
+    toast.success(t("admin.transactionAdded"));
     onSaved();
   }
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg">
-        <DialogHeader><DialogTitle>Adicionar transação</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("admin.addTransaction")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Tipo">
+            <Field label={t("common.type")}>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{TX_TYPES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+                <SelectContent>{TX_TYPES.map(([v, l]) => <SelectItem key={v} value={v}>{t(l)}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
-            <Field label="Moeda">
+            <Field label={t("common.currency")}>
               <Select value={currencyId} onValueChange={setCurrencyId}>
-                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("wallet.select")} /></SelectTrigger>
                 <SelectContent>{currencies?.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.symbol} — {c.name}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
           </div>
-          <Field label="Data/hora da transação">
+          <Field label={t("admin.transactionDateTime")}>
             <Input type="datetime-local" value={txDate} onChange={(e) => setTxDate(e.target.value)} />
           </Field>
-          <Field label={`Valor (na moeda${currency ? ` — ${currency.symbol}` : ""})`}>
+          <Field label={`${t("common.value")}${currency ? ` — ${currency.symbol}` : ""}`}>
             <Input type="number" step="0.00000001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
             {currency && amount && (
-              <div className="text-xs text-muted-foreground mt-1">≈ ${usd.toFixed(2)} USD (cotação atual: ${Number(currency.usd_price ?? 0).toFixed(2)})</div>
+              <div className="text-xs text-muted-foreground mt-1">≈ ${usd.toFixed(2)} USD ({t("admin.currentQuote")}: ${Number(currency.usd_price ?? 0).toFixed(2)})</div>
             )}
           </Field>
-          <Field label="Transaction ID (hash) — opcional">
+          <Field label={`${t("tx.hash")} — ${t("common.optional")}`}>
             <Input value={txHash} onChange={(e) => setTxHash(e.target.value)} placeholder="0x..." />
           </Field>
-          <Field label="Endereço remetente — opcional">
+          <Field label={`${t("tx.sender")} — ${t("common.optional")}`}>
             <Input value={sender} onChange={(e) => setSender(e.target.value)} />
           </Field>
-          <Field label="Status">
+          <Field label={t("common.status")}>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+              <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{t(l)}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Nota para o cliente">
-            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex: depósito confirmado, aguarde compensação..." />
+          <Field label={t("admin.clientNote")}>
+            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("admin.txNotePlaceholder")} />
           </Field>
           <label className="flex items-center gap-2 text-sm">
             <Switch checked={hidden} onCheckedChange={setHidden} />
-            Ocultar transação do cliente
+            {t("admin.hideTransaction")}
           </label>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Adicionar transação"}</Button>
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? t("common.saving") : t("admin.addTransaction")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -708,6 +722,7 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
 }
 
 function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<string>(tx.metadata?.ui_status || tx.status || "hold");
   const [note, setNote] = useState(tx.note ?? "");
   const [hidden, setHidden] = useState<boolean>(!!tx.hidden);
@@ -720,13 +735,13 @@ function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; 
     });
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("Transação atualizada"); onSaved();
+    toast.success(t("admin.transactionUpdated")); onSaved();
   }
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Editar transação</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("admin.editTransaction")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="text-xs text-muted-foreground font-mono break-all">ID: {tx.id}</div>
           <div className="text-sm">
@@ -735,20 +750,20 @@ function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; 
           <Field label="Status">
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+            <SelectContent>{TX_STATUSES.map(([v, l]) => <SelectItem key={v} value={v}>{t(l)}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Nota para o cliente">
+          <Field label={t("admin.clientNote")}>
             <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
           </Field>
           <label className="flex items-center gap-2 text-sm">
             <Switch checked={hidden} onCheckedChange={setHidden} />
-            Ocultar do cliente
+            {t("admin.hideFromClient")}
           </label>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> Salvar</Button>
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={submit} disabled={saving}><Save className="h-4 w-4 mr-1" /> {t("common.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -758,7 +773,7 @@ function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; 
 /* ---------- helpers ---------- */
 function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-sm border border-border bg-surface p-5">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold">{title}</h3>
         {action}
@@ -814,7 +829,7 @@ function ClientKpiHeader({ userId }: { userId: string }) {
   const chartData = rows.map((r, i) => ({ name: r.symbol, value: r.value, color: KPI_PALETTE[i % KPI_PALETTE.length] }));
 
   return (
-    <section className="rounded-2xl border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated p-5 shadow-sm">
+    <section className="rounded-sm border border-border bg-surface p-5 shadow-sm">
       <div className="grid gap-6 items-center md:grid-cols-[200px_1fr]">
         <div className="mx-auto md:mx-0">
           <div className="relative h-[180px] w-[180px]">
@@ -864,7 +879,7 @@ function ClientKpiHeader({ userId }: { userId: string }) {
 function KpiTile({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: any; sub?: string; accent?: "warning" | "down" }) {
   const color = accent === "warning" ? "text-warning" : accent === "down" ? "text-down" : "text-primary";
   return (
-    <div className="rounded-xl border border-border bg-surface p-4">
+    <div className="rounded-sm border border-border bg-surface p-4">
       <div className="flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
         <Icon className={`h-4 w-4 ${color}`} />

@@ -58,10 +58,10 @@ function AppLayout() {
         </div>
 
         <Link to="/app/profile" onClick={() => setOpen(false)}
-          className={`mx-3 mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition hover:bg-surface-elevated ${pathname.startsWith("/app/profile") ? "ring-1 ring-primary" : ""}`}>
+          className={`mx-3 mt-3 flex items-center gap-3 rounded-sm border border-border bg-surface p-3 transition hover:bg-surface-elevated ${pathname.startsWith("/app/profile") ? "ring-1 ring-primary" : ""}`}>
           {me?.avatar_url
-            ? <img src={me.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
-            : <div className="grid h-10 w-10 place-items-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">{initials}</div>}
+            ? <img src={me.avatar_url} alt="" className="h-10 w-10 rounded-sm object-cover" />
+            : <div className="grid h-10 w-10 place-items-center rounded-sm gradient-primary text-sm font-bold text-primary-foreground">{initials}</div>}
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-semibold">{me?.name ?? "..."}</div>
             <div className="truncate text-[11px] text-muted-foreground">{t("nav.profile")}</div>
