@@ -31,6 +31,8 @@ export function TransactionsQueue() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("pending");
   const [detail, setDetail] = useState<any | null>(null);
+  const [insTx, setInsTx] = useState<any | null>(null);
+  const [insPct, setInsPct] = useState("");
 
   const { data: rows } = useQuery({
     queryKey: ["staff-transactions", tab],
