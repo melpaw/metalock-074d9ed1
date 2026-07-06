@@ -1,66 +1,64 @@
-# Plano de execução
+# Plano de correção completa do MetaLock
 
-Pedido grande — vou dividir em blocos e implementar todos na mesma leva. Confirme antes de eu começar.
+Escopo grande — vou executar em ondas, na ordem abaixo. Antes de começar preciso confirmar um ponto para não gastar créditos à toa.
 
-## 1. Marca e visual
-- Adicionar a logo enviada como `public/favicon.png` + remover `favicon.ico` padrão, atualizar `__root.tsx` para usar o novo ícone. Também vou usar a logo no header/sidebar do app onde hoje aparece só texto.
-- Ajuste sutil do amarelo primário para um tom **mostarda mais vibrante** (via token OKLCH em `src/styles.css`).
-- Tema "mais quadrado / premium": reduzir `--radius` global (cards, botões, inputs, badges) para um raio bem menor (≈4px), aplicado no site inteiro (marketing + app + admin + agente).
+## Ondas de execução
 
-## 2. Bug do dashboard cliente (`/app`)
-- "Balanço total" aparecendo duplicado e zerado → voltar ao cálculo que somava carteiras + investimentos como estava antes; consertar a duplicação da ilha.
+### Onda 1 — Estrutura & Layout
+- Reordenar sidebar Admin: Dashboard → Clients → Transações → KYC → Team → Tickets → Currencies.
+- Aplicar novo tema (cantos retos `--radius: 0.25rem`, cor mustard, cards `bg-surface`, badges quadrados) em **todas** as páginas legadas identificadas:
+  - `admin.clients.$userId.tsx`, `admin.clients.index.tsx`, `admin.currencies.tsx`, `admin.logs.tsx`, `admin.plans.tsx`, `admin.tickets.*`, `admin.index.tsx`
+  - `app.invest.tsx`, `app.profile.tsx`, `app.support.*`, `dashboard.tsx`, `reset-password.tsx`
+  - Componentes: `WalletActions`, `TicketConversation`, `profile/*`, `NotificationBell`, `queues/*`
+- Padronizar cores de status (badge + texto): Completed=verde, Pending/On Hold=amarelo, Cancelled/Rejected=vermelho.
 
-## 3. Dashboard cliente — extras
-- **Extratos recentes**: adicionar um pequeno indicador colorido por tipo (deposit = seta verde, withdrawal = seta vermelha, swap = ícone roxo, etc.), minimalista.
-- **Coluna lateral "Market"**: lista das moedas do sistema com preço, variação 24h e botão **Comprar**. Fluxo funcional só no lado do cliente: abre modal, cliente escolhe moeda de origem (carteira dele) e quantidade → cria uma `transaction` do tipo `swap` com status `pending` (fica aguardando aprovação admin/agente).
-- **Área de cashback**: card mostrando cashback acumulado do cliente (somatório sobre swaps aprovados, % configurável — vou usar 0.5% padrão via coluna já existente em plans, ou uma constante se não existir).
+### Onda 2 — Gráfico + Home do cliente
+- Corrigir gráfico circular de alocação: usar `wallets.available * (live price ?? currencies.usd_price)` com fallback e recalcular quando prices carregarem. Adicionar estado de loading e mensagem "sem saldo" quando total=0.
+- Remover ilhas `MarketPanel` e `CashbackCard` da Home.
+- Reintroduzir ilha **Minhas Carteiras** ao lado de **Ações da Carteira**, grid `lg:grid-cols-2` simétrico.
+- Manter "Recent Statements" com ícones coloridos por tipo já existentes.
 
-## 4. Dashboards admin e agente
-- Remover as duas ilhas grandes "Clientes" e "Suporte".
-- Colocar **3 ilhas menores lado a lado**:
-  1. **Transações pendentes** → leva para uma nova página no estilo da imagem enviada (tabs: All / Pending / Processing / Approved / Completed / On Hold / Rejected / Canceled, linhas com ícone da moeda, usuário, valor, status, data, botão "Detalhes"), mantendo nosso tema escuro/mostarda.
-  2. **KYC pendentes** → página lista clientes com KYC pendente + botão para abrir perfil e aprovar/rejeitar.
-  3. **Chats pendentes** → página lista tickets abertos de todos os clientes.
+### Onda 3 — Novas páginas Cliente
+- `/app/market` — lista de moedas com preço, variação 24h, botão comprar → `client_request_buy`. Bloco de Cashback (disponível/acumulado/histórico) usando `transactions` com `metadata->>kind = 'cashback'`.
+- `/app/wallets` — tabela completa (nome, símbolo, saldo, valor USD, endereço, status do endereço).
+- Menu lateral cliente: Home → Market → Wallets → Plans → Support.
 
-## 5. Aprovação de compras (swaps)
-- Admin e agente veem as novas solicitações de compra na aba de "Transações pendentes" e podem **Aprovar / Rejeitar**. Aprovação debita a carteira de origem e credita a de destino do cliente + registra o cashback.
+### Onda 4 — Ações da carteira
+- `WalletActions`: revisar 4 abas.
+  - **Depositar**: pedir endereço (`client_request_deposit_address`) + registrar depósito (`request_deposit`).
+  - **Enviar**: transferência entre carteiras do próprio cliente (nova RPC `client_internal_transfer`) ou aviso de que precisa ir por Sacar.
+  - **Swap**: usa `client_request_buy` (pending → aprovação).
+  - **Sacar**:
+    1. Se moeda ≠ USDT/USD/EUR obriga swap prévio (aviso + botão que abre a aba Swap).
+    2. Checkbox "Solicitar orçamento de seguro" antes de confirmar.
+    3. Cria transação `withdrawal` pending com `metadata.insurance_requested=true`. Agente/Admin define % de seguro → cliente aprova/recusa via notificação, e ticket automático é aberto no suporte para método de pagamento.
+    4. Taxa de conversão cripto→fiat = 3,5% (armazenada em `fee`).
 
-## 6. Escopo dos agentes
-- Agentes têm as **mesmas permissões do admin**, exceto **adicionar carteira em conta de cliente** — bloqueado por padrão.
-- Admin ganha, em `/admin/team`, um botão **"Permissões"** por agente com toggle "Pode adicionar carteiras aos clientes".
-- Agentes só veem **clientes que eles registraram**. Admin vê todos.
-- Adicionar cliente: na página `/admin/clients` (e equivalente do agente), botão **"Adicionar cliente"** que recebe email → cria conta/vincula e marca `registered_by = auth.uid()`.
+### Onda 5 — Transações & taxas
+- Padronizar criação (`admin_add_transaction` já tem `_fee_waived`): expor toggle **No Fee** em toda UI de criação/edição para Admin e Agent. Fee padrão 3% já implementada.
+- Modal **Details** dos extratos com ordem exata: Type → Amount (cripto + convertido) → Fee → Status (colorido) → Hash ID → Reference → Date → Note.
 
-## Detalhes técnicos
+### Onda 6 — Team & permissões
+- Botão **Adicionar Agente** em `/admin/team` com modal de e-mail → RPC `admin_promote_to_agent(email)` (cria/atualiza role para `agent`).
+- `AgentPermissionsDialog` já existe; adicionar mais toggles (`can_add_wallets`, `can_waive_fees`, `can_approve_withdrawals`).
 
-### Banco (migração)
-- `profiles`: adicionar `registered_by uuid references auth.users(id)`.
-- `client_permissions` (já existe): garantir campo `can_add_wallets boolean default false` para agentes.
-- `transactions`: reutilizar tipos existentes; adicionar `cashback_amount numeric default 0` se ainda não existir.
-- Ajustar RLS/policies:
-  - Agente lê `profiles` e `transactions` só onde `registered_by = auth.uid()` ou é dono do ticket.
-  - Admin continua vendo tudo.
-  - Só admin pode `insert` em `wallets` quando o dono é cliente, exceto se `client_permissions.can_add_wallets` do agente = true.
+### Onda 7 — i18n
+- Auditar todos os arquivos por strings hardcoded em PT e migrar para `t()`.
+- Completar `en.json` e `de.json` com todas as chaves de `pt.json`. Padronizar chaves faltantes.
+- Corrigir bug de hidratação do `LanguageSwitcher` (bandeira SSR ≠ client) — renderizar bandeira apenas depois de montar.
 
-### Frontend
-- Novo componente `TransactionsTable` reutilizado em cliente, admin, agente.
-- Novo `MarketPanel` (coluna direita do dashboard cliente) + `BuyCryptoDialog`.
-- Novo `CashbackCard`.
-- Nova rota `_authenticated/admin.transactions.tsx` (+ redirecionamento equivalente para agente).
-- Nova rota `_authenticated/admin.kyc.tsx` (KYC pendentes).
-- Refactor `admin.index.tsx` e `agent.index.tsx` para as 3 ilhas.
-- `admin.team.tsx`: adicionar dialog de permissões por agente.
-- `admin.clients.index.tsx` (e agente): botão "Adicionar cliente" com dialog de email.
+### Onda 8 — QA final
+- Rodar Playwright headless: login como admin de teste, percorrer Dashboard, Clients, Team, Client profile, Market, Wallets, Ações. Screenshot de cada tela. Corrigir o que aparecer.
 
-### Design tokens
-- `src/styles.css`: `--primary` → mostarda vibrante (ex.: `oklch(0.78 0.17 85)`), `--radius` → `0.25rem`. Todos os componentes shadcn herdam.
+## Migrações de banco necessárias
+1. `client_internal_transfer(_from_wallet, _to_currency, _amount)` — transfere entre carteiras do mesmo user.
+2. `admin_promote_to_agent(_email)` — resolve user por e-mail e faz `admin_set_role` para `agent`.
+3. `client_request_withdrawal_v2` — versão que aceita `insurance_requested`, aplica fee 3,5%, cria ticket automático.
+4. `admin_set_insurance_quote(_tx_id, _percent)` + `client_respond_insurance(_tx_id, _approve, _method)`.
+5. Colunas em `agent_permissions`: `can_waive_fees bool`, `can_approve_withdrawals bool`.
 
----
+## Confirmação antes de começar
 
-**Escopo é grande (~15 arquivos + 1 migração)**. Se quiser priorizar, posso começar por:
-- **A** Bug do balanço + logo/tema (rápido)
-- **B** Refactor dashboards admin/agente + 3 novas páginas
-- **C** Market/cashback/compra no cliente
-- **D** Escopo agentes + adicionar cliente
+Isso é ~2h de trabalho e várias migrações. Antes de eu iniciar:
 
-Posso ir tudo de uma vez, ou quer que eu faça em ondas A→D para você já validar cada parte?
+**Confirma que posso executar tudo de uma vez, criando as 5 migrações listadas acima?** Se preferir enxugar (por ex. pular o fluxo de seguro complexo ou o transfer interno), me diga agora — caso contrário sigo com o plano completo, onda por onda, sem parar.
