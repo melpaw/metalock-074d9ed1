@@ -37,19 +37,24 @@ function OverviewPage() {
     },
   });
 
-  const { data: wallets } = useQuery({
+  const { data: wallets, isLoading: walletsLoading } = useQuery({
     queryKey: ["my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 
   const { data: currencies } = useQuery({
     queryKey: ["currencies-active"],
     queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
   });
 
   const { data: txs } = useQuery({
     queryKey: ["my-transactions"],
     queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol)").order("created_at", { ascending: false }).limit(20)).data ?? [],
+    placeholderData: keepPreviousData,
   });
 
   const cgIds = useMemo(
@@ -61,8 +66,28 @@ function OverviewPage() {
     queryFn: () => pricesFn({ data: { ids: cgIds.length ? cgIds : ["bitcoin"] } }),
     enabled: cgIds.length > 0,
     refetchInterval: 60000,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
   const prices = (pricesRes as any)?.data ?? {};
+
+  // Realtime: keep wallet list live for the signed-in user
+  useEffect(() => {
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (cancelled || !data.user) return;
+      channel = supabase
+        .channel(`wallets-${data.user.id}`)
+        .on("postgres_changes", { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${data.user.id}` },
+          () => { qc.invalidateQueries({ queryKey: ["my-wallets"] }); })
+        .on("postgres_changes", { event: "*", schema: "public", table: "transactions", filter: `user_id=eq.${data.user.id}` },
+          () => { qc.invalidateQueries({ queryKey: ["my-transactions"] }); qc.invalidateQueries({ queryKey: ["my-wallets"] }); })
+        .subscribe();
+    })();
+    return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
+  }, [qc]);
 
   const displayCurrency = (profile as any)?.display_currency ?? "USD";
   const fxUsdToEur = prices["tether"]?.eur ?? 0.92;
