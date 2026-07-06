@@ -21,9 +21,9 @@ function AdminLayout() {
 
   const nav = [
     { to: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
-    { to: "/admin/transactions", label: "Transações", icon: Coins },
-    { to: "/admin/kyc", label: "KYC", icon: Shield },
     { to: "/admin/clients", label: t("nav.clients"), icon: UserCircle2 },
+    { to: "/admin/transactions", label: t("nav.transactions"), icon: Coins },
+    { to: "/admin/kyc", label: "KYC", icon: Shield },
     { to: "/admin/tickets", label: t("nav.support"), icon: Headphones },
     { to: "/admin/team", label: t("nav.team"), icon: Shield },
     { to: "/admin/currencies", label: t("nav.currencies"), icon: Coins },
