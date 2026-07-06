@@ -50,7 +50,7 @@ function AppLayout() {
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
           <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary font-black text-primary-foreground">C</div>
           <div>
-            <div className="text-sm font-bold leading-tight">CryptoVault</div>
+            <div className="text-sm font-bold leading-tight">MetaLock</div>
             <div className="text-[10px] uppercase tracking-widest text-primary">{t("nav.clientArea")}</div>
           </div>
         </div>

@@ -52,7 +52,7 @@ function AgentLayout() {
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary/20 text-primary"><Headphones className="h-4 w-4" /></div>
           <div>
-            <div className="text-sm font-bold leading-tight">CryptoVault</div>
+            <div className="text-sm font-bold leading-tight">MetaLock</div>
             <div className="text-[10px] uppercase tracking-widest text-primary">Suporte</div>
           </div>
         </div>

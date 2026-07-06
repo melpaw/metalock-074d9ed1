@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Redefinir senha — CryptoVault" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Redefinir senha — MetaLock" }, { name: "robots", content: "noindex" }] }),
   component: ResetPasswordPage,
 });
 
@@ -96,7 +96,7 @@ function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="mb-8 flex items-center justify-center gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary font-black text-primary-foreground">C</div>
-          <span className="text-lg font-bold">CryptoVault</span>
+          <span className="text-lg font-bold">MetaLock</span>
         </Link>
 
         <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
