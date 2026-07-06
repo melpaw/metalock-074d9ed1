@@ -19,26 +19,33 @@ function AdminLayout() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
-  const nav = [
-    { to: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
-    { to: "/admin/clients", label: t("nav.clients"), icon: UserCircle2 },
-    { to: "/admin/transactions", label: t("nav.transactions"), icon: Coins },
-    { to: "/admin/kyc", label: "KYC", icon: Shield },
-    { to: "/admin/tickets", label: t("nav.support"), icon: Headphones },
-    { to: "/admin/team", label: t("nav.team"), icon: Shield },
-    { to: "/admin/currencies", label: t("nav.currencies"), icon: Coins },
-  ];
-
   const { data: roleCheck, isLoading } = useQuery({
-    queryKey: ["is-admin"],
+    queryKey: ["is-admin-or-agent"],
     queryFn: async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("role", "admin");
-      return { isAdmin: (data?.length ?? 0) > 0 };
+      const { data } = await supabase.from("user_roles").select("role");
+      const roles = (data ?? []).map((r) => r.role);
+      return {
+        isAdmin: roles.includes("admin"),
+        isAgent: roles.includes("agent"),
+        ok: roles.includes("admin") || roles.includes("agent"),
+      };
     },
   });
 
+  const isAdmin = !!roleCheck?.isAdmin;
+
+  const nav = [
+    { to: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard, exact: true, adminOnly: false },
+    { to: "/admin/clients", label: t("nav.clients"), icon: UserCircle2, adminOnly: false },
+    { to: "/admin/transactions", label: t("nav.transactions"), icon: Coins, adminOnly: false },
+    { to: "/admin/kyc", label: "KYC", icon: Shield, adminOnly: false },
+    { to: "/admin/tickets", label: t("nav.support"), icon: Headphones, adminOnly: false },
+    { to: "/admin/team", label: t("nav.team"), icon: Shield, adminOnly: true },
+    { to: "/admin/currencies", label: t("nav.currencies"), icon: Coins, adminOnly: false },
+  ].filter((n) => (n.adminOnly ? isAdmin : true));
+
   useEffect(() => {
-    if (!isLoading && roleCheck && !roleCheck.isAdmin) {
+    if (!isLoading && roleCheck && !roleCheck.ok) {
       toast.error(t("admin.restricted"));
       navigate({ to: "/dashboard" });
     }
@@ -49,9 +56,10 @@ function AdminLayout() {
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
 
-  if (isLoading || !roleCheck?.isAdmin) {
+  if (isLoading || !roleCheck?.ok) {
     return <div className="grid min-h-screen place-items-center text-muted-foreground">{t("common.loading")}</div>;
   }
+
 
   return (
     <div className="flex min-h-screen bg-background">
