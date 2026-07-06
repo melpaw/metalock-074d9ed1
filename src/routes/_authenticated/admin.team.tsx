@@ -111,18 +111,10 @@ function TeamPage() {
           <p className="text-sm text-muted-foreground">{t("admin.teamPermissionsHint")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as any)}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("common.all", { defaultValue: "Todos" })}</SelectItem>
-              <SelectItem value="admin">{t("roles.admin")}</SelectItem>
-              <SelectItem value="agent">{t("roles.agent")}</SelectItem>
-              <SelectItem value="client">{t("roles.client")}</SelectItem>
-            </SelectContent>
-          </Select>
           <Input placeholder={t("common.search")} value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
           <Button onClick={() => setAddOpen(true)}><UserPlus className="h-4 w-4 mr-1" /> {t("admin.addAgent")}</Button>
         </div>
+
       </div>
 
       {isLoading && <div className="py-12 text-center text-muted-foreground">{t("common.loading")}</div>}
