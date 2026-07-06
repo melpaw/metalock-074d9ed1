@@ -10,6 +10,7 @@ import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
 import { BuyCryptoDialog } from "@/components/BuyCryptoDialog";
 
 export function MarketPanel() {
+  const { t } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
   const [buyCurrency, setBuyCurrency] = useState<any | null>(null);
 
