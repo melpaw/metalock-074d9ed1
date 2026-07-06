@@ -169,7 +169,14 @@
     "walletActionsSubtitle": "Depósito, envio, swap e saque em um só lugar",
     "recentTx": "Extratos recentes",
     "lastNTx": "Últimas {{n}} transações",
-    "noTx": "Sem transações ainda."
+    "noTx": "Sem transações ainda.",
+    "available": "Disponível",
+    "locked": "Bloqueado",
+    "invested": "Investido",
+    "walletsCount": "Carteiras",
+    "topAsset": "Ativo principal",
+    "portfolio24h": "Patrimônio 24h",
+    "distribution": "Distribuição"
   },
   "wallet": {
     "deposit": "Depositar",
