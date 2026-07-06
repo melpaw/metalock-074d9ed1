@@ -245,7 +245,13 @@
     "sender": "Endereço de origem",
     "note": "Observação",
     "destination": "Endereço de destino",
-    "buySwap": "Compra/Swap"
+    "buySwap": "Compra/Swap",
+    "insuranceQuoted": "Cotação de seguro disponível: {{percent}}%",
+    "insurancePaymentNote": "Se aprovar, um ticket será aberto para acertar o pagamento. Deixe uma observação (forma preferida, banco, etc.).",
+    "insurancePaymentPlaceholder": "Ex.: pago via TED, banco X",
+    "insuranceApprove": "Aprovar seguro",
+    "insuranceReject": "Recusar seguro",
+    "insuranceTicketOpen": "Abrir ticket do pagamento do seguro"
   },
   "profile": {
     "title": "Meu perfil",
