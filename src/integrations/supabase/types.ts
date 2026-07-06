@@ -18,18 +18,24 @@ export type Database = {
         Row: {
           agent_id: string
           can_add_wallets: boolean
+          can_approve_kyc: boolean
+          can_process_tx: boolean
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           agent_id: string
           can_add_wallets?: boolean
+          can_approve_kyc?: boolean
+          can_process_tx?: boolean
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
           agent_id?: string
           can_add_wallets?: boolean
+          can_approve_kyc?: boolean
+          can_process_tx?: boolean
           updated_at?: string
           updated_by?: string | null
         }
@@ -708,38 +714,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_add_transaction:
-        | {
-            Args: {
-              _amount: number
-              _currency_id: string
-              _hidden: boolean
-              _note: string
-              _sender_address: string
-              _status: string
-              _tx_date: string
-              _tx_hash: string
-              _type: Database["public"]["Enums"]["tx_type"]
-              _user_id: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              _amount: number
-              _currency_id: string
-              _fee_waived?: boolean
-              _hidden: boolean
-              _note: string
-              _sender_address: string
-              _status: string
-              _tx_date: string
-              _tx_hash: string
-              _type: Database["public"]["Enums"]["tx_type"]
-              _user_id: string
-            }
-            Returns: string
-          }
+      admin_add_transaction: {
+        Args: {
+          _amount: number
+          _currency_id: string
+          _fee_waived?: boolean
+          _hidden: boolean
+          _note: string
+          _sender_address: string
+          _status: string
+          _tx_date: string
+          _tx_hash: string
+          _type: Database["public"]["Enums"]["tx_type"]
+          _user_id: string
+        }
+        Returns: string
+      }
       admin_adjust_balance: {
         Args: {
           _currency_id: string
