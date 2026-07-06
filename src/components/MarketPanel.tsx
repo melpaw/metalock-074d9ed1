@@ -57,7 +57,7 @@ export function MarketPanel() {
                   {change >= 0 ? "+" : ""}{change.toFixed(2)}%
                 </div>
               </div>
-              <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>Comprar</Button>
+              <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>{t("market.buy")}</Button>
             </div>
           );
         })}
