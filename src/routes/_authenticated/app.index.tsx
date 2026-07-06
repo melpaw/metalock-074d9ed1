@@ -96,24 +96,38 @@ function OverviewPage() {
 
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const livePrice = cg ? prices[cg]?.usd : undefined;
+    const livePrice = cg ? Number(prices[cg]?.usd) : undefined;
     const sym = (w.currencies?.symbol ?? "").toUpperCase();
     const stables = ["USDT","USDC","DAI","BUSD","TUSD","USD"];
-    const fallback = Number(w.currencies?.usd_price ?? 0) || (stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
-    const priceUsd = livePrice ?? fallback;
-    const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
+    const dbPrice = Number(w.currencies?.usd_price ?? 0);
+    const fallback = dbPrice > 0
+      ? dbPrice
+      : stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0;
+    // Prefer live price, but only when it's a valid positive number. Never let a
+    // transient 0/undefined zero-out the whole portfolio.
+    const priceUsd = livePrice && livePrice > 0 ? livePrice : fallback;
+    const change24 = cg ? Number(prices[cg]?.usd_24h_change ?? 0) : 0;
     const total = Number(w.available) + Number(w.locked);
     const valueUsd = total * priceUsd;
-    return { ...w, priceUsd, change24, valueUsd, total };
+    return { ...w, priceUsd, change24, valueUsd, total, availableNum: Number(w.available), lockedNum: Number(w.locked) };
   }).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
 
   const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0);
-  const chartData = rows.map((r: any, i: number) => ({
-    name: r.currencies?.symbol ?? "?",
-    value: r.valueUsd,
-    percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
-    color: PALETTE[i % PALETTE.length],
-  }));
+  const availableUsd = rows.reduce((s: number, r: any) => s + r.availableNum * r.priceUsd, 0);
+  const lockedUsd = rows.reduce((s: number, r: any) => s + r.lockedNum * r.priceUsd, 0);
+  const weighted24h = totalUsd > 0
+    ? rows.reduce((s: number, r: any) => s + r.change24 * r.valueUsd, 0) / totalUsd
+    : 0;
+  const topAsset = rows[0];
+  const chartData = rows
+    .filter((r: any) => r.valueUsd > 0)
+    .map((r: any, i: number) => ({
+      name: r.currencies?.symbol ?? "?",
+      value: r.valueUsd,
+      percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
+      color: PALETTE[i % PALETTE.length],
+    }));
+
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["my-wallets"] });
@@ -130,9 +144,13 @@ function OverviewPage() {
         <p className="text-sm text-muted-foreground">{t("overview.subtitle")}</p>
       </div>
 
-      {/* Hero: donut + balance */}
-      <section className="relative overflow-hidden rounded-sm border border-border bg-surface p-6 shadow-lg">
-        <div className="relative grid gap-6 items-center md:grid-cols-[260px_1fr]">
+      {/* Hero: donut + balance + metrics */}
+      <section className="relative overflow-hidden rounded-lg border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated/40 p-6 md:p-8 shadow-xl">
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full opacity-30"
+          style={{ background: "radial-gradient(closest-side, oklch(0.82 0.16 90 / 0.35), transparent)" }}
+        />
+        <div className="relative grid gap-8 items-center md:grid-cols-[260px_1fr]">
           {/* Donut */}
           <div className="mx-auto md:mx-0">
             <div className="relative h-[240px] w-[240px]">
@@ -140,7 +158,7 @@ function OverviewPage() {
                 <>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={chartData} dataKey="value" innerRadius={78} outerRadius={112} paddingAngle={3} stroke="none" cornerRadius={6}>
+                      <Pie data={chartData} dataKey="value" innerRadius={82} outerRadius={112} paddingAngle={3} stroke="none" cornerRadius={6}>
                         {chartData.map((c) => <Cell key={c.name} fill={c.color} />)}
                       </Pie>
                       <Tooltip
@@ -151,8 +169,11 @@ function OverviewPage() {
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6">
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("overview.totalBalance")}</div>
-                    <div className="mt-1 text-xl font-black tabular-nums leading-tight">{fmt(toDisplay(totalUsd))}</div>
-                    <div className="mt-0.5 text-[10px] text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</div>
+                    <div className="mt-1 text-2xl font-black tabular-nums leading-tight">{fmt(toDisplay(totalUsd))}</div>
+                    <div className={`mt-1 inline-flex items-center gap-1 text-xs font-semibold tabular-nums ${weighted24h >= 0 ? "text-up" : "text-down"}`}>
+                      {weighted24h >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {weighted24h >= 0 ? "+" : ""}{weighted24h.toFixed(2)}%
+                    </div>
                   </div>
                 </>
               ) : (
@@ -163,25 +184,38 @@ function OverviewPage() {
             </div>
           </div>
 
-          {/* Legend (no duplicated balance — it's inside the donut) */}
-          <div className="space-y-4">
-            <div>
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("overview.myWallets")}</div>
-              <div className="text-sm text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</div>
+          {/* Right: metrics grid + legend */}
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <MetricTile label={t("overview.available")} value={fmt(toDisplay(availableUsd))} />
+              <MetricTile label={t("overview.locked")} value={fmt(toDisplay(lockedUsd))} />
+              <MetricTile label={t("overview.walletsCount")} value={String(rows.length)} />
+              <MetricTile
+                label={t("overview.topAsset")}
+                value={topAsset ? (topAsset.currencies?.symbol ?? "—") : "—"}
+                sub={topAsset && totalUsd ? `${((topAsset.valueUsd / totalUsd) * 100).toFixed(1)}%` : undefined}
+              />
             </div>
-            {chartData.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                {chartData.slice(0, 8).map((c) => (
-                  <div key={c.name} className="flex items-center gap-2 text-sm">
-                    <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: c.color }} />
-                    <span className="font-medium">{c.name}</span>
-                    <span className="ml-auto tabular-nums text-muted-foreground">{c.percent.toFixed(1)}%</span>
-                  </div>
-                ))}
+
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("overview.distribution")}</div>
+                <div className="text-xs text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</div>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">{t("overview.empty")}</p>
-            )}
+              {chartData.length > 0 ? (
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
+                  {chartData.slice(0, 6).map((c) => (
+                    <div key={c.name} className="flex items-center gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: c.color }} />
+                      <span className="font-medium">{c.name}</span>
+                      <span className="ml-auto tabular-nums text-muted-foreground">{c.percent.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t("overview.empty")}</p>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -288,6 +322,16 @@ function OverviewPage() {
 
       <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} fmtDisplay={(usd: number) => fmt(toDisplay(usd))} />
       <WalletDetailsDialog wallet={selectedWallet} onClose={() => setSelectedWallet(null)} fmt={(v) => fmt(toDisplay(v))} totalUsd={totalUsd} />
+    </div>
+  );
+}
+
+function MetricTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-md border border-border bg-surface-elevated/60 px-3 py-3 transition hover:border-primary/40">
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate text-base font-bold tabular-nums">{value}</div>
+      {sub && <div className="text-[10px] text-muted-foreground tabular-nums">{sub}</div>}
     </div>
   );
 }

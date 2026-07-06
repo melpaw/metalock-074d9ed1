@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,12 +23,12 @@ export const Route = createFileRoute("/auth")({
 
 const signupPasswordSchema = z
   .string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(/[0-9]/, "Password must include at least 1 number");
+  .min(8)
+  .regex(/[0-9]/);
 
 function PasswordInput({
-  id, value, onChange, autoComplete, minLength,
-}: { id: string; value: string; onChange: (v: string) => void; autoComplete: string; minLength?: number }) {
+  id, value, onChange, autoComplete, minLength, showLabel, hideLabel,
+}: { id: string; value: string; onChange: (v: string) => void; autoComplete: string; minLength?: number; showLabel: string; hideLabel: string }) {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
@@ -44,7 +45,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={() => setShow((s) => !s)}
-        aria-label={show ? "Hide password" : "Show password"}
+        aria-label={show ? hideLabel : showLabel}
         className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
         tabIndex={-1}
       >
@@ -66,6 +67,7 @@ function useCaptcha() {
 }
 
 function AuthPage() {
+  const { t } = useTranslation();
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -88,9 +90,9 @@ function AuthPage() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast.success("We've sent you a reset link. It expires in 1 hour.");
+      toast.success(t("auth.resetSuccess"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not send email");
+      toast.error(err instanceof Error ? err.message : t("auth.emailError"));
     } finally {
       setLoading(false);
     }
@@ -102,12 +104,12 @@ function AuthPage() {
     try {
       if (isSignup) {
         if (!acceptTerms) {
-          toast.error("Please accept the Terms and Privacy Policy");
+          toast.error(t("auth.termsRequired"));
           setLoading(false);
           return;
         }
         if (Number(captchaInput) !== captcha.answer) {
-          toast.error("Captcha incorrect — please try again");
+          toast.error(t("auth.captchaWrong"));
           refreshCaptcha();
           setCaptchaInput("");
           setLoading(false);
@@ -115,12 +117,12 @@ function AuthPage() {
         }
         const parsed = signupPasswordSchema.safeParse(password);
         if (!parsed.success) {
-          toast.error(parsed.error.issues[0]?.message ?? "Invalid password");
+          toast.error(t("auth.pwInvalid"));
           setLoading(false);
           return;
         }
         if (password !== passwordConfirm) {
-          toast.error("Passwords do not match");
+          toast.error(t("auth.pwMismatch"));
           setLoading(false);
           return;
         }
@@ -132,15 +134,15 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Account created! Redirecting…");
+        toast.success(t("auth.accountCreated"));
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
+        toast.success(t("auth.welcomeBack"));
       }
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication error");
+      toast.error(err instanceof Error ? err.message : t("auth.authError"));
     } finally {
       setLoading(false);
     }
@@ -160,22 +162,21 @@ function AuthPage() {
         <div className="space-y-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-              <ShieldCheck className="h-3.5 w-3.5" /> Security-first crypto vault
+              <ShieldCheck className="h-3.5 w-3.5" /> {t("auth.brandBadge")}
             </div>
             <h2 className="mt-6 text-4xl font-bold tracking-tight">
-              Crypto, <span className="text-primary">locked to you</span>.
+              {t("auth.brandHeadlineA")} <span className="text-primary">{t("auth.brandHeadlineAccent")}</span>{t("auth.brandHeadlineB")}
             </h2>
             <p className="mt-4 max-w-md text-muted-foreground">
-              MetaLock only transfers to and from wallets registered under your own verified identity — so even a
-              stolen password can't move your funds to a stranger.
+              {t("auth.brandLead")}
             </p>
           </div>
 
           <ul className="space-y-4 text-sm">
             {[
-              { icon: Fingerprint, title: "Identity-locked transfers", desc: "Every destination address must match a wallet in your own verified name." },
-              { icon: ShieldCheck, title: "Layered authentication", desc: "Mandatory 2FA on withdrawals + device fingerprinting on every session." },
-              { icon: Lock, title: "HSM-backed key custody", desc: "Private keys never leave hardware-backed enclaves in plaintext." },
+              { icon: Fingerprint, title: t("auth.feat1Title"), desc: t("auth.feat1Desc") },
+              { icon: ShieldCheck, title: t("auth.feat2Title"), desc: t("auth.feat2Desc") },
+              { icon: Lock, title: t("auth.feat3Title"), desc: t("auth.feat3Desc") },
             ].map((f) => (
               <li key={f.title} className="flex items-start gap-3">
                 <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
@@ -209,28 +210,24 @@ function AuthPage() {
           </div>
 
           <h1 className="text-2xl font-bold">
-            {isForgot ? "Reset your password" : isSignup ? "Create your secure account" : "Sign in"}
+            {isForgot ? t("auth.formReset") : isSignup ? t("auth.formSignup") : t("auth.formLogin")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isForgot
-              ? "Enter your email and we'll send a reset link — valid for 1 hour."
-              : isSignup
-              ? "It only takes a moment. Free forever."
-              : "Welcome back."}
+            {isForgot ? t("auth.subReset") : isSignup ? t("auth.subSignup") : t("auth.subLogin")}
           </p>
 
           {isForgot ? (
             <form onSubmit={handleForgot} className="mt-8 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
               </div>
               <Button type="submit" className="w-full font-semibold" disabled={loading}>
-                {loading ? "Sending…" : "Send reset link"}
+                {loading ? t("auth.submitSending") : t("auth.submitReset")}
               </Button>
               <p className="text-center text-sm text-muted-foreground">
                 <Link to="/auth" search={{ mode: "login" }} className="font-medium text-primary hover:underline">
-                  ← Back to sign in
+                  {t("auth.backToLogin")}
                 </Link>
               </p>
             </form>
@@ -239,20 +236,20 @@ function AuthPage() {
               <form onSubmit={handleSubmit} className="mt-8 space-y-4">
                 {isSignup && (
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full name</Label>
+                    <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                     <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t("auth.password")}</Label>
                     {!isSignup && (
                       <Link to="/auth" search={{ mode: "forgot" }} className="text-xs text-primary hover:underline">
-                        Forgot password?
+                        {t("auth.forgotPassword")}
                       </Link>
                     )}
                   </div>
@@ -262,28 +259,32 @@ function AuthPage() {
                     onChange={setPassword}
                     autoComplete={isSignup ? "new-password" : "current-password"}
                     minLength={isSignup ? 8 : 6}
+                    showLabel={t("auth.showPw")}
+                    hideLabel={t("auth.hidePw")}
                   />
                   {isSignup && (
-                    <p className="text-xs text-muted-foreground">Minimum 8 characters and at least 1 number.</p>
+                    <p className="text-xs text-muted-foreground">{t("auth.pwHint")}</p>
                   )}
                 </div>
                 {isSignup && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="passwordConfirm">Confirm password</Label>
+                      <Label htmlFor="passwordConfirm">{t("auth.confirmPassword")}</Label>
                       <PasswordInput
                         id="passwordConfirm"
                         value={passwordConfirm}
                         onChange={setPasswordConfirm}
                         autoComplete="new-password"
                         minLength={8}
+                        showLabel={t("auth.showPw")}
+                        hideLabel={t("auth.hidePw")}
                       />
                     </div>
 
                     {/* Captcha */}
                     <div className="space-y-2">
                       <Label htmlFor="captcha">
-                        Security check — what is <span className="font-semibold">{captcha.a} + {captcha.b}</span>?
+                        {t("auth.captchaLabel", { a: captcha.a, b: captcha.b })}
                       </Label>
                       <div className="flex gap-2">
                         <Input
@@ -296,7 +297,7 @@ function AuthPage() {
                           className="flex-1"
                         />
                         <Button type="button" variant="outline" size="sm" onClick={() => { refreshCaptcha(); setCaptchaInput(""); }}>
-                          New
+                          {t("auth.captchaNew")}
                         </Button>
                       </div>
                     </div>
@@ -309,24 +310,24 @@ function AuthPage() {
                         className="mt-0.5"
                       />
                       <span className="text-muted-foreground">
-                        I accept the{" "}
-                        <a href="/terms" className="text-primary hover:underline">Terms of Service</a>{" "}
-                        and{" "}
-                        <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>, and
-                        confirm I am creating this account for myself.
+                        {t("auth.termsPrefix")}{" "}
+                        <a href="/terms" className="text-primary hover:underline">{t("auth.termsService")}</a>{" "}
+                        {t("auth.termsAnd")}{" "}
+                        <a href="/privacy" className="text-primary hover:underline">{t("auth.termsPrivacy")}</a>
+                        {t("auth.termsSuffix")}
                       </span>
                     </label>
                   </>
                 )}
                 <Button type="submit" className="w-full font-semibold" disabled={loading}>
-                  {loading ? "Please wait…" : isSignup ? "Create secure account" : "Sign in"}
+                  {loading ? t("auth.submitLoading") : isSignup ? t("auth.submitSignup") : t("auth.submitLogin")}
                 </Button>
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                {isSignup ? "Already have an account?" : "New here?"}{" "}
+                {isSignup ? t("auth.alreadyHave") : t("auth.newHere")}{" "}
                 <Link to="/auth" search={{ mode: isSignup ? "login" : "signup" }} className="font-medium text-primary hover:underline">
-                  {isSignup ? "Sign in" : "Create account"}
+                  {isSignup ? t("auth.signInLink") : t("auth.createAccountLink")}
                 </Link>
               </p>
             </>
@@ -336,3 +337,4 @@ function AuthPage() {
     </div>
   );
 }
+
