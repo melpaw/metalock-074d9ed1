@@ -169,7 +169,14 @@
     "walletActionsSubtitle": "Deposit, send, swap and withdraw — all in one place",
     "recentTx": "Recent statements",
     "lastNTx": "Last {{n}} transactions",
-    "noTx": "No transactions yet."
+    "noTx": "No transactions yet.",
+    "available": "Available",
+    "locked": "Locked",
+    "invested": "Invested",
+    "walletsCount": "Wallets",
+    "topAsset": "Top asset",
+    "portfolio24h": "24h portfolio",
+    "distribution": "Distribution"
   },
   "wallet": {
     "deposit": "Deposit",
