@@ -161,58 +161,52 @@ function OverviewPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-4">
-          <section className="rounded-sm border border-border bg-surface p-4">
-            <div className="mb-3">
-              <h2 className="font-semibold">{t("overview.walletActions")}</h2>
-              <p className="text-xs text-muted-foreground">{t("overview.walletActionsSubtitle")}</p>
-            </div>
-            <WalletActions wallets={wallets ?? []} currencies={currencies ?? []} prices={prices} onDone={refresh} />
-          </section>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-sm border border-border bg-surface p-4">
+          <div className="mb-3">
+            <h2 className="font-semibold">{t("overview.walletActions")}</h2>
+            <p className="text-xs text-muted-foreground">{t("overview.walletActionsSubtitle")}</p>
+          </div>
+          <WalletActions wallets={wallets ?? []} currencies={currencies ?? []} prices={prices} onDone={refresh} />
+        </section>
 
-          <section className="rounded-sm border border-border bg-surface overflow-hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 border-b border-border">
-              <div className="min-w-0">
-                <h2 className="font-semibold truncate">{t("overview.myWallets")}</h2>
-                <p className="text-xs text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</p>
-              </div>
-              <Wallet className="h-4 w-4 shrink-0 text-primary" />
+        <section className="rounded-sm border border-border bg-surface overflow-hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 border-b border-border">
+            <div className="min-w-0">
+              <h2 className="font-semibold truncate">{t("overview.myWallets")}</h2>
+              <p className="text-xs text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</p>
             </div>
-            {rows.length === 0 ? (
-              <div className="p-10 text-center text-sm text-muted-foreground">{t("overview.empty")}</div>
-            ) : (
-              <div className="max-h-[520px] divide-y divide-border overflow-y-auto">
-                {rows.map((r: any) => (
-                  <button key={r.id} type="button" onClick={() => setSelectedWallet(r)} className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 text-left transition hover:bg-surface-elevated/50">
-                    <CryptoIcon id={r.currencies?.coingecko_id} symbol={r.currencies?.symbol} />
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">{r.currencies?.name ?? r.currencies?.symbol}</div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{Number(r.total).toFixed(6)} {r.currencies?.symbol}</div>
-                      <div className={`mt-0.5 flex items-center gap-1 text-xs tabular-nums ${r.change24 >= 0 ? "text-up" : "text-down"}`}>
-                        {r.change24 >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        {r.change24 >= 0 ? "+" : ""}{r.change24.toFixed(2)}%
-                      </div>
+            <Wallet className="h-4 w-4 shrink-0 text-primary" />
+          </div>
+          {rows.length === 0 ? (
+            <div className="p-10 text-center text-sm text-muted-foreground">{t("overview.empty")}</div>
+          ) : (
+            <div className="max-h-[520px] divide-y divide-border overflow-y-auto">
+              {rows.map((r: any) => (
+                <button key={r.id} type="button" onClick={() => setSelectedWallet(r)} className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 text-left transition hover:bg-surface-elevated/50">
+                  <CryptoIcon id={r.currencies?.coingecko_id} symbol={r.currencies?.symbol} />
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">{r.currencies?.name ?? r.currencies?.symbol}</div>
+                    <div className="text-xs text-muted-foreground tabular-nums">{Number(r.total).toFixed(6)} {r.currencies?.symbol}</div>
+                    <div className={`mt-0.5 flex items-center gap-1 text-xs tabular-nums ${r.change24 >= 0 ? "text-up" : "text-down"}`}>
+                      {r.change24 >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {r.change24 >= 0 ? "+" : ""}{r.change24.toFixed(2)}%
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <div className="font-bold tabular-nums">{fmt(toDisplay(r.valueUsd))}</div>
-                        <div className="text-[10px] text-muted-foreground">{totalUsd ? ((r.valueUsd / totalUsd) * 100).toFixed(1) : 0}%</div>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="font-bold tabular-nums">{fmt(toDisplay(r.valueUsd))}</div>
+                      <div className="text-[10px] text-muted-foreground">{totalUsd ? ((r.valueUsd / totalUsd) * 100).toFixed(1) : 0}%</div>
                     </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        <aside className="space-y-4">
-          <CashbackCard />
-          <MarketPanel />
-        </aside>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
+
 
       {/* Recent transactions */}
       <section className="rounded-2xl border border-border bg-surface overflow-hidden">
