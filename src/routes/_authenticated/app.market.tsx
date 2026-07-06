@@ -62,8 +62,11 @@ function MarketPage() {
         </div>
         <div className="rounded-sm border border-border bg-surface p-4">
           <div className="text-xs uppercase text-muted-foreground">{t("market.cashbackRate")}</div>
-          <div className="mt-1 text-2xl font-black tabular-nums text-primary">0.5%</div>
-          <div className="mt-1 text-xs text-muted-foreground">{t("market.cashbackRateHint")}</div>
+          <div className="mt-2 space-y-1 text-xs">
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">≤ $10,000</span><span className="font-bold text-primary tabular-nums">1%</span></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">$10,001 – $50,000</span><span className="font-bold text-primary tabular-nums">3%</span></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">&gt; $50,000</span><span className="font-bold text-primary tabular-nums">5%</span></div>
+          </div>
         </div>
         <div className="rounded-sm border border-border bg-surface p-4">
           <div className="text-xs uppercase text-muted-foreground">{t("market.cashbackHistory")}</div>
