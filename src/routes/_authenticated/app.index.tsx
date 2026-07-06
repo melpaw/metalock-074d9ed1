@@ -326,6 +326,16 @@ function OverviewPage() {
   );
 }
 
+function MetricTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-md border border-border bg-surface-elevated/60 px-3 py-3 transition hover:border-primary/40">
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate text-base font-bold tabular-nums">{value}</div>
+      {sub && <div className="text-[10px] text-muted-foreground tabular-nums">{sub}</div>}
+    </div>
+  );
+}
+
 function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: any | null; onClose: () => void; language: string; fmtDisplay: (usd: number) => string }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
