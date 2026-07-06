@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Layers, LifeBuoy, LogOut, Menu, X, UserRound } from "lucide-react";
+import { LayoutDashboard, Layers, LifeBuoy, LogOut, Menu, X, UserRound, LineChart, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
