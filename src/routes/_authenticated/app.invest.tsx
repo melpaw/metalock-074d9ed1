@@ -40,7 +40,7 @@ function InvestPage() {
         <h2 className="text-lg font-semibold mb-3">Planos disponíveis</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {plans?.map((p: any) => (
-            <div key={p.id} className="rounded-sm border border-border bg-surface p-5 flex flex-col">
+            <div key={p.id} className="rounded-xl border border-border bg-surface p-5 flex flex-col">
               <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-5 w-5" /><span className="font-bold">{p.name}</span></div>
               <div className="mt-3 text-3xl font-bold">{p.daily_rate}<span className="text-base text-muted-foreground">%/dia</span></div>
               <div className="mt-2 text-xs text-muted-foreground">
@@ -55,7 +55,7 @@ function InvestPage() {
 
       <section>
         <h2 className="text-lg font-semibold mb-3">Meus investimentos</h2>
-        <div className="overflow-hidden rounded-sm border border-border bg-surface">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-surface-elevated text-xs uppercase text-muted-foreground">
               <tr>

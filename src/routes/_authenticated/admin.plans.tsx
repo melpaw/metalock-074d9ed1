@@ -42,7 +42,7 @@ function PlansPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {data?.map((p) => (
-          <div key={p.id} className="rounded-sm border border-border bg-surface p-6 relative overflow-hidden">
+          <div key={p.id} className="rounded-xl border border-border bg-surface p-6 relative overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-1 gradient-primary" />
             <div className="flex items-start justify-between">
               <div>

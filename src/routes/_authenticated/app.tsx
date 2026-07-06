@@ -56,7 +56,7 @@ function AppLayout() {
         </div>
 
         <Link to="/app/profile" onClick={() => setOpen(false)}
-          className={`mx-3 mt-3 flex items-center gap-3 rounded-sm border border-border bg-surface p-3 transition hover:bg-surface-elevated ${pathname.startsWith("/app/profile") ? "ring-1 ring-primary" : ""}`}>
+          className={`mx-3 mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition hover:bg-surface-elevated ${pathname.startsWith("/app/profile") ? "ring-1 ring-primary" : ""}`}>
           {me?.avatar_url
             ? <img src={me.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
             : <div className="grid h-10 w-10 place-items-center rounded-full gradient-primary text-sm font-bold text-primary-foreground">{initials}</div>}
@@ -72,7 +72,7 @@ function AppLayout() {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
               <Link key={item.to} to={item.to} onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 rounded-sm px-3 py-2 text-sm transition ${
+                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
                   active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                 }`}>
                 <item.icon className="h-4 w-4" /> {item.label}

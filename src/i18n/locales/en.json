@@ -112,52 +112,6 @@
     "diffCurrency": "Choose different currencies",
     "noQuote": "Quote unavailable for this pair"
   },
-  "market": {
-    "title": "Market",
-    "subtitle": "Live prices · buy in one click",
-    "buy": "Buy"
-  },
-  "buy": {
-    "title": "Buy {{asset}}",
-    "price": "Price",
-    "payWith": "Pay with",
-    "selectWallet": "Select wallet",
-    "noWallets": "No funded wallets",
-    "amountIn": "Amount in {{symbol}}",
-    "available": "Available",
-    "estimate": "Estimated receive",
-    "cashback": "Cashback (0.5%)",
-    "confirm": "Confirm purchase",
-    "pendingHint": "The purchase stays pending until team approval. Your balance is locked while it is reviewed.",
-    "sent": "Purchase request sent. Await approval.",
-    "errors": {
-      "wallet": "Choose the source wallet",
-      "amount": "Invalid amount",
-      "balance": "Insufficient balance"
-    }
-  },
-  "cashback": {
-    "title": "Accumulated cashback",
-    "hint": "0.5% back in USDT on every approved purchase. {{count}} rewards so far."
-  },
-  "kyc": {
-    "fullName": "Full name",
-    "birthDate": "Date of birth",
-    "country": "Country",
-    "docType": "Document type",
-    "docNumber": "Document number",
-    "address": "Address",
-    "documentPhoto": "Document photo",
-    "bankStatement": "Bank statement (PDF or image)",
-    "sent": "KYC submitted",
-    "errors": { "files": "Document and bank statement are required" },
-    "status": {
-      "not_submitted": "Not submitted",
-      "pending": "Pending",
-      "approved": "Approved",
-      "rejected": "Rejected"
-    }
-  },
   "tx": {
     "type": "Type",
     "status": "Status",
@@ -176,7 +130,6 @@
     "investment": "Investment",
     "adjustment": "Adjustment",
     "transfer": "Transfer",
-    "profit": "Profit",
     "details": "Details",
     "detailsTitle": "Transaction details",
     "fee": "Fee",

@@ -47,9 +47,9 @@ function ClientDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-sm border border-border bg-surface p-5">
+      <div className="rounded-xl border border-border bg-surface p-5">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="grid h-14 w-14 place-items-center rounded-sm gradient-primary text-lg font-bold text-primary-foreground">
+          <div className="grid h-14 w-14 place-items-center rounded-xl gradient-primary text-lg font-bold text-primary-foreground">
             {(client.full_name || client.email).slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -112,7 +112,7 @@ function SupportTab({ userId }: { userId: string }) {
     queryFn: async () => (await supabase.from("support_tickets").select("*").eq("user_id", userId).order("created_at", { ascending: false })).data ?? [],
   });
   return (
-    <div className="rounded-sm border border-border bg-surface overflow-hidden">
+    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
       <div className="border-b border-border px-5 py-3 text-sm font-semibold">Tickets deste cliente</div>
       {!tickets?.length ? (
         <div className="p-12 text-center text-sm text-muted-foreground">Sem tickets.</div>
@@ -292,7 +292,7 @@ function KycIsland({ userId }: { userId: string }) {
                   <Textarea rows={2} placeholder="Nota (obrigatório para recusar)"
                     value={notes[k.id] ?? ""} onChange={(e) => setNotes({ ...notes, [k.id]: e.target.value })} />
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-up hover:bg-up/90 text-primary-foreground" onClick={() => review(k.id, true)}>
+                    <Button size="sm" className="bg-up hover:bg-up/90 text-white" onClick={() => review(k.id, true)}>
                       <Check className="h-4 w-4 mr-1" /> Autorizar
                     </Button>
                     <Button size="sm" variant="destructive" onClick={() => review(k.id, false)}>
@@ -318,7 +318,7 @@ function KycIsland({ userId }: { userId: string }) {
               {viewer?.doc ? <img src={viewer.doc} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
             <div>
-              <div className="mb-2 text-sm font-medium">Extrato bancário</div>
+              <div className="mb-2 text-sm font-medium">Bank statement</div>
               {viewer?.selfie ? <img src={viewer.selfie} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
             </div>
 
@@ -363,7 +363,7 @@ function DangerCard({ userId, status, onDone }: { userId: string; status: string
     toast.success("Cliente bloqueado"); onDone();
   }
   return (
-    <div className="rounded-sm border border-down/40 bg-down/5 p-4">
+    <div className="rounded-xl border border-down/40 bg-down/5 p-4">
       <div className="text-sm font-semibold text-down">Zona de perigo</div>
       <Button variant="destructive" size="sm" className="mt-2" onClick={ban} disabled={status === "blocked"}>
         <Ban className="h-4 w-4 mr-1" /> {status === "blocked" ? "Já bloqueado" : "Bloquear conta"}
@@ -620,7 +620,6 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
   const [sender, setSender] = useState("");
   const [note, setNote] = useState("");
   const [hidden, setHidden] = useState(false);
-  const [feeWaived, setFeeWaived] = useState(false);
   const [txDate, setTxDate] = useState<string>(() => {
     const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16);
   });
@@ -628,7 +627,6 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
 
   const currency = currencies?.find((c: any) => c.id === currencyId);
   const usd = currency ? (Number(amount || 0) * Number(currency.usd_price ?? 0)) : 0;
-  const fee = type === "deposit" && !feeWaived ? Number(amount || 0) * 0.03 : 0;
 
   async function submit() {
     if (!currencyId) return toast.error("Selecione a moeda");
@@ -645,7 +643,6 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
       _note: note || null,
       _hidden: hidden,
       _tx_date: new Date(txDate).toISOString(),
-      _fee_waived: feeWaived,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -678,17 +675,9 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
           <Field label={`Valor (na moeda${currency ? ` — ${currency.symbol}` : ""})`}>
             <Input type="number" step="0.00000001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
             {currency && amount && (
-              <div className="text-xs text-muted-foreground mt-1">
-                ≈ ${usd.toFixed(2)} USD · Taxa: {fee.toFixed(8)} {currency.symbol} · Líquido: {(Number(amount || 0) - fee).toFixed(8)} {currency.symbol}
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">≈ ${usd.toFixed(2)} USD (cotação atual: ${Number(currency.usd_price ?? 0).toFixed(2)})</div>
             )}
           </Field>
-          {type === "deposit" && (
-            <label className="flex items-center gap-2 rounded-sm border border-border bg-surface-elevated px-3 py-2 text-sm">
-              <Switch checked={feeWaived} onCheckedChange={setFeeWaived} />
-              Zerar taxa de 3% nesta transação
-            </label>
-          )}
           <Field label="Transaction ID (hash) — opcional">
             <Input value={txHash} onChange={(e) => setTxHash(e.target.value)} placeholder="0x..." />
           </Field>
@@ -769,7 +758,7 @@ function TxEditDialog({ tx, onClose, onSaved }: { tx: any; onClose: () => void; 
 /* ---------- helpers ---------- */
 function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-sm border border-border bg-surface p-5">
+    <div className="rounded-xl border border-border bg-surface p-5">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold">{title}</h3>
         {action}
@@ -816,9 +805,7 @@ function ClientKpiHeader({ userId }: { userId: string }) {
 
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const sym = (w.currencies?.symbol ?? "").toUpperCase();
-    const fallback = Number(w.currencies?.usd_price ?? 0) || (sym === "USDT" || sym === "USD" ? 1 : 0);
-    const price = cg ? prices[cg]?.usd ?? fallback : fallback;
+    const price = cg ? prices[cg]?.usd ?? 0 : w.currencies?.symbol === "USDT" ? 1 : 0;
     const total = Number(w.available) + Number(w.locked);
     return { symbol: w.currencies?.symbol ?? "?", value: total * price, total };
   }).filter((r) => r.value > 0).sort((a, b) => b.value - a.value);
@@ -827,14 +814,14 @@ function ClientKpiHeader({ userId }: { userId: string }) {
   const chartData = rows.map((r, i) => ({ name: r.symbol, value: r.value, color: KPI_PALETTE[i % KPI_PALETTE.length] }));
 
   return (
-    <section className="rounded-sm border border-border bg-surface p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated p-5 shadow-sm">
       <div className="grid gap-6 items-center md:grid-cols-[200px_1fr]">
         <div className="mx-auto md:mx-0">
           <div className="relative h-[180px] w-[180px]">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={chartData} dataKey="value" innerRadius={56} outerRadius={84} paddingAngle={3} stroke="none" cornerRadius={2} isAnimationActive={false}>
+                  <Pie data={chartData} dataKey="value" innerRadius={56} outerRadius={84} paddingAngle={3} stroke="none" cornerRadius={4}>
                     {chartData.map((c) => <Cell key={c.name} fill={c.color} />)}
                   </Pie>
                 </PieChart>
@@ -877,7 +864,7 @@ function ClientKpiHeader({ userId }: { userId: string }) {
 function KpiTile({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: any; sub?: string; accent?: "warning" | "down" }) {
   const color = accent === "warning" ? "text-warning" : accent === "down" ? "text-down" : "text-primary";
   return (
-    <div className="rounded-sm border border-border bg-surface p-4">
+    <div className="rounded-xl border border-border bg-surface p-4">
       <div className="flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
         <Icon className={`h-4 w-4 ${color}`} />

@@ -41,7 +41,7 @@ function CurrenciesPage() {
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {data?.map((c) => (
-          <div key={c.id} className="rounded-sm border border-border bg-surface p-5">
+          <div key={c.id} className="rounded-xl border border-border bg-surface p-5">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">

@@ -112,52 +112,6 @@
     "diffCurrency": "Escolha moedas diferentes",
     "noQuote": "Cotação indisponível para este par"
   },
-  "market": {
-    "title": "Mercado",
-    "subtitle": "Preços ao vivo · compre em 1 clique",
-    "buy": "Comprar"
-  },
-  "buy": {
-    "title": "Comprar {{asset}}",
-    "price": "Preço",
-    "payWith": "Pagar com",
-    "selectWallet": "Selecione a carteira",
-    "noWallets": "Sem carteiras com saldo",
-    "amountIn": "Quantidade em {{symbol}}",
-    "available": "Disponível",
-    "estimate": "Receberá aprox.",
-    "cashback": "Cashback (0,5%)",
-    "confirm": "Confirmar compra",
-    "pendingHint": "A compra fica pendente até aprovação da equipe. Seu saldo será bloqueado enquanto isso.",
-    "sent": "Solicitação de compra enviada. Aguarde aprovação.",
-    "errors": {
-      "wallet": "Escolha a carteira de origem",
-      "amount": "Valor inválido",
-      "balance": "Saldo insuficiente"
-    }
-  },
-  "cashback": {
-    "title": "Cashback acumulado",
-    "hint": "0,5% de volta em USDT a cada compra aprovada. {{count}} recompensas até agora."
-  },
-  "kyc": {
-    "fullName": "Nome completo",
-    "birthDate": "Data de nascimento",
-    "country": "País",
-    "docType": "Tipo de documento",
-    "docNumber": "Número do documento",
-    "address": "Endereço",
-    "documentPhoto": "Foto do documento",
-    "bankStatement": "Extrato bancário (PDF ou imagem)",
-    "sent": "KYC enviado",
-    "errors": { "files": "Documento e extrato bancário são obrigatórios" },
-    "status": {
-      "not_submitted": "Não enviado",
-      "pending": "Pendente",
-      "approved": "Aprovado",
-      "rejected": "Recusado"
-    }
-  },
   "tx": {
     "type": "Tipo",
     "status": "Status",
@@ -175,9 +129,8 @@
     "swap": "Swap",
     "investment": "Investimento",
     "adjustment": "Ajuste",
-    "transfer": "Transferência",
-    "profit": "Lucro",
-    "details": "Detalhes",
+    "transfer": "Transferência"
+    ,"details": "Detalhes",
     "detailsTitle": "Detalhes da transação",
     "fee": "Taxa",
     "reference": "Referência",

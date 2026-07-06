@@ -40,7 +40,7 @@ function SupportPage() {
         <NewTicket onDone={() => qc.invalidateQueries({ queryKey: ["my-tickets"] })} />
       </div>
 
-      <div className="rounded-sm border border-border bg-surface divide-y divide-border">
+      <div className="rounded-xl border border-border bg-surface divide-y divide-border">
         {isLoading && <div className="p-12 text-center text-muted-foreground">{t("common.loading")}</div>}
         {error && <div className="p-6 text-sm text-down">{(error as Error).message}</div>}
         {tickets?.map((tk: any) => (

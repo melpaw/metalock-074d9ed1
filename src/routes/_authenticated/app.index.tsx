@@ -50,17 +50,12 @@ function OverviewPage() {
 
   const { data: txs } = useQuery({
     queryKey: ["my-transactions"],
-    queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol,usd_price)").order("created_at", { ascending: false }).limit(20)).data ?? [],
-  });
-
-  const { data: investments } = useQuery({
-    queryKey: ["my-investments-balance"],
-    queryFn: async () => (await supabase.from("investments").select("amount,status,currencies(symbol,usd_price,coingecko_id)").in("status", ["active", "pending"])).data ?? [],
+    queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol)").order("created_at", { ascending: false }).limit(20)).data ?? [],
   });
 
   const cgIds = useMemo(
-    () => Array.from(new Set([...(wallets ?? []), ...(currencies ?? []), ...(investments ?? [])].map((w: any) => w.currencies?.coingecko_id ?? w.coingecko_id).filter(Boolean))) as string[],
-    [wallets, currencies, investments],
+    () => Array.from(new Set([...(wallets ?? []), ...(currencies ?? [])].map((w: any) => w.currencies?.coingecko_id ?? w.coingecko_id).filter(Boolean))) as string[],
+    [wallets, currencies],
   );
   const { data: pricesRes } = useQuery({
     queryKey: ["prices-overview", cgIds.join(",")],
@@ -87,20 +82,9 @@ function OverviewPage() {
     return { ...w, priceUsd, change24, valueUsd, total };
   }).sort((a: any, b: any) => b.valueUsd - a.valueUsd);
 
-  const investmentRows = (investments ?? []).map((i: any, idx: number) => {
-    const cg = i.currencies?.coingecko_id;
-    const sym = (i.currencies?.symbol ?? "").toUpperCase();
-    const fallback = Number(i.currencies?.usd_price ?? 0) || (sym === "USDT" || sym === "USD" ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
-    const priceUsd = cg ? prices[cg]?.usd ?? fallback : fallback;
-    const valueUsd = Number(i.amount ?? 0) * priceUsd;
-    return { name: `${i.currencies?.symbol ?? "INV"} ${idx + 1}`, valueUsd };
-  });
-
-  const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0) + investmentRows.reduce((s: number, r: any) => s + r.valueUsd, 0);
-  const chartData = [...rows.map((r: any) => ({ name: r.currencies?.symbol ?? "?", valueUsd: r.valueUsd })), ...investmentRows]
-  .filter((r: any) => r.valueUsd > 0)
-  .map((r: any, i: number) => ({
-    name: r.name ?? "?",
+  const totalUsd = rows.reduce((s: number, r: any) => s + r.valueUsd, 0);
+  const chartData = rows.map((r: any, i: number) => ({
+    name: r.currencies?.symbol ?? "?",
     value: r.valueUsd,
     percent: totalUsd ? (r.valueUsd / totalUsd) * 100 : 0,
     color: PALETTE[i % PALETTE.length],
@@ -122,7 +106,9 @@ function OverviewPage() {
       </div>
 
       {/* Hero: donut + balance */}
-      <section className="relative overflow-hidden rounded-sm border border-border bg-surface p-6 shadow-lg">
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface via-surface to-surface-elevated p-6 shadow-lg">
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
         <div className="relative grid gap-6 items-center md:grid-cols-[260px_1fr]">
           {/* Donut */}
           <div className="mx-auto md:mx-0">
@@ -131,11 +117,11 @@ function OverviewPage() {
                 <>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={chartData} dataKey="value" innerRadius={78} outerRadius={112} paddingAngle={3} stroke="none" cornerRadius={2} isAnimationActive={false}>
+                      <Pie data={chartData} dataKey="value" innerRadius={78} outerRadius={112} paddingAngle={3} stroke="none" cornerRadius={6}>
                         {chartData.map((c) => <Cell key={c.name} fill={c.color} />)}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ background: "var(--surface-elevated)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 12 }}
+                        contentStyle={{ background: "hsl(var(--surface-elevated))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                         formatter={(v: any, _n: any, p: any) => [fmt(toDisplay(Number(v))), p.payload.name]}
                       />
                     </PieChart>
@@ -231,7 +217,7 @@ function OverviewPage() {
       </div>
 
       {/* Recent transactions */}
-      <section className="rounded-sm border border-border bg-surface overflow-hidden">
+      <section className="rounded-2xl border border-border bg-surface overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="font-semibold">{t("overview.recentTx")}</h2>
           <span className="text-xs text-muted-foreground">{t("overview.lastNTx", { n: Math.min(txs?.length ?? 0, 20) })}</span>
@@ -261,8 +247,10 @@ function OverviewPage() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className={
-                        statusTone(tx).className
-                      }>{statusTone(tx).label(t)}</Badge>
+                        tx.status === "completed" ? "border-up/30 text-up" :
+                        tx.status === "pending" ? "border-warning/30 text-warning" :
+                        "border-down/30 text-down"
+                      }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
                       {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
@@ -281,30 +269,27 @@ function OverviewPage() {
         )}
       </section>
 
-      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} fmt={(v) => fmt(toDisplay(v))} />
+      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} />
       <WalletDetailsDialog wallet={selectedWallet} onClose={() => setSelectedWallet(null)} fmt={(v) => fmt(toDisplay(v))} totalUsd={totalUsd} />
     </div>
   );
 }
 
-function TransactionDetailsDialog({ tx, onClose, language, fmt }: { tx: any | null; onClose: () => void; language: string; fmt: (valueUsd: number) => string }) {
+function TransactionDetailsDialog({ tx, onClose, language }: { tx: any | null; onClose: () => void; language: string }) {
   const { t } = useTranslation();
   if (!tx) return null;
 
   const metadata = tx.metadata ?? {};
-  const usdValue = Number(tx.usd_value ?? Math.abs(Number(tx.amount)) * Number(tx.currencies?.usd_price ?? 0));
-  const fee = Number(tx.fee ?? 0);
-  const feeUsd = fee * Number(tx.currencies?.usd_price ?? 0);
-  const tone = statusTone(tx);
   const rows = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
-    [t("tx.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""} · ${fmt(usdValue)}`],
-    [t("tx.fee"), `${fee.toFixed(8)} ${tx.currencies?.symbol ?? ""} · ${fmt(feeUsd)}`],
-    [t("tx.status"), tone.label(t), tone.className],
-    [t("tx.hash"), metadata.tx_hash || tx.reference],
+    [t("tx.status"), t(`tx.${tx.status}`, { defaultValue: tx.status })],
+    [t("tx.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
+    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
     [t("tx.reference"), tx.reference],
-    [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
+    [t("tx.hash"), metadata.tx_hash],
+    [t("tx.sender"), metadata.sender_address],
     [t("tx.note"), tx.note],
+    [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
   ].filter(([, value]) => value !== undefined && value !== null && value !== "");
 
   return (
@@ -314,17 +299,17 @@ function TransactionDetailsDialog({ tx, onClose, language, fmt }: { tx: any | nu
           <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="rounded-sm border border-border bg-surface-elevated p-4">
+          <div className="rounded-xl border border-border bg-surface-elevated p-4">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{t(`tx.${tx.type}`, { defaultValue: tx.type })}</div>
             <div className={`mt-1 text-2xl font-black tabular-nums ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
               {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
             </div>
           </div>
           <div className="grid gap-2">
-            {rows.map(([label, value, className]) => (
-              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
+            {rows.map(([label, value]) => (
+              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-lg border border-border px-3 py-2 text-sm">
                 <span className="text-muted-foreground">{label}</span>
-                <span className={`min-w-0 break-words font-medium ${className ?? ""}`}>{String(value)}</span>
+                <span className="min-w-0 break-words font-medium">{String(value)}</span>
               </div>
             ))}
           </div>
@@ -332,17 +317,6 @@ function TransactionDetailsDialog({ tx, onClose, language, fmt }: { tx: any | nu
       </DialogContent>
     </Dialog>
   );
-}
-
-function statusTone(tx: any) {
-  const ui = String(tx.metadata?.ui_status || tx.status || "pending").toLowerCase();
-  const key = ui === "approved" ? "completed" : ui === "canceled" ? "cancelled" : ui;
-  const className = key === "completed"
-    ? "border-up/30 text-up"
-    : key === "hold" || key === "pending" || key === "processing"
-      ? "border-warning/30 text-warning"
-      : "border-down/30 text-down";
-  return { key, className, label: (t: any) => t(`tx.${key}`, { defaultValue: key }) };
 }
 
 function WalletDetailsDialog({ wallet, onClose, fmt, totalUsd }: { wallet: any | null; onClose: () => void; fmt: (valueUsd: number) => string; totalUsd: number }) {
@@ -357,7 +331,7 @@ function WalletDetailsDialog({ wallet, onClose, fmt, totalUsd }: { wallet: any |
           <DialogTitle>{wallet.currencies?.name ?? wallet.currencies?.symbol}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="flex items-center gap-4 rounded-sm border border-border bg-surface-elevated p-4">
+          <div className="flex items-center gap-4 rounded-xl border border-border bg-surface-elevated p-4">
             <CryptoIcon id={wallet.currencies?.coingecko_id} symbol={wallet.currencies?.symbol} className="h-12 w-12" />
             <div className="min-w-0">
               <div className="text-xs uppercase tracking-widest text-muted-foreground">{wallet.currencies?.symbol}</div>

@@ -139,8 +139,8 @@ export function TicketConversation({ ticketId, canManage }: Props) {
   }
 
   if (ticketLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
-  if (ticketError) return <div className="rounded-sm border border-down/30 bg-down/10 p-4 text-sm text-down">{(ticketError as Error).message}</div>;
-  if (!ticket) return <div className="rounded-sm border border-border bg-surface p-4 text-sm text-muted-foreground">{t("support.ticketUnavailable")}</div>;
+  if (ticketError) return <div className="rounded-xl border border-down/30 bg-down/10 p-4 text-sm text-down">{(ticketError as Error).message}</div>;
+  if (!ticket) return <div className="rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground">{t("support.ticketUnavailable")}</div>;
 
   function nameFor(m: any, mine: boolean) {
     if (mine) return t("support.you");
@@ -160,7 +160,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-      <div className="rounded-sm border border-border bg-surface flex flex-col h-[70vh] overflow-hidden">
+      <div className="rounded-xl border border-border bg-surface flex flex-col h-[70vh] overflow-hidden">
         <div className="border-b border-border p-4 bg-surface-elevated/40">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-semibold flex-1 min-w-0 truncate">{ticket.subject}</h2>
@@ -185,7 +185,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
                     {initialsFor(m)}
                   </div>
                 )}
-                <div className={`max-w-[75%] rounded-sm px-3.5 py-2 text-sm shadow-sm ${
+                <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
                   m.is_internal ? "bg-warning/15 border border-warning/40 rounded-tl-md" :
                   mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-surface-elevated rounded-tl-md"
                 }`}>
@@ -225,7 +225,7 @@ export function TicketConversation({ ticketId, canManage }: Props) {
       </div>
 
       {canManage && (
-        <div className="rounded-sm border border-border bg-surface p-4 space-y-4 h-fit">
+        <div className="rounded-xl border border-border bg-surface p-4 space-y-4 h-fit">
           <h3 className="text-sm font-semibold">{t("support.controlPanel")}</h3>
           <div className="space-y-2">
             <label className="text-xs text-muted-foreground">{t("support.displayName")}</label>
