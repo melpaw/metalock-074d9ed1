@@ -657,6 +657,7 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
       _note: note || null,
       _hidden: hidden,
       _tx_date: new Date(txDate).toISOString(),
+      _fee_waived: false,
     });
     setSaving(false);
     if (error) return toast.error(error.message);

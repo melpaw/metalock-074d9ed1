@@ -1,43 +1,77 @@
-## Objetivo
+# Plano de correção — 5 áreas
 
-Fechar os três pontos pendentes: fluxo de seguro completo em saques, transferência interna entre carteiras próprias, e polimento final de `admin.clients.$userId`.
+## 1. Saldo do Cliente nunca zerar
 
-## Migrações
+Sintoma: Total Balance oscila entre valor correto e 0. Causas prováveis:
+- `useQuery` sem `placeholderData: keepPreviousData` → durante refetch o `wallets` fica `undefined` e o total cai para 0.
+- Preços vindos de `getMarketPrices` podem retornar `{}` em cold start / rate‑limit e zerar `priceUsd` de moedas sem `usd_price` fallback.
+- Nenhuma subscription realtime em `wallets`.
 
-**Já aprovadas e executadas** nesta rodada:
-- `client_request_withdrawal_v2(_currency_id, _amount, _bank_id, _insurance_requested)` — saque com fee 3,5% servidor-side, bank_id e flag de seguro no metadata; notifica staff quando pede cotação.
-- `admin_set_insurance_quote(_tx_id, _percent)` — admin/agente define %, notifica cliente.
-- `client_respond_insurance(_tx_id, _approve, _payment_note)` — aprovar cria ticket `insurance_payment` com a forma de pagamento; recusar mantém saque sem seguro; ambos notificam staff.
-- `client_internal_transfer(_from_currency, _to_currency, _amount)` — debita/credita carteiras do mesmo usuário usando preço vigente, sem fee.
-- Enum `tx_type` ganhou valor `transfer`.
+Correções:
+- Adicionar `placeholderData: (prev) => prev` em `my-wallets`, `currencies-active`, `my-transactions` e `prices-overview` para preservar dados durante refetch.
+- Fallback robusto de preço: se `livePrice` ausente, usar `currencies.usd_price`; se ainda `0` e símbolo estável (USDT/USDC/DAI/BUSD/USD/EUR), assumir 1 (ou taxa EUR).
+- Subscrição Supabase Realtime em `wallets` filtrada por `user_id = auth.uid()` que dispara `invalidateQueries(["my-wallets"])`.
+- Salvaguarda: se `wallets === undefined`, mostrar skeleton em vez de renderizar `Total Balance = 0`.
 
-## Frontend
+## 2. Erro ao criar transação (Admin/Agent)
 
-### `src/components/wallet/WalletActions.tsx`
-- `WithdrawPanel`: chamar `client_request_withdrawal_v2` passando `_bank_id` e `_insurance_requested`. Remover o hack `BANK:<id>` no address.
-- `SendPanel`: reescrever como **transferência interna** (de carteira → carteira do próprio cliente) via `client_internal_transfer`, com aviso de que envio para terceiros vai pela aba Sacar. Passa a receber `currencies` como prop.
-- Atualizar `WalletActions` para repassar `currencies` ao `SendPanel`.
+Investigar: a RPC `admin_add_transaction` tem duas assinaturas — uma com `_fee_waived` e outra sem. Se `AddClientDialog`/tela chama com argumentos que não batem exatamente, o Postgres levanta `function ... does not exist`. Ver mensagem exata do erro (peço para você me passar o texto se possível) e:
+- Padronizar chamada em TS para a versão nova (com `_fee_waived boolean`).
+- Dropar a assinatura antiga via migração para evitar ambiguidade.
+- Garantir que `_tx_date` aceita `null` (default `now()`).
+- Testar deposit, withdrawal, swap, adjustment.
 
-### `src/routes/_authenticated/app.index.tsx` — `TransactionDetailsDialog`
-- Quando `tx.metadata.insurance_status === 'quoted'` e o viewer é o dono da transação, adicionar bloco com "% cotado" + textarea de forma de pagamento + botões Aprovar / Recusar (chamam `client_respond_insurance`).
-- Quando `insurance_status === 'approved'` mostrar link para o ticket (`insurance_ticket_id`).
+## 3. Página Team em formato de cards (como Clients)
 
-### Filas de transações (admin + agent)
-- `src/components/queues/TransactionsQueue.tsx` (e/ou `admin.transactions.tsx` / `agent.transactions.tsx`): quando `metadata.insurance_requested && !metadata.insurance_percent`, mostrar botão "Cotar seguro" que abre um dialog com input de % e chama `admin_set_insurance_quote`.
+Reescrever `admin.team.tsx`:
+- Grid de cards (2/3/4 colunas responsivo), cada card mostra: avatar iniciais, nome, email, cargo atual (badge), data de registro, indicadores (nº de clientes atendidos se `agent`, nº de tickets abertos).
+- Ações por card (dropdown "..."):
+  - Editar dados (abre dialog reaproveitando os campos de `admin_update_profile`).
+  - Alterar cargo (Admin / Agent / Client).
+  - Permissões (abre `AgentPermissionsDialog` já existente — expandido: `can_add_wallets`, `can_approve_kyc`, `can_process_tx`).
+  - Remover (rebaixa para `client`).
+- Filtro por cargo + busca por nome/email.
+- Botão "Adicionar agente" mantém `admin_register_client + admin_set_role`.
 
-### i18n
-Adicionar em pt/en/de:
-- `wallet.internalTransferHint`, `wallet.fromWallet`, `wallet.toWallet`, `wallet.confirmTransfer`, `wallet.transferDone`
-- `tx.insuranceQuoted`, `tx.insuranceApprove`, `tx.insuranceReject`, `tx.insurancePaymentNote`, `tx.insurancePaymentPlaceholder`, `tx.insuranceTicketOpen`, `tx.insurancePercentLabel`
-- `admin.quoteInsurance`, `admin.quoteInsuranceTitle`, `admin.percentLabel`, `admin.saveQuote`
+Migração leve: adicionar colunas `can_approve_kyc`, `can_process_tx` em `agent_permissions` (default false).
 
-### Polimento `admin.clients.$userId.tsx`
-- Varredura para trocar quaisquer strings PT hardcoded residuais por `t()`.
-- Garantir `rounded-sm`/sem `rounded-lg` nos cards/badges/inputs.
-- Padronizar cores de status (verde/amarelo/vermelho) nas seções de KYC, transações e tickets.
+## 4. Página Wallets completa
 
-## QA final
-- Rodar Playwright headless: cliente → pede saque com seguro; admin → cotar 5%; cliente → aprovar com nota; verificar que o ticket aparece em `/app/support`.
-- Cliente → aba Enviar → transferir 1 USDT para BTC → verificar wallets atualizadas e 2 linhas em transações.
+Reescrever `app.wallets.tsx`:
+- Lista de carteiras em cards (mantém tabela como fallback), agora cada card é clicável.
+- Ao clicar → nova rota `_authenticated/app.wallets.$currencyId.tsx` (detalhe) OU dialog em tela cheia. Vou usar rota para permitir link direto.
+- Detalhe contém:
+  - Header com ícone, nome/símbolo, saldo grande + valor USD/EUR.
+  - Botões primários: **Enviar** (abre SendPanel filtrado), **Receber** (mostra endereço + QR), **Copiar endereço**.
+  - Card com endereço completo + QR code (usa `qrcode.react` — já uso `<img>` gerado via `api.qrserver.com` para evitar dependência).
+  - Se sem endereço → CTA "Solicitar endereço".
+  - Histórico da carteira: `transactions` filtradas por `currency_id` com paginação (últimas 50), status colorido, click abre detalhe.
+- Mantém design premium: bordas retas, gradient sutil no header, tabular-nums.
 
-Confirma para eu implementar? (as migrações já foram aplicadas)
+## 5. Cashback escalonado
+
+Alterar `staff_process_swap` (RPC):
+- Regra baseada em `tx.usd_value`:
+  - `<= 10_000` → 1%
+  - `> 10_000 && <= 50_000` → 3%
+  - `> 50_000` → 5%
+- Aplicar em `cashback_usd = usd_value * rate`.
+- Atualizar UI da página Market para mostrar tabela de faixas em vez de "0.5%".
+- Manter cashback creditado em USDT via `transactions type='adjustment' metadata.kind='cashback'`.
+
+## Ordem de execução
+
+1. Migração única: dropar `admin_add_transaction` antiga sem `_fee_waived`; ajustar `staff_process_swap` (cashback escalonado); adicionar colunas em `agent_permissions`.
+2. Página Wallets nova (`app.wallets.tsx` + `app.wallets.$currencyId.tsx`).
+3. Página Team nova em formato de cards.
+4. Correções de saldo (queries + realtime + fallbacks).
+5. UI Market atualizada.
+6. QA via Playwright: login admin → adicionar transação; login client → ver saldo + navegar wallets → detalhe.
+
+## Perguntas rápidas antes de começar
+
+1. **Detalhe da Wallet**: prefere **rota nova** (`/app/wallets/BTC`) — permite link direto — ou **dialog em tela cheia**?
+2. **Erro ao criar transação**: você tem a mensagem exata do erro (do toast ou console)? Se não, eu reproduzo via Playwright.
+3. **Permissões extras de agente** (aprovar KYC, processar transações) — quer que eu adicione agora ou mantenho só `can_add_wallets`?
+
+Confirme (ou responda "toca ficha") e eu executo tudo em sequência.

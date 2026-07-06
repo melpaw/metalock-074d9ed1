@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getMarketPrices } from "@/lib/prices.functions";
@@ -9,9 +9,10 @@ import { TrendingUp, TrendingDown, Wallet, ChevronRight, Info, ArrowDownLeft, Ar
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { WalletActions } from "@/components/wallet/WalletActions";
 import { CryptoIcon } from "@/components/CryptoIcon";
+
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: OverviewPage,
@@ -39,16 +40,21 @@ function OverviewPage() {
   const { data: wallets } = useQuery({
     queryKey: ["my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 
   const { data: currencies } = useQuery({
     queryKey: ["currencies-active"],
     queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
   });
 
   const { data: txs } = useQuery({
     queryKey: ["my-transactions"],
     queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol)").order("created_at", { ascending: false }).limit(20)).data ?? [],
+    placeholderData: keepPreviousData,
   });
 
   const cgIds = useMemo(
@@ -60,8 +66,28 @@ function OverviewPage() {
     queryFn: () => pricesFn({ data: { ids: cgIds.length ? cgIds : ["bitcoin"] } }),
     enabled: cgIds.length > 0,
     refetchInterval: 60000,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
   const prices = (pricesRes as any)?.data ?? {};
+
+  // Realtime: keep wallet list live for the signed-in user
+  useEffect(() => {
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (cancelled || !data.user) return;
+      channel = supabase
+        .channel(`wallets-${data.user.id}`)
+        .on("postgres_changes", { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${data.user.id}` },
+          () => { qc.invalidateQueries({ queryKey: ["my-wallets"] }); })
+        .on("postgres_changes", { event: "*", schema: "public", table: "transactions", filter: `user_id=eq.${data.user.id}` },
+          () => { qc.invalidateQueries({ queryKey: ["my-transactions"] }); qc.invalidateQueries({ queryKey: ["my-wallets"] }); })
+        .subscribe();
+    })();
+    return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
+  }, [qc]);
 
   const displayCurrency = (profile as any)?.display_currency ?? "USD";
   const fxUsdToEur = prices["tether"]?.eur ?? 0.92;
@@ -72,7 +98,8 @@ function OverviewPage() {
     const cg = w.currencies?.coingecko_id;
     const livePrice = cg ? prices[cg]?.usd : undefined;
     const sym = (w.currencies?.symbol ?? "").toUpperCase();
-    const fallback = Number(w.currencies?.usd_price ?? 0) || (sym === "USDT" || sym === "USD" ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
+    const stables = ["USDT","USDC","DAI","BUSD","TUSD","USD"];
+    const fallback = Number(w.currencies?.usd_price ?? 0) || (stables.includes(sym) ? 1 : sym === "EUR" ? 1 / fxUsdToEur : 0);
     const priceUsd = livePrice ?? fallback;
     const change24 = cg ? prices[cg]?.usd_24h_change ?? 0 : 0;
     const total = Number(w.available) + Number(w.locked);
