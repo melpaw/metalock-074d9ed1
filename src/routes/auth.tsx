@@ -319,14 +319,14 @@ function AuthPage() {
                   </>
                 )}
                 <Button type="submit" className="w-full font-semibold" disabled={loading}>
-                  {loading ? "Please wait…" : isSignup ? "Create secure account" : t("common.signIn")}
+                  {loading ? "Please wait…" : isSignup ? "Create secure account" : "Sign in"}
                 </Button>
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 {isSignup ? "Already have an account?" : "New here?"}{" "}
                 <Link to="/auth" search={{ mode: isSignup ? "login" : "signup" }} className="font-medium text-primary hover:underline">
-                  {isSignup ? t("common.signIn") : "Create account"}
+                  {isSignup ? "Sign in" : "Create account"}
                 </Link>
               </p>
             </>
