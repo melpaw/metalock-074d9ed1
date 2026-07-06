@@ -41,8 +41,10 @@
   "nav": {
     "overview": "Início",
     "wallet": "Carteira",
+    "wallets": "Carteiras",
+    "market": "Mercado",
     "plans": "Planos",
-    "transactions": "Extrato",
+    "transactions": "Transações",
     "support": "Suporte",
     "profile": "Perfil",
     "clientArea": "Área do cliente",
@@ -52,6 +54,25 @@
     "team": "Equipe",
     "currencies": "Moedas",
     "viewAsClient": "Ver como cliente"
+  },
+  "market": {
+    "subtitle": "Compre criptomoedas e acompanhe o cashback",
+    "livePrices": "Preços ao vivo",
+    "buyOneClick": "Compra em 1 clique",
+    "buy": "Comprar",
+    "cashbackAvailable": "Cashback disponível",
+    "cashbackHint": "Creditado em USDT após aprovação",
+    "cashbackRate": "Taxa de cashback",
+    "cashbackRateHint": "Aplicado em cada compra aprovada",
+    "cashbackHistory": "Histórico de cashback",
+    "cashbackCount": "créditos recebidos"
+  },
+  "wallets": {
+    "subtitle": "Todas as suas carteiras em um só lugar",
+    "name": "Nome",
+    "balance": "Saldo",
+    "value": "Valor",
+    "address": "Endereço"
   },
   "overview": {
     "title": "Bem-vindo",
@@ -110,7 +131,11 @@
     "fillAll": "Preencha todos os campos",
     "fillFields": "Preencha os campos",
     "diffCurrency": "Escolha moedas diferentes",
-    "noQuote": "Cotação indisponível para este par"
+    "noQuote": "Cotação indisponível para este par",
+    "conversionFee": "Taxa de conversão",
+    "netReceive": "Você receberá",
+    "insuranceQuote": "Solicitar orçamento de seguro",
+    "insuranceQuoteHint": "Um agente enviará uma proposta com o percentual do seguro antes do saque."
   },
   "tx": {
     "type": "Tipo",
@@ -129,8 +154,8 @@
     "swap": "Swap",
     "investment": "Investimento",
     "adjustment": "Ajuste",
-    "transfer": "Transferência"
-    ,"details": "Detalhes",
+    "transfer": "Transferência",
+    "details": "Detalhes",
     "detailsTitle": "Detalhes da transação",
     "fee": "Taxa",
     "reference": "Referência",
@@ -141,7 +166,11 @@
   "profile": {
     "title": "Meu perfil",
     "subtitle": "Suas informações, segurança e verificação",
-    "tabs": { "info": "Informações", "security": "Segurança", "kyc": "KYC & Documentos" },
+    "tabs": {
+      "info": "Informações",
+      "security": "Segurança",
+      "kyc": "KYC & Documentos"
+    },
     "info": {
       "fullName": "Nome completo",
       "email": "E-mail",

@@ -41,6 +41,8 @@
   "nav": {
     "overview": "Overview",
     "wallet": "Wallet",
+    "wallets": "Wallets",
+    "market": "Market",
     "plans": "Plans",
     "transactions": "Transactions",
     "support": "Support",
@@ -52,6 +54,25 @@
     "team": "Team",
     "currencies": "Currencies",
     "viewAsClient": "View as client"
+  },
+  "market": {
+    "subtitle": "Buy crypto and track your cashback",
+    "livePrices": "Live prices",
+    "buyOneClick": "1-click buy",
+    "buy": "Buy",
+    "cashbackAvailable": "Cashback available",
+    "cashbackHint": "Credited in USDT after approval",
+    "cashbackRate": "Cashback rate",
+    "cashbackRateHint": "Applied on every approved buy",
+    "cashbackHistory": "Cashback history",
+    "cashbackCount": "credits received"
+  },
+  "wallets": {
+    "subtitle": "All your wallets in one place",
+    "name": "Name",
+    "balance": "Balance",
+    "value": "Value",
+    "address": "Address"
   },
   "overview": {
     "title": "Welcome",
@@ -110,7 +131,11 @@
     "fillAll": "Fill in all fields",
     "fillFields": "Fill in the fields",
     "diffCurrency": "Choose different currencies",
-    "noQuote": "Quote unavailable for this pair"
+    "noQuote": "Quote unavailable for this pair",
+    "conversionFee": "Conversion fee",
+    "netReceive": "You receive",
+    "insuranceQuote": "Request insurance quote",
+    "insuranceQuoteHint": "An agent will send an insurance percentage proposal before the withdrawal."
   },
   "tx": {
     "type": "Type",
@@ -141,7 +166,11 @@
   "profile": {
     "title": "My profile",
     "subtitle": "Your information, security and verification",
-    "tabs": { "info": "Information", "security": "Security", "kyc": "KYC & Documents" },
+    "tabs": {
+      "info": "Information",
+      "security": "Security",
+      "kyc": "KYC & Documents"
+    },
     "info": {
       "fullName": "Full name",
       "email": "Email",

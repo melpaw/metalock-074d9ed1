@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,8 @@ const langs = [
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { i18n } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const activeLanguage = (i18n?.language || i18nInstance.language || "en").slice(0, 2);
   const current = langs.find((l) => l.code === activeLanguage) ?? langs[1];
 
@@ -31,7 +34,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size={compact ? "icon" : "sm"} className="gap-2">
           <Globe className="h-4 w-4" />
-          {!compact && <span className="text-sm">{current.flag} {current.label}</span>}
+          {!compact && <span className="text-sm">{mounted ? `${current.flag} ${current.label}` : current.label}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

@@ -12,8 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useMemo, useState } from "react";
 import { WalletActions } from "@/components/wallet/WalletActions";
 import { CryptoIcon } from "@/components/CryptoIcon";
-import { MarketPanel } from "@/components/MarketPanel";
-import { CashbackCard } from "@/components/CashbackCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: OverviewPage,
@@ -163,58 +161,52 @@ function OverviewPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-4">
-          <section className="rounded-sm border border-border bg-surface p-4">
-            <div className="mb-3">
-              <h2 className="font-semibold">{t("overview.walletActions")}</h2>
-              <p className="text-xs text-muted-foreground">{t("overview.walletActionsSubtitle")}</p>
-            </div>
-            <WalletActions wallets={wallets ?? []} currencies={currencies ?? []} prices={prices} onDone={refresh} />
-          </section>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-sm border border-border bg-surface p-4">
+          <div className="mb-3">
+            <h2 className="font-semibold">{t("overview.walletActions")}</h2>
+            <p className="text-xs text-muted-foreground">{t("overview.walletActionsSubtitle")}</p>
+          </div>
+          <WalletActions wallets={wallets ?? []} currencies={currencies ?? []} prices={prices} onDone={refresh} />
+        </section>
 
-          <section className="rounded-sm border border-border bg-surface overflow-hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 border-b border-border">
-              <div className="min-w-0">
-                <h2 className="font-semibold truncate">{t("overview.myWallets")}</h2>
-                <p className="text-xs text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</p>
-              </div>
-              <Wallet className="h-4 w-4 shrink-0 text-primary" />
+        <section className="rounded-sm border border-border bg-surface overflow-hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 border-b border-border">
+            <div className="min-w-0">
+              <h2 className="font-semibold truncate">{t("overview.myWallets")}</h2>
+              <p className="text-xs text-muted-foreground">{t("overview.coinsInWallet", { count: rows.length })}</p>
             </div>
-            {rows.length === 0 ? (
-              <div className="p-10 text-center text-sm text-muted-foreground">{t("overview.empty")}</div>
-            ) : (
-              <div className="max-h-[520px] divide-y divide-border overflow-y-auto">
-                {rows.map((r: any) => (
-                  <button key={r.id} type="button" onClick={() => setSelectedWallet(r)} className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 text-left transition hover:bg-surface-elevated/50">
-                    <CryptoIcon id={r.currencies?.coingecko_id} symbol={r.currencies?.symbol} />
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">{r.currencies?.name ?? r.currencies?.symbol}</div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{Number(r.total).toFixed(6)} {r.currencies?.symbol}</div>
-                      <div className={`mt-0.5 flex items-center gap-1 text-xs tabular-nums ${r.change24 >= 0 ? "text-up" : "text-down"}`}>
-                        {r.change24 >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        {r.change24 >= 0 ? "+" : ""}{r.change24.toFixed(2)}%
-                      </div>
+            <Wallet className="h-4 w-4 shrink-0 text-primary" />
+          </div>
+          {rows.length === 0 ? (
+            <div className="p-10 text-center text-sm text-muted-foreground">{t("overview.empty")}</div>
+          ) : (
+            <div className="max-h-[520px] divide-y divide-border overflow-y-auto">
+              {rows.map((r: any) => (
+                <button key={r.id} type="button" onClick={() => setSelectedWallet(r)} className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 text-left transition hover:bg-surface-elevated/50">
+                  <CryptoIcon id={r.currencies?.coingecko_id} symbol={r.currencies?.symbol} />
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">{r.currencies?.name ?? r.currencies?.symbol}</div>
+                    <div className="text-xs text-muted-foreground tabular-nums">{Number(r.total).toFixed(6)} {r.currencies?.symbol}</div>
+                    <div className={`mt-0.5 flex items-center gap-1 text-xs tabular-nums ${r.change24 >= 0 ? "text-up" : "text-down"}`}>
+                      {r.change24 >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {r.change24 >= 0 ? "+" : ""}{r.change24.toFixed(2)}%
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <div className="font-bold tabular-nums">{fmt(toDisplay(r.valueUsd))}</div>
-                        <div className="text-[10px] text-muted-foreground">{totalUsd ? ((r.valueUsd / totalUsd) * 100).toFixed(1) : 0}%</div>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="font-bold tabular-nums">{fmt(toDisplay(r.valueUsd))}</div>
+                      <div className="text-[10px] text-muted-foreground">{totalUsd ? ((r.valueUsd / totalUsd) * 100).toFixed(1) : 0}%</div>
                     </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        <aside className="space-y-4">
-          <CashbackCard />
-          <MarketPanel />
-        </aside>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
+
 
       {/* Recent transactions */}
       <section className="rounded-2xl border border-border bg-surface overflow-hidden">
@@ -247,9 +239,9 @@ function OverviewPage() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className={
-                        tx.status === "completed" ? "border-up/30 text-up" :
-                        tx.status === "pending" ? "border-warning/30 text-warning" :
-                        "border-down/30 text-down"
+                        tx.status === "completed" ? "border-up/40 text-up bg-up/10" :
+                        tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "border-warning/40 text-warning bg-warning/10" :
+                        "border-down/40 text-down bg-down/10"
                       }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
@@ -269,28 +261,34 @@ function OverviewPage() {
         )}
       </section>
 
-      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} />
+      <TransactionDetailsDialog tx={selectedTx} onClose={() => setSelectedTx(null)} language={i18n.language} fmtDisplay={(usd: number) => fmt(toDisplay(usd))} />
       <WalletDetailsDialog wallet={selectedWallet} onClose={() => setSelectedWallet(null)} fmt={(v) => fmt(toDisplay(v))} totalUsd={totalUsd} />
     </div>
   );
 }
 
-function TransactionDetailsDialog({ tx, onClose, language }: { tx: any | null; onClose: () => void; language: string }) {
+function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: any | null; onClose: () => void; language: string; fmtDisplay: (usd: number) => string }) {
   const { t } = useTranslation();
   if (!tx) return null;
 
   const metadata = tx.metadata ?? {};
-  const rows = [
+  const symbol = tx.currencies?.symbol ?? "";
+  const usdValue = Number(tx.usd_value ?? 0);
+  const amountLine = `${Number(tx.amount).toFixed(8)} ${symbol}${usdValue ? ` · ${fmtDisplay(usdValue)}` : ""}`;
+  const statusColor =
+    tx.status === "completed" ? "text-up" :
+    tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "text-warning" :
+    "text-down";
+  const rows: Array<[string, React.ReactNode]> = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
-    [t("tx.status"), t(`tx.${tx.status}`, { defaultValue: tx.status })],
-    [t("tx.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    [t("tx.reference"), tx.reference],
-    [t("tx.hash"), metadata.tx_hash],
-    [t("tx.sender"), metadata.sender_address],
-    [t("tx.note"), tx.note],
+    [t("tx.amount"), amountLine],
+    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${symbol}`],
+    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
+    [t("tx.hash"), metadata.tx_hash ?? "—"],
+    [t("tx.reference"), tx.reference ?? "—"],
     [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
-  ].filter(([, value]) => value !== undefined && value !== null && value !== "");
+    [t("tx.note"), tx.note ?? "—"],
+  ];
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -299,17 +297,18 @@ function TransactionDetailsDialog({ tx, onClose, language }: { tx: any | null; o
           <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="rounded-xl border border-border bg-surface-elevated p-4">
+          <div className="rounded-sm border border-border bg-surface-elevated p-4">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{t(`tx.${tx.type}`, { defaultValue: tx.type })}</div>
             <div className={`mt-1 text-2xl font-black tabular-nums ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
-              {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
+              {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {symbol}
             </div>
+            {usdValue > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ {fmtDisplay(usdValue)}</div>}
           </div>
           <div className="grid gap-2">
             {rows.map(([label, value]) => (
-              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-lg border border-border px-3 py-2 text-sm">
+              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
                 <span className="text-muted-foreground">{label}</span>
-                <span className="min-w-0 break-words font-medium">{String(value)}</span>
+                <span className="min-w-0 break-words font-medium">{value}</span>
               </div>
             ))}
           </div>

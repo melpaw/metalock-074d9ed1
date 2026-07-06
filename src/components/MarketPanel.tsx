@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getMarketPrices } from "@/lib/prices.functions";
 import { CryptoIcon } from "@/components/CryptoIcon";
@@ -9,6 +10,7 @@ import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
 import { BuyCryptoDialog } from "@/components/BuyCryptoDialog";
 
 export function MarketPanel() {
+  const { t } = useTranslation();
   const pricesFn = useServerFn(getMarketPrices);
   const [buyCurrency, setBuyCurrency] = useState<any | null>(null);
 
@@ -31,8 +33,8 @@ export function MarketPanel() {
     <section className="rounded-sm border border-border bg-surface overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
-          <h2 className="font-semibold">Mercado</h2>
-          <p className="text-xs text-muted-foreground">Preços ao vivo · compre em 1 clique</p>
+          <h2 className="font-semibold">{t("nav.market")}</h2>
+          <p className="text-xs text-muted-foreground">{t("market.buyOneClick")}</p>
         </div>
         <ShoppingCart className="h-4 w-4 text-primary" />
       </div>
@@ -55,7 +57,7 @@ export function MarketPanel() {
                   {change >= 0 ? "+" : ""}{change.toFixed(2)}%
                 </div>
               </div>
-              <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>Comprar</Button>
+              <Button size="sm" onClick={() => setBuyCurrency({ ...c, priceUsd: price })}>{t("market.buy")}</Button>
             </div>
           );
         })}
