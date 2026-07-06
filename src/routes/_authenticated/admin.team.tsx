@@ -102,3 +102,44 @@ function TeamPage() {
     </div>
   );
 }
+
+function AddAgentDialog({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: () => void }) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit() {
+    if (!email.trim()) return toast.error("Informe o e-mail");
+    setLoading(true);
+    try {
+      const { data: userId, error } = await supabase.rpc("admin_register_client" as any, { _email: email.trim() });
+      if (error) throw error;
+      if (!userId) throw new Error("Usuário não encontrado. Peça para ele criar uma conta primeiro.");
+      const { error: e2 } = await supabase.rpc("admin_set_role", { _user_id: userId, _role: "agent" });
+      if (e2) throw e2;
+      toast.success("Agente adicionado com sucesso");
+      setEmail(""); onDone(); onClose();
+    } catch (e: any) {
+      toast.error(e.message || String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Adicionar agente</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>E-mail do usuário</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="agente@exemplo.com" />
+            <p className="mt-1 text-xs text-muted-foreground">O usuário precisa ter uma conta criada. A função dele será alterada para Agente.</p>
+          </div>
+          <Button onClick={submit} disabled={loading} className="w-full">
+            {loading ? "Adicionando..." : "Adicionar agente"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
