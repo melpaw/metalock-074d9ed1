@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Circle, Ticket as TicketIcon, Clock } from "lucide-react";
+import { AddClientDialog } from "@/components/AddClientDialog";
 
 export const Route = createFileRoute("/_authenticated/admin/clients/")({
   component: ClientsList,
@@ -46,7 +47,10 @@ function ClientsList() {
             {clients?.length ?? 0} clientes cadastrados. Clique em um card para gerenciar.
           </p>
         </div>
-        <Input placeholder="Buscar por email ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+        <div className="flex items-center gap-3">
+          <Input placeholder="Buscar por email ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+          <AddClientDialog />
+        </div>
       </div>
 
       {isLoading && <div className="text-center text-muted-foreground py-12">Carregando...</div>}
