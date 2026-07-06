@@ -33,6 +33,8 @@ function AppLayout() {
 
   const nav = [
     { to: "/app", label: t("nav.overview"), icon: LayoutDashboard, exact: true },
+    { to: "/app/market", label: t("nav.market"), icon: LineChart },
+    { to: "/app/wallets", label: t("nav.wallets"), icon: Wallet },
     { to: "/app/invest", label: t("nav.plans"), icon: Layers },
     { to: "/app/support", label: t("nav.support"), icon: LifeBuoy },
   ];
