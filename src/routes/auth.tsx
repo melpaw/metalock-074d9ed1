@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,6 @@ function useCaptcha() {
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -321,14 +319,14 @@ function AuthPage() {
                   </>
                 )}
                 <Button type="submit" className="w-full font-semibold" disabled={loading}>
-                  {loading ? "Please wait…" : isSignup ? "Create secure account" : t("common.signIn")}
+                  {loading ? "Please wait…" : isSignup ? "Create secure account" : "Sign in"}
                 </Button>
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 {isSignup ? "Already have an account?" : "New here?"}{" "}
                 <Link to="/auth" search={{ mode: isSignup ? "login" : "signup" }} className="font-medium text-primary hover:underline">
-                  {isSignup ? t("common.signIn") : "Create account"}
+                  {isSignup ? "Sign in" : "Create account"}
                 </Link>
               </p>
             </>
