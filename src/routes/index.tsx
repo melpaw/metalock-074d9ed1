@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
 import { ArrowRight, Lock, ShieldCheck, Fingerprint, KeyRound, Wallet, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
@@ -36,7 +35,6 @@ function Logo() {
 }
 
 function Landing() {
-  const { t } = useTranslation();
 
   const pillars = [
     {
@@ -80,10 +78,10 @@ function Landing() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <Link to="/auth" search={{ mode: "login" }}>
-              <Button variant="ghost" size="sm">{t("common.signIn")}</Button>
+              <Button variant="ghost" size="sm">Sign in</Button>
             </Link>
             <Link to="/auth" search={{ mode: "signup" }}>
-              <Button size="sm" className="font-semibold">{t("common.signUp")}</Button>
+              <Button size="sm" className="font-semibold">Sign up</Button>
             </Link>
           </div>
         </div>
@@ -121,7 +119,7 @@ function Landing() {
                 </Button>
               </Link>
               <Link to="/auth" search={{ mode: "login" }}>
-                <Button size="lg" variant="outline">{t("common.signIn")}</Button>
+                <Button size="lg" variant="outline">Sign in</Button>
               </Link>
             </div>
           </Reveal>
