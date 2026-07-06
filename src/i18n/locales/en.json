@@ -240,7 +240,13 @@
     "sender": "Sender address",
     "note": "Note",
     "destination": "Destination address",
-    "buySwap": "Buy/Swap"
+    "buySwap": "Buy/Swap",
+    "insuranceQuoted": "Insurance quote available: {{percent}}%",
+    "insurancePaymentNote": "If approved, a ticket will be opened to arrange the payment. Leave a note (preferred method, bank, etc.).",
+    "insurancePaymentPlaceholder": "e.g. wire transfer, bank X",
+    "insuranceApprove": "Approve insurance",
+    "insuranceReject": "Decline insurance",
+    "insuranceTicketOpen": "Open insurance payment ticket"
   },
   "profile": {
     "title": "My profile",
