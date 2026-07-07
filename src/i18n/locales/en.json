@@ -190,7 +190,7 @@
     "myAddresses": "My addresses",
     "noAddresses": "No addresses yet.",
     "ready": "Ready",
-    "waitingAdmin": "Waiting for admin",
+    "waitingAdmin": "Awaiting approval",
     "willNotify": "You'll be notified as soon as the address is ready.",
     "seeQr": "View QR code",
     "copied": "Copied",
@@ -227,7 +227,7 @@
     "transferDone": "Transfer completed",
     "destinationAddress": "Destination address",
     "notesOptional": "Notes (optional)",
-    "sendPendingHint": "The transfer will be reviewed by an admin or agent. Your balance is reserved until approval.",
+    "sendPendingHint": "Your request will be reviewed by the system before it is processed. Your balance is reserved until approval.",
     "requestSend": "Request send",
     "invalidAmount": "Invalid amount",
     "insufficient": "Insufficient balance"
@@ -451,7 +451,7 @@
     "ctaButton": "Create a free account",
     "signIn": "Sign in",
     "signUp": "Sign up",
-    "heroTitleA": "Your crypto, locked to",
+    "heroTitleA": "Your crypto, tied to",
     "heroTitleB": ".",
     "ctaPrimary": "Create secure account",
     "ctaSecondary": "Sign in",
@@ -504,8 +504,8 @@
       }
     },
     "ctaFinal": {
-      "title": "Open a vault in under a minute.",
-      "subtitle": "Sign up, verify your identity, and your account is locked to you — end to end.",
+      "title": "Open your wallet in minutes.",
+      "subtitle": "Sign up, verify your identity, and your account is tied to you — end to end.",
       "button": "Get started"
     },
     "footer": "All rights reserved."

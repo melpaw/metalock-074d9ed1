@@ -190,7 +190,7 @@
     "myAddresses": "Meine Adressen",
     "noAddresses": "Noch keine Adressen.",
     "ready": "Bereit",
-    "waitingAdmin": "Warten auf Admin",
+    "waitingAdmin": "Warten auf Freigabe",
     "willNotify": "Sie werden benachrichtigt, sobald die Adresse bereit ist.",
     "seeQr": "QR-Code anzeigen",
     "copied": "Kopiert",
@@ -227,7 +227,7 @@
     "transferDone": "Überweisung abgeschlossen",
     "destinationAddress": "Zieladresse",
     "notesOptional": "Notizen (optional)",
-    "sendPendingHint": "Die Überweisung wird von einem Admin oder Agenten geprüft. Ihr Guthaben ist bis zur Freigabe reserviert.",
+    "sendPendingHint": "Ihre Anfrage wird vor der Verarbeitung vom System geprüft. Ihr Guthaben ist bis zur Freigabe reserviert.",
     "requestSend": "Senden anfragen",
     "invalidAmount": "Ungültiger Betrag",
     "insufficient": "Unzureichendes Guthaben"
@@ -451,7 +451,7 @@
     "ctaButton": "Kostenloses Konto erstellen",
     "signIn": "Anmelden",
     "signUp": "Registrieren",
-    "heroTitleA": "Ihre Krypto, gebunden an",
+    "heroTitleA": "Ihre Krypto, verknüpft mit",
     "heroTitleB": ".",
     "ctaPrimary": "Sicheres Konto erstellen",
     "ctaSecondary": "Anmelden",
@@ -504,8 +504,8 @@
       }
     },
     "ctaFinal": {
-      "title": "Öffnen Sie in unter einer Minute einen Tresor.",
-      "subtitle": "Registrieren, Identität verifizieren — Ihr Konto ist an Sie gebunden, Ende zu Ende.",
+      "title": "Eröffnen Sie Ihre Wallet in wenigen Minuten.",
+      "subtitle": "Registrieren, Identität verifizieren — Ihr Konto ist mit Ihnen verknüpft, Ende zu Ende.",
       "button": "Loslegen"
     },
     "footer": "Alle Rechte vorbehalten."

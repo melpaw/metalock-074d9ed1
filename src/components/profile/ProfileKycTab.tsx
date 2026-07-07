@@ -19,7 +19,7 @@ const STATUS_META: Record<string, { label: string; icon: any; color: string }> =
 export function ProfileKycTab() {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const [form, setForm] = useState({ full_name: "", birth_date: "", doc_type: "CPF", doc_number: "", country: "", address: "" });
+  const [form, setForm] = useState({ full_name: "", birth_date: "", doc_type: "", doc_number: "", country: "", address: "" });
   const [docFile, setDocFile] = useState<File | null>(null);
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
