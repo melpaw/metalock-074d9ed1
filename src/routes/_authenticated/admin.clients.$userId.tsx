@@ -820,9 +820,14 @@ function ClientKpiHeader({ userId }: { userId: string }) {
   });
   const prices = (pricesRes as any)?.data ?? {};
 
+  const stables = ["USDT", "USDC", "DAI", "BUSD", "TUSD", "USD"];
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;
-    const price = cg ? prices[cg]?.usd ?? 0 : w.currencies?.symbol === "USDT" ? 1 : 0;
+    const sym = (w.currencies?.symbol ?? "").toUpperCase();
+    const livePrice = cg ? Number(prices[cg]?.usd) : undefined;
+    const dbPrice = Number(w.currencies?.usd_price ?? 0);
+    const fallback = dbPrice > 0 ? dbPrice : stables.includes(sym) ? 1 : 0;
+    const price = livePrice && livePrice > 0 ? livePrice : fallback;
     const total = Number(w.available) + Number(w.locked);
     return { symbol: w.currencies?.symbol ?? "?", value: total * price, total };
   }).filter((r) => r.value > 0).sort((a, b) => b.value - a.value);

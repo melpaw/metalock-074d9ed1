@@ -190,7 +190,7 @@
     "myAddresses": "Meus endereços",
     "noAddresses": "Nenhum endereço ainda.",
     "ready": "Pronto",
-    "waitingAdmin": "Aguardando admin",
+    "waitingAdmin": "Aguardando aprovação",
     "willNotify": "Você será notificado assim que o endereço estiver pronto.",
     "seeQr": "Ver QR code",
     "copied": "Copiado",
@@ -227,7 +227,7 @@
     "transferDone": "Transferência concluída",
     "destinationAddress": "Endereço de destino",
     "notesOptional": "Observações (opcional)",
-    "sendPendingHint": "O envio será revisado por um administrador ou agente. O saldo fica reservado até a aprovação.",
+    "sendPendingHint": "A solicitação será revisada pelo sistema antes de ser processada. O saldo fica reservado até a aprovação.",
     "requestSend": "Solicitar envio",
     "invalidAmount": "Valor inválido",
     "insufficient": "Saldo insuficiente"
@@ -451,7 +451,7 @@
     "ctaButton": "Criar conta grátis",
     "signIn": "Entrar",
     "signUp": "Criar conta",
-    "heroTitleA": "Sua cripto, bloqueada à",
+    "heroTitleA": "Sua cripto, vinculada à",
     "heroTitleB": ".",
     "ctaPrimary": "Criar conta segura",
     "ctaSecondary": "Entrar",
@@ -504,8 +504,8 @@
       }
     },
     "ctaFinal": {
-      "title": "Abra um cofre em menos de um minuto.",
-      "subtitle": "Cadastre-se, verifique sua identidade e sua conta fica travada em você — de ponta a ponta.",
+      "title": "Abra a sua carteira em minutos.",
+      "subtitle": "Cadastre-se, verifique sua identidade e sua conta fica vinculada a você — de ponta a ponta.",
       "button": "Começar agora"
     },
     "footer": "Todos os direitos reservados."

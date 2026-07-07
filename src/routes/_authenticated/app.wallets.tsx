@@ -356,7 +356,7 @@ function SendRequestPanel({ row, onDone }: { row: any; onDone: () => void }) {
     <div className="space-y-3">
       <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-xs flex items-start gap-2">
         <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-        <span>{t("wallet.sendPendingHint", { defaultValue: "O envio será revisado por um administrador ou agente. O saldo fica reservado até a aprovação." })}</span>
+        <span>{t("wallet.sendPendingHint")}</span>
       </div>
       <div>
         <Label>{t("wallet.destinationAddress", { defaultValue: "Endereço de destino" })}</Label>
