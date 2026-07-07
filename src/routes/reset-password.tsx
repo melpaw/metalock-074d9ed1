@@ -9,7 +9,15 @@ import { toast } from "sonner";
 import { Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Redefinir senha — MetaLock" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [
+      { title: "Redefinir senha — MetaLock" },
+      { name: "description", content: "Defina uma nova senha para sua conta MetaLock com segurança." },
+      { property: "og:title", content: "Redefinir senha — MetaLock" },
+      { property: "og:description", content: "Defina uma nova senha para sua conta MetaLock com segurança." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: ResetPasswordPage,
 });
 
