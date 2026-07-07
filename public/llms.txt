@@ -1,0 +1,9 @@
+# MetaLock
+
+> Security-first crypto vault with identity-locked transfers. Send and receive only from wallets tied to your verified identity.
+
+MetaLock is a crypto platform engineered around identity-locked transfers, hardware-grade key isolation and full audit trails. Even a stolen password cannot move your funds.
+
+## Pages
+
+- [Home](/): Overview of MetaLock, security pillars and how identity-locked transfers work.

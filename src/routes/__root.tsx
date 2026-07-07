@@ -71,18 +71,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MetaLock — Secure crypto vault with identity-locked transfers" },
-      { name: "description", content: "MetaLock is a security-first crypto platform. Send and receive only from wallets registered to your own verified identity — even a stolen password cannot move your funds." },
+      { title: "MetaLock — Identity-locked crypto vault" },
+      { name: "description", content: "Security-first crypto vault. Send and receive only from wallets tied to your verified identity — even a stolen password cannot move your funds." },
       { name: "author", content: "MetaLock" },
-      { property: "og:title", content: "MetaLock — Secure crypto vault with identity-locked transfers" },
-      { property: "og:description", content: "MetaLock is a security-first crypto platform. Send and receive only from wallets registered to your own verified identity — even a stolen password cannot move your funds." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "MetaLock" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "MetaLock — Secure crypto vault with identity-locked transfers" },
-      { name: "twitter:description", content: "MetaLock is a security-first crypto platform. Send and receive only from wallets registered to your own verified identity — even a stolen password cannot move your funds." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/39ee9fdc-0f1f-41f7-a054-f1c8133bba6a" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/39ee9fdc-0f1f-41f7-a054-f1c8133bba6a" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "MetaLock",
+              url: "https://metalock.lovable.app",
+              logo: "https://metalock.lovable.app/favicon.png",
+            },
+            {
+              "@type": "WebSite",
+              name: "MetaLock",
+              url: "https://metalock.lovable.app",
+            },
+          ],
+        }),
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

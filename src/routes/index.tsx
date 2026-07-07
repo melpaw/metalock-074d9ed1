@@ -9,18 +9,20 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MetaLock — Secure crypto vault with identity-locked transfers" },
+      { title: "MetaLock — Identity-locked crypto vault" },
       {
         name: "description",
         content:
-          "MetaLock is a security-first crypto platform. Send and receive only from wallets registered to your own verified identity — even a stolen password cannot move your funds.",
+          "Security-first crypto vault. Send and receive only from wallets tied to your verified identity — even a stolen password cannot move your funds.",
       },
       { property: "og:title", content: "MetaLock — Identity-locked crypto vault" },
       { property: "og:description", content: "A crypto vault engineered around identity-locked transfers, hardware-grade key isolation and full audit trails." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vaultmelpaw.lovable.app/" },
+      { property: "og:url", content: "https://metalock.lovable.app/" },
+      { name: "twitter:title", content: "MetaLock — Identity-locked crypto vault" },
+      { name: "twitter:description", content: "A crypto vault engineered around identity-locked transfers, hardware-grade key isolation and full audit trails." },
     ],
-    links: [{ rel: "canonical", href: "https://vaultmelpaw.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://metalock.lovable.app/" }],
   }),
   component: Landing,
 });
