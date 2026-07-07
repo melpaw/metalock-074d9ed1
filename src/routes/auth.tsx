@@ -17,7 +17,15 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
-  head: () => ({ meta: [{ title: "Sign in — MetaLock" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — MetaLock" },
+      { name: "description", content: "Access your MetaLock vault. Sign in or create an account to manage identity-locked crypto wallets." },
+      { property: "og:title", content: "Sign in — MetaLock" },
+      { property: "og:description", content: "Access your MetaLock vault. Sign in or create an account to manage identity-locked crypto wallets." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AuthPage,
 });
 
