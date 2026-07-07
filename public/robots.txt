@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /app
+Disallow: /admin
+Disallow: /agent
+Disallow: /dashboard
+
+Sitemap: https://metalock.lovable.app/sitemap.xml
