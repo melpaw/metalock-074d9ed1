@@ -157,41 +157,37 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="grid min-h-screen bg-background lg:grid-cols-2">
       {/* Left: brand + security pitch */}
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden p-12">
-        <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)", opacity: 0.9 }} />
-        <div aria-hidden className="orb animate-float" style={{ top: "-4rem", right: "-4rem", width: "20rem", height: "20rem", background: "radial-gradient(circle at 30% 30%, oklch(0.9 0.09 240 / 0.9), transparent 70%)" }} />
-        <Link to="/" className="flex items-center gap-2 relative">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-background">
+      <div className="hidden lg:flex flex-col justify-between p-12 gradient-surface border-r border-border">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary text-primary-foreground">
             <Lock className="h-4 w-4" strokeWidth={2.5} />
           </div>
           <span className="text-lg font-bold">MetaLock</span>
         </Link>
 
-        <div className="space-y-8 relative">
+        <div className="space-y-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-white/70 px-3 py-1 text-xs font-semibold backdrop-blur">
-              <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" /> {t("auth.brandBadge")}
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+              <ShieldCheck className="h-3.5 w-3.5" /> {t("auth.brandBadge")}
             </div>
-            <h2 className="mt-6 text-5xl font-black leading-[0.95] tracking-tight">
-              {t("auth.brandHeadlineA")}
-              <span className="block bg-gradient-to-r from-foreground to-indigo-600 bg-clip-text text-transparent">{t("auth.brandHeadlineAccent")}</span>
-              {t("auth.brandHeadlineB")}
+            <h2 className="mt-6 text-4xl font-bold tracking-tight">
+              {t("auth.brandHeadlineA")} <span className="text-primary">{t("auth.brandHeadlineAccent")}</span>{t("auth.brandHeadlineB")}
             </h2>
             <p className="mt-4 max-w-md text-muted-foreground">
               {t("auth.brandLead")}
             </p>
           </div>
 
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-4 text-sm">
             {[
               { icon: Fingerprint, title: t("auth.feat1Title"), desc: t("auth.feat1Desc") },
               { icon: ShieldCheck, title: t("auth.feat2Title"), desc: t("auth.feat2Desc") },
               { icon: Lock, title: t("auth.feat3Title"), desc: t("auth.feat3Desc") },
             ].map((f) => (
-              <li key={f.title} className="glass flex items-start gap-3 rounded-2xl p-3">
-                <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-rose-500 text-white">
+              <li key={f.title} className="flex items-start gap-3">
+                <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
                   <f.icon className="h-4 w-4" />
                 </div>
                 <div>
@@ -203,15 +199,15 @@ function AuthPage() {
           </ul>
         </div>
 
-        <p className="text-xs text-muted-foreground relative">© {new Date().getFullYear()} MetaLock</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} MetaLock</p>
       </div>
 
       {/* Right: form */}
       <div className="flex items-center justify-center p-6">
-        <div className="glass-card w-full max-w-md p-8">
+        <div className="w-full max-w-md">
           <div className="mb-6 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 lg:hidden">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-foreground text-background">
+              <div className="grid h-8 w-8 place-items-center rounded-md gradient-primary text-primary-foreground">
                 <Lock className="h-4 w-4" strokeWidth={2.5} />
               </div>
               <span className="text-lg font-bold">MetaLock</span>
@@ -221,7 +217,7 @@ function AuthPage() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-black tracking-tight">
+          <h1 className="text-2xl font-bold">
             {isForgot ? t("auth.formReset") : isSignup ? t("auth.formSignup") : t("auth.formLogin")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
