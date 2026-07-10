@@ -1,0 +1,49 @@
+# Cloudflare Workers deployment config for MetaLock (TanStack Start + Nitro)
+#
+# This project builds with `npm run build`, which uses the Nitro Cloudflare
+# preset baked into the Vite config. The build output is written to `.output/`
+# (NOT `dist/` — that is a Vite SPA convention and does not apply here).
+#
+# - Server bundle: .output/server/index.mjs  (the Worker entry)
+# - Static assets: .output/public/           (served via the ASSETS binding)
+#
+# Deploy with:
+#   npm run build
+#   wrangler deploy
+#
+# For Cloudflare Pages (Git-connected), use the dashboard settings:
+#   Build command:         npm run build
+#   Build output dir:      .output/public
+#   Root directory:        /
+# And upload `.output/server/index.mjs` as the Pages Function (`_worker.js`).
+# Plain static Pages hosting will NOT work — the app needs the Worker runtime
+# to serve SSR and server functions.
+
+name = "metalock"
+main = ".output/server/index.mjs"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".output/public"
+binding = "ASSETS"
+
+# Public build-time variables (VITE_*) are inlined at build time — set them
+# in `.env` or your CI environment, NOT here.
+#
+# Runtime server variables/secrets — push with `wrangler secret put <NAME>`:
+#   SUPABASE_URL
+#   SUPABASE_PUBLISHABLE_KEY
+#   SUPABASE_PROJECT_ID
+#   SUPABASE_SERVICE_ROLE_KEY   # only if privileged server code is used
+#
+# Non-secret runtime values can also go under [vars] below.
+# [vars]
+# EXAMPLE_PUBLIC_VAR = "value"
+
+# Optional: environment-specific overrides
+# [env.staging]
+# name = "metalock-staging"
+#
+# [env.production]
+# name = "metalock"
