@@ -508,7 +508,54 @@
       "subtitle": "Registrieren, Identität verifizieren — Ihr Konto ist mit Ihnen verknüpft, Ende zu Ende.",
       "button": "Loslegen"
     },
-    "footer": "Alle Rechte vorbehalten."
+    "footer": "Alle Rechte vorbehalten.",
+    "trustedBy": "Vertraut von sicherheitsbewussten Haltern und Teams",
+    "bento": {
+      "title": "Konstruiert wie ein privater Tresor, nicht wie eine Börse",
+      "subtitle": "Jede Schicht von MetaLock verfolgt nur ein Ziel: dass ausschließlich Sie Ihr Guthaben bewegen können.",
+      "identityTitle": "Identitätsgebundene Auszahlungen",
+      "identityDesc": "Jede Auszahlungsadresse muss zu einer auf Ihren KYC registrierten Wallet passen — on-chain durchgesetzt, kein bloßer Warnhinweis.",
+      "keysTitle": "Hardware-isolierte Schlüssel",
+      "keysDesc": "Private Schlüssel werden in HSM-Enklaven erzeugt, regional aufgeteilt und niemals im Klartext freigegeben.",
+      "authTitle": "Verstärkte Authentifizierung",
+      "authDesc": "Pflicht-2FA bei Auszahlungen, Geräte-Fingerprinting und Reauthentifizierung bei jeder wichtigen Aktion."
+    },
+    "how": {
+      "title": "Drei Schritte zu einem wirklich persönlichen Tresor",
+      "subtitle": "Onboarding in Minuten. Danach durchläuft jede Überweisung dieselbe Identitätsprüfung.",
+      "step1Kicker": "Schritt 01",
+      "step1Title": "Identität verifizieren",
+      "step1Desc": "KYC + Kontoauszug verknüpfen Ihr Konto mit einer echten Person, nicht nur mit einer E-Mail.",
+      "step2Kicker": "Schritt 02",
+      "step2Title": "Wallets registrieren",
+      "step2Desc": "Nur nachweislich eigene Wallets werden zu gültigen Zielen für ausgehende Transfers.",
+      "step3Kicker": "Schritt 03",
+      "step3Title": "Sicher transferieren",
+      "step3Desc": "Jede fremde Adresse wird auf Protokollebene blockiert — ohne Ausnahme."
+    },
+    "testimonials": {
+      "title": "Von Menschen gewählt, die Verwahrung ernst nehmen",
+      "t1Quote": "Der Identitätsschutz hat noch in der Onboarding-Woche einen Phishing-Versuch gestoppt. Meine Zugangsdaten waren geleakt, die Auszahlung wurde trotzdem abgelehnt. Da wusste ich, dass ich richtig bin.",
+      "t1Name": "Daniela Rocha",
+      "t1Role": "Langfristige BTC-Halterin",
+      "t2Quote": "Wir haben vier Verwahrer für unser Treasury geprüft. MetaLock war der einzige, bei dem ein gestohlenes Passwort nachweislich keinen Satoshi bewegen kann.",
+      "t2Name": "Mark Ellison",
+      "t2Role": "Head of Treasury, Fintech",
+      "t3Quote": "Klare UX, echter Audit-Trail und eine reale Sicherheitsgarantie — kein Marketing. So sollte sich ein Krypto-Tresor anfühlen.",
+      "t3Name": "Yuki Tanaka",
+      "t3Role": "Unabhängige Sicherheitsforscherin"
+    },
+    "mock": {
+      "outgoing": "Ausgehende Überweisung",
+      "amount": "Betrag",
+      "to": "An",
+      "identityCheck": "Identitätsprüfung",
+      "verified": "Verifiziert — Wallet gehört Ihnen",
+      "blocked": "Blockiert — Adresse nicht auf Ihre Identität registriert",
+      "confirm": "Überweisung bestätigen",
+      "twofa": "2FA-Code eingeben",
+      "wallet": "Verifizierte Wallet"
+    }
   },
   "admin": {
     "dashboard": "Übersicht",

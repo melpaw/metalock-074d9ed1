@@ -508,7 +508,54 @@
       "subtitle": "Sign up, verify your identity, and your account is tied to you — end to end.",
       "button": "Get started"
     },
-    "footer": "All rights reserved."
+    "footer": "All rights reserved.",
+    "trustedBy": "Trusted by security-conscious holders and teams",
+    "bento": {
+      "title": "Built like a private vault, not an exchange",
+      "subtitle": "Every layer of MetaLock is designed for one job: making sure only you can move your funds.",
+      "identityTitle": "Identity-locked outbound",
+      "identityDesc": "Every withdrawal address must match a wallet registered under your own KYC identity — enforced on-chain, not by a warning banner.",
+      "keysTitle": "Hardware-isolated keys",
+      "keysDesc": "Private keys are generated inside HSM-backed enclaves, sharded across regions, and never leave hardware in plaintext.",
+      "authTitle": "Step-up authentication",
+      "authDesc": "Mandatory 2FA on withdrawals, device fingerprinting, and re-authentication for every high-value action."
+    },
+    "how": {
+      "title": "Three steps to a truly personal vault",
+      "subtitle": "Onboard in minutes. Then every transfer runs through the same identity check.",
+      "step1Kicker": "Step 01",
+      "step1Title": "Verify your identity",
+      "step1Desc": "KYC + bank statement bind your account to a real person, not just an email.",
+      "step2Kicker": "Step 02",
+      "step2Title": "Register your wallets",
+      "step2Desc": "Only wallets proven to belong to you become valid destinations for outbound transfers.",
+      "step3Kicker": "Step 03",
+      "step3Title": "Transact with confidence",
+      "step3Desc": "Any address that isn't on your identity is blocked at the protocol layer — no exceptions."
+    },
+    "testimonials": {
+      "title": "Chosen by people who take custody seriously",
+      "t1Quote": "The identity-lock caught a phishing attempt the same week I onboarded. My credentials were leaked, and the withdrawal was still rejected. That was the moment I moved everything in.",
+      "t1Name": "Daniela Rocha",
+      "t1Role": "Long-term BTC holder",
+      "t2Quote": "We evaluated four custodians for our treasury. MetaLock was the only one where a stolen password provably can't move a single satoshi off-platform.",
+      "t2Name": "Mark Ellison",
+      "t2Role": "Head of Treasury, Fintech",
+      "t3Quote": "Clean UX, real audit trail, and an actual security guarantee — not marketing copy. This is what a crypto vault should feel like.",
+      "t3Name": "Yuki Tanaka",
+      "t3Role": "Independent security researcher"
+    },
+    "mock": {
+      "outgoing": "Outgoing transfer",
+      "amount": "Amount",
+      "to": "To",
+      "identityCheck": "Identity check",
+      "verified": "Verified — wallet belongs to you",
+      "blocked": "Blocked — address not on your identity",
+      "confirm": "Confirm transfer",
+      "twofa": "Enter 2FA code",
+      "wallet": "Verified wallet"
+    }
   },
   "admin": {
     "dashboard": "Overview",
