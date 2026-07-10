@@ -508,7 +508,54 @@
       "subtitle": "Cadastre-se, verifique sua identidade e sua conta fica vinculada a você — de ponta a ponta.",
       "button": "Começar agora"
     },
-    "footer": "Todos os direitos reservados."
+    "footer": "Todos os direitos reservados.",
+    "trustedBy": "Escolhido por investidores e times que levam segurança a sério",
+    "bento": {
+      "title": "Construído como um cofre privado, não uma corretora",
+      "subtitle": "Cada camada do MetaLock tem uma única missão: garantir que só você possa movimentar seus fundos.",
+      "identityTitle": "Saídas travadas por identidade",
+      "identityDesc": "Todo endereço de saque precisa corresponder a uma carteira registrada em seu próprio KYC — validado on-chain, não por um simples aviso.",
+      "keysTitle": "Chaves isoladas em hardware",
+      "keysDesc": "Chaves privadas geradas dentro de enclaves HSM, fragmentadas em várias regiões e nunca expostas em texto claro.",
+      "authTitle": "Autenticação reforçada",
+      "authDesc": "2FA obrigatório em saques, impressão digital do dispositivo e reautenticação em toda operação relevante."
+    },
+    "how": {
+      "title": "Três passos para um cofre verdadeiramente seu",
+      "subtitle": "Cadastro em minutos. Depois disso, cada transferência passa pela mesma checagem de identidade.",
+      "step1Kicker": "Passo 01",
+      "step1Title": "Verifique sua identidade",
+      "step1Desc": "KYC + comprovante bancário conectam sua conta a uma pessoa real, não apenas a um e-mail.",
+      "step2Kicker": "Passo 02",
+      "step2Title": "Registre suas carteiras",
+      "step2Desc": "Apenas carteiras comprovadamente suas se tornam destinos válidos para envios.",
+      "step3Kicker": "Passo 03",
+      "step3Title": "Transacione com confiança",
+      "step3Desc": "Qualquer endereço fora da sua identidade é bloqueado no protocolo — sem exceções."
+    },
+    "testimonials": {
+      "title": "Escolhido por quem leva a custódia a sério",
+      "t1Quote": "O trava-identidade barrou um phishing na mesma semana em que abri a conta. Minhas credenciais vazaram e o saque continuou rejeitado. Foi ali que movi tudo pra dentro.",
+      "t1Name": "Daniela Rocha",
+      "t1Role": "Holder de BTC há anos",
+      "t2Quote": "Avaliamos quatro custodiantes para o tesouraria. O MetaLock foi o único onde uma senha vazada comprovadamente não move um único satoshi.",
+      "t2Name": "Mark Ellison",
+      "t2Role": "Head de Tesouraria, Fintech",
+      "t3Quote": "UX limpa, trilha de auditoria de verdade e uma garantia de segurança concreta — não marketing. É assim que um cofre cripto deveria ser.",
+      "t3Name": "Yuki Tanaka",
+      "t3Role": "Pesquisadora independente de segurança"
+    },
+    "mock": {
+      "outgoing": "Transferência de saída",
+      "amount": "Valor",
+      "to": "Para",
+      "identityCheck": "Checagem de identidade",
+      "verified": "Verificado — carteira é sua",
+      "blocked": "Bloqueado — endereço fora da sua identidade",
+      "confirm": "Confirmar transferência",
+      "twofa": "Digite o código 2FA",
+      "wallet": "Carteira verificada"
+    }
   },
   "admin": {
     "dashboard": "Visão geral",
