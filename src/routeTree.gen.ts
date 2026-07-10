@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminKycRouteImport } from './routes/_authenticated/admin.kyc'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
 import { Route as AuthenticatedAdminClientsIndexRouteImport } from './routes/_authenticated/admin.clients.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as AuthenticatedAppSupportTicketIdRouteImport } from './routes/_authenticated/app.support.$ticketId'
 import { Route as AuthenticatedAdminTicketsTicketIdRouteImport } from './routes/_authenticated/admin.tickets.$ticketId'
 import { Route as AuthenticatedAdminClientsUserIdRouteImport } from './routes/_authenticated/admin.clients.$userId'
@@ -160,6 +161,12 @@ const AuthenticatedAdminClientsIndexRoute =
     path: '/clients/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppSupportTicketIdRoute =
   AuthenticatedAppSupportTicketIdRouteImport.update({
     id: '/$ticketId',
@@ -205,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/admin/clients/$userId': typeof AuthenticatedAdminClientsUserIdRoute
   '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -231,6 +239,7 @@ export interface FileRoutesByTo {
   '/admin/clients/$userId': typeof AuthenticatedAdminClientsUserIdRoute
   '/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/clients': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRoutesById {
@@ -261,6 +270,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/clients/$userId': typeof AuthenticatedAdminClientsUserIdRoute
   '/_authenticated/admin/tickets/$ticketId': typeof AuthenticatedAdminTicketsTicketIdRoute
   '/_authenticated/app/support/$ticketId': typeof AuthenticatedAppSupportTicketIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/_authenticated/admin/clients/': typeof AuthenticatedAdminClientsIndexRoute
 }
 export interface FileRouteTypes {
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/admin/clients/$userId'
     | '/admin/tickets/$ticketId'
     | '/app/support/$ticketId'
+    | '/lovable/email/queue/process'
     | '/admin/clients/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/admin/clients/$userId'
     | '/admin/tickets/$ticketId'
     | '/app/support/$ticketId'
+    | '/lovable/email/queue/process'
     | '/admin/clients'
   id:
     | '__root__'
@@ -346,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/clients/$userId'
     | '/_authenticated/admin/tickets/$ticketId'
     | '/_authenticated/app/support/$ticketId'
+    | '/lovable/email/queue/process'
     | '/_authenticated/admin/clients/'
   fileRoutesById: FileRoutesById
 }
@@ -355,6 +368,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -527,6 +541,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/support/$ticketId': {
       id: '/_authenticated/app/support/$ticketId'
       path: '/$ticketId'
@@ -653,17 +674,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
