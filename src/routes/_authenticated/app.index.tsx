@@ -298,11 +298,16 @@ function OverviewPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className={
-                        tx.status === "completed" ? "border-up/40 text-up bg-up/10" :
-                        tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "border-warning/40 text-warning bg-warning/10" :
-                        "border-down/40 text-down bg-down/10"
-                      }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
+                      {(() => {
+                        const s = (tx.metadata?.ui_status as string) || tx.status;
+                        const cls =
+                          s === "completed" || s === "approved" ? "border-up/40 text-up bg-up/10" :
+                          s === "processing" ? "border-sky-500/40 text-sky-500 bg-sky-500/10" :
+                          s === "hold" ? "border-muted-foreground/40 text-muted-foreground bg-muted/40" :
+                          s === "pending" ? "border-warning/40 text-warning bg-warning/10" :
+                          "border-down/40 text-down bg-down/10";
+                        return <Badge variant="outline" className={cls}>{t(`tx.${s}`, { defaultValue: s })}</Badge>;
+                      })()}
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
                       {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
