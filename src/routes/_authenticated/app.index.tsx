@@ -367,10 +367,11 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
     } finally { setRespLoading(false); }
   }
 
+  const feeAmount = Number(tx.fee ?? 0);
   const rows: Array<[string, React.ReactNode]> = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
     [t("tx.amount"), amountLine],
-    [t("tx.fee"), `${Number(tx.fee ?? 0).toFixed(8)} ${symbol}`],
+    ...(feeAmount > 0 ? [[t("tx.fee"), `${feeAmount.toFixed(8)} ${symbol}`] as [string, React.ReactNode]] : []),
     [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
     [t("tx.hash"), metadata.tx_hash ?? "—"],
     [t("tx.reference"), tx.reference ?? "—"],

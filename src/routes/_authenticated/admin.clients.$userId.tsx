@@ -633,7 +633,7 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
   const [txHash, setTxHash] = useState("");
   const [sender, setSender] = useState("");
   const [note, setNote] = useState("");
-  const [hidden, setHidden] = useState(false);
+  const [chargeFee, setChargeFee] = useState(false);
   const [txDate, setTxDate] = useState<string>(() => {
     const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16);
   });
@@ -655,9 +655,9 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
       _tx_hash: txHash || null,
       _sender_address: sender || null,
       _note: note || null,
-      _hidden: hidden,
+      _hidden: false,
       _tx_date: new Date(txDate).toISOString(),
-      _fee_waived: false,
+      _fee_waived: !chargeFee,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -708,10 +708,15 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
           <Field label={t("admin.clientNote")}>
             <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("admin.txNotePlaceholder")} />
           </Field>
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={hidden} onCheckedChange={setHidden} />
-            {t("admin.hideTransaction")}
-          </label>
+          {type === "deposit" && (
+            <label className="flex items-center justify-between gap-2 rounded-sm border border-border bg-surface/40 px-3 py-2 text-sm">
+              <div>
+                <div className="font-medium">{t("admin.chargeFee", { defaultValue: "Cobrar taxa (3%)" })}</div>
+                <div className="text-xs text-muted-foreground">{t("admin.chargeFeeHint", { defaultValue: "Desligado: sem taxa, nada aparece para o cliente." })}</div>
+              </div>
+              <Switch checked={chargeFee} onCheckedChange={setChargeFee} />
+            </label>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
