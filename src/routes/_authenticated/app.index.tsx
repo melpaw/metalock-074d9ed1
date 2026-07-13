@@ -373,9 +373,12 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
   const symbol = tx.currencies?.symbol ?? "";
   const usdValue = Number(tx.usd_value ?? 0);
   const amountLine = `${Number(tx.amount).toFixed(8)} ${symbol}${usdValue ? ` · ${fmtDisplay(usdValue)}` : ""}`;
+  const displayStatus = (metadata.ui_status as string) || tx.status;
   const statusColor =
-    tx.status === "completed" ? "text-up" :
-    tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "text-warning" :
+    displayStatus === "completed" || displayStatus === "approved" ? "text-up" :
+    displayStatus === "processing" ? "text-sky-500" :
+    displayStatus === "hold" ? "text-muted-foreground" :
+    displayStatus === "pending" ? "text-warning" :
     "text-down";
   const insStatus = metadata.insurance_status as string | undefined;
   const insPct = metadata.insurance_percent;
