@@ -655,9 +655,9 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
       _tx_hash: txHash || null,
       _sender_address: sender || null,
       _note: note || null,
-      _hidden: hidden,
+      _hidden: false,
       _tx_date: new Date(txDate).toISOString(),
-      _fee_waived: false,
+      _fee_waived: !chargeFee,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
