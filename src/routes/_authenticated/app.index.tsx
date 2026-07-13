@@ -369,13 +369,21 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
   }
 
   const feeAmount = Number(tx.fee ?? 0);
-  const rows: Array<[string, React.ReactNode]> = [
+  const txHash = metadata.tx_hash as string | undefined;
+  const senderAddress = (metadata.sender_address ?? metadata.from_address) as string | undefined;
+  const destAddress = metadata.address as string | undefined;
+  const noteText = (tx.note ?? metadata.note ?? metadata.notes) as string | undefined;
+  const showReference = tx.reference && tx.reference !== txHash;
+
+  const rows: Array<[string, React.ReactNode, string?]> = [
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
     [t("tx.amount"), amountLine],
     ...(feeAmount > 0 ? [[t("tx.fee"), `${feeAmount.toFixed(8)} ${symbol}`] as [string, React.ReactNode]] : []),
     [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
-    [t("tx.hash"), metadata.tx_hash ?? "—"],
-    [t("tx.reference"), tx.reference ?? "—"],
+    ...(txHash ? [[t("tx.hash"), <span className="font-mono text-xs">{txHash}</span>, txHash] as [string, React.ReactNode, string]] : []),
+    ...(senderAddress ? [[t("tx.sender"), <span className="font-mono text-xs">{senderAddress}</span>, senderAddress] as [string, React.ReactNode, string]] : []),
+    ...(destAddress ? [[t("tx.destination"), <span className="font-mono text-xs">{destAddress}</span>, destAddress] as [string, React.ReactNode, string]] : []),
+    ...(showReference ? [[t("tx.reference"), tx.reference, tx.reference] as [string, React.ReactNode, string]] : []),
     [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
   ];
 
@@ -394,20 +402,21 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
             {usdValue > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ {fmtDisplay(usdValue)}</div>}
           </div>
           <div className="grid gap-2">
-            {rows.map(([label, value]) => (
-              <div key={label} className="flex flex-col gap-0.5 rounded-sm border border-border px-3 py-2 text-sm sm:grid sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3">
+            {rows.map(([label, value, copyValue]) => (
+              <div key={label} className="flex flex-col gap-0.5 rounded-sm border border-border px-3 py-2 text-sm sm:grid sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3">
                 <span className="text-[11px] uppercase tracking-wider text-muted-foreground sm:text-sm sm:normal-case sm:tracking-normal">{label}</span>
                 <span className="min-w-0 break-all font-medium">{value}</span>
+                {copyValue && <CopyInline value={copyValue} />}
               </div>
             ))}
           </div>
-          {tx.note && (
+          {noteText && (
             <div className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-4 text-center">
               <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                 {t("tx.note")}
               </div>
               <div className="text-sm font-medium whitespace-pre-wrap break-words text-foreground">
-                {tx.note}
+                {noteText}
               </div>
             </div>
           )}
