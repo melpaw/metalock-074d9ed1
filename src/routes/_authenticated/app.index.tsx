@@ -298,11 +298,16 @@ function OverviewPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className={
-                        tx.status === "completed" ? "border-up/40 text-up bg-up/10" :
-                        tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "border-warning/40 text-warning bg-warning/10" :
-                        "border-down/40 text-down bg-down/10"
-                      }>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</Badge>
+                      {(() => {
+                        const s = (tx.metadata?.ui_status as string) || tx.status;
+                        const cls =
+                          s === "completed" || s === "approved" ? "border-up/40 text-up bg-up/10" :
+                          s === "processing" ? "border-sky-500/40 text-sky-500 bg-sky-500/10" :
+                          s === "hold" ? "border-muted-foreground/40 text-muted-foreground bg-muted/40" :
+                          s === "pending" ? "border-warning/40 text-warning bg-warning/10" :
+                          "border-down/40 text-down bg-down/10";
+                        return <Badge variant="outline" className={cls}>{t(`tx.${s}`, { defaultValue: s })}</Badge>;
+                      })()}
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
                       {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {tx.currencies?.symbol}
@@ -368,9 +373,12 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
   const symbol = tx.currencies?.symbol ?? "";
   const usdValue = Number(tx.usd_value ?? 0);
   const amountLine = `${Number(tx.amount).toFixed(8)} ${symbol}${usdValue ? ` · ${fmtDisplay(usdValue)}` : ""}`;
+  const displayStatus = (metadata.ui_status as string) || tx.status;
   const statusColor =
-    tx.status === "completed" ? "text-up" :
-    tx.status === "pending" || tx.status === "hold" || tx.status === "processing" ? "text-warning" :
+    displayStatus === "completed" || displayStatus === "approved" ? "text-up" :
+    displayStatus === "processing" ? "text-sky-500" :
+    displayStatus === "hold" ? "text-muted-foreground" :
+    displayStatus === "pending" ? "text-warning" :
     "text-down";
   const insStatus = metadata.insurance_status as string | undefined;
   const insPct = metadata.insurance_percent;
@@ -399,7 +407,7 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
     [t("tx.amount"), amountLine],
     ...(feeAmount > 0 ? [[t("tx.fee"), `${feeAmount.toFixed(8)} ${symbol}`] as [string, React.ReactNode]] : []),
-    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
+    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${displayStatus}`, { defaultValue: displayStatus })}</span>],
     ...(txHash ? [[t("tx.hash"), <span className="font-mono text-xs">{txHash}</span>, txHash] as [string, React.ReactNode, string]] : []),
     ...(senderAddress ? [[t("tx.sender"), <span className="font-mono text-xs">{senderAddress}</span>, senderAddress] as [string, React.ReactNode, string]] : []),
     ...(destAddress ? [[t("tx.destination"), <span className="font-mono text-xs">{destAddress}</span>, destAddress] as [string, React.ReactNode, string]] : []),
