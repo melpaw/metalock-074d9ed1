@@ -337,6 +337,26 @@ function MetricTile({ label, value, sub }: { label: string; value: string; sub?:
   );
 }
 
+function CopyInline({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(value);
+        setCopied(true);
+        toast.success("Copiado");
+        setTimeout(() => setCopied(false), 1200);
+      }}
+      className="shrink-0 self-start rounded-sm border border-border p-1.5 text-muted-foreground transition hover:border-primary/40 hover:text-foreground sm:self-center"
+      aria-label="Copy"
+    >
+      {copied ? <Check className="h-3 w-3 text-up" /> : <Copy className="h-3 w-3" />}
+    </button>
+  );
+}
+
 function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: any | null; onClose: () => void; language: string; fmtDisplay: (usd: number) => string }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
