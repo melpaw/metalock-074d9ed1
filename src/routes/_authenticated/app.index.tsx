@@ -407,7 +407,7 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
     [t("tx.type"), t(`tx.${tx.type}`, { defaultValue: tx.type })],
     [t("tx.amount"), amountLine],
     ...(feeAmount > 0 ? [[t("tx.fee"), `${feeAmount.toFixed(8)} ${symbol}`] as [string, React.ReactNode]] : []),
-    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${tx.status}`, { defaultValue: tx.status })}</span>],
+    [t("tx.status"), <span className={`font-semibold ${statusColor}`}>{t(`tx.${displayStatus}`, { defaultValue: displayStatus })}</span>],
     ...(txHash ? [[t("tx.hash"), <span className="font-mono text-xs">{txHash}</span>, txHash] as [string, React.ReactNode, string]] : []),
     ...(senderAddress ? [[t("tx.sender"), <span className="font-mono text-xs">{senderAddress}</span>, senderAddress] as [string, React.ReactNode, string]] : []),
     ...(destAddress ? [[t("tx.destination"), <span className="font-mono text-xs">{destAddress}</span>, destAddress] as [string, React.ReactNode, string]] : []),
