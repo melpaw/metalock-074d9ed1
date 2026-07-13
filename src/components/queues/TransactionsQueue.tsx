@@ -234,42 +234,137 @@ function typeLabel(type: string, t: (key: string, opts?: any) => string) {
   return type === "swap" ? t("tx.buySwap") : t(`tx.${type}`, { defaultValue: type });
 }
 
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(value);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      }}
+      className="shrink-0 rounded-sm border border-border p-1.5 text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+      aria-label="Copy"
+    >
+      {copied ? <Check className="h-3 w-3 text-up" /> : <Copy className="h-3 w-3" />}
+    </button>
+  );
+}
+
+function Field({ label, value, mono, copy }: { label: string; value: React.ReactNode; mono?: boolean; copy?: string }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-b border-border/60 py-2 last:border-b-0">
+      <div className="min-w-0">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className={`mt-0.5 min-w-0 break-all text-sm font-medium ${mono ? "font-mono text-xs" : ""}`}>{value}</div>
+      </div>
+      {copy && <CopyButton value={copy} />}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-sm border border-border bg-surface/40">
+      <div className="border-b border-border px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </div>
+      <div className="px-4 py-1">{children}</div>
+    </div>
+  );
+}
+
 function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   if (!tx) return null;
   const md = tx.metadata ?? {};
-  const rows: Array<[string, string]> = ([
-    [t("support.client"), tx.profile?.full_name || tx.profile?.email],
-    [t("auth.email"), tx.profile?.email],
-    [t("tx.type"), typeLabel(tx.type, t)],
-    [t("tx.status"), t(`tx.${tx.status}`, { defaultValue: tx.status })],
-    [t("common.currency"), tx.currencies?.name],
-    [t("common.amount"), `${Number(tx.amount).toFixed(8)} ${tx.currencies?.symbol ?? ""}`],
-    ["USD", `$${Number(tx.usd_value ?? 0).toFixed(2)}`],
-    [t("common.date"), new Date(tx.created_at).toLocaleString(i18n.language)],
-    [t("tx.hash"), md.tx_hash],
-    [t("tx.sender"), md.sender_address],
-    [t("tx.destination"), md.address],
-    [t("tx.note"), tx.note],
-    [t("tx.reference"), tx.reference],
-    ["Metadata", JSON.stringify(md)],
-  ] as Array<[string, any]>).filter(([, v]) => v).map(([k, v]) => [k, String(v)] as [string, string]);
+  const sym = tx.currencies?.symbol ?? "";
+  const amt = Math.abs(Number(tx.amount));
+  const usd = Number(tx.usd_value ?? 0);
+  const knownMdKeys = new Set(["tx_hash", "sender_address", "address", "insurance_percent", "insurance_requested"]);
+  const extraMd = Object.entries(md).filter(([k, v]) => !knownMdKeys.has(k) && v !== null && v !== undefined && v !== "");
+  const showReference = tx.reference && tx.reference !== md.tx_hash;
+  const hasBlockchain = md.tx_hash || md.sender_address || md.address;
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-2">
-          {rows.map(([k, v]) => (
-            <div key={k} className="grid grid-cols-[10rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
-              <span className="text-muted-foreground">{k}</span>
-              <span className="min-w-0 break-words font-medium">{String(v)}</span>
+          <DialogTitle className="flex items-center gap-3">
+            <TypeIcon type={tx.type} />
+            <div className="flex flex-col">
+              <span>{t("tx.detailsTitle")}</span>
+              <span className="text-xs font-normal text-muted-foreground">{typeLabel(tx.type, t)} · {sym}</span>
             </div>
-          ))}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid gap-3">
+          {/* Summary */}
+          <div className="grid grid-cols-2 gap-3 rounded-sm border border-border bg-surface p-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("common.amount")}</div>
+              <div className="text-xl font-bold tabular-nums">{amt.toFixed(8)} <span className="text-sm text-muted-foreground">{sym}</span></div>
+              <div className="text-xs text-muted-foreground tabular-nums">${usd.toFixed(2)} USD</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("tx.status")}</div>
+              <Badge className={`mt-1 rounded-sm border ${STATUS_COLOR[tx.status] ?? STATUS_COLOR.pending}`} variant="outline">
+                {t(`tx.${tx.status}`, { defaultValue: tx.status })}
+              </Badge>
+              <div className="mt-1 text-[11px] text-muted-foreground">{new Date(tx.created_at).toLocaleString(i18n.language)}</div>
+            </div>
+          </div>
+
+          {/* Client */}
+          <Section title={t("support.client")}>
+            <Field label={t("profile.info.fullName")} value={tx.profile?.full_name || "—"} />
+            <Field label={t("auth.email")} value={tx.profile?.email || "—"} copy={tx.profile?.email} />
+          </Section>
+
+          {/* Transaction */}
+          <Section title={t("tx.detailsTitle")}>
+            <Field label={t("common.currency")} value={`${tx.currencies?.name ?? "—"} (${sym})`} />
+            <Field label={t("tx.type")} value={typeLabel(tx.type, t)} />
+            {showReference && <Field label={t("tx.reference")} value={tx.reference} mono copy={tx.reference} />}
+          </Section>
+
+          {/* Blockchain */}
+          {hasBlockchain && (
+            <Section title="Blockchain">
+              {md.tx_hash && <Field label={t("tx.hash")} value={md.tx_hash} mono copy={md.tx_hash} />}
+              {md.sender_address && <Field label={t("tx.sender")} value={md.sender_address} mono copy={md.sender_address} />}
+              {md.address && <Field label={t("tx.destination")} value={md.address} mono copy={md.address} />}
+            </Section>
+          )}
+
+          {/* Insurance */}
+          {(md.insurance_requested || md.insurance_percent) && (
+            <Section title={t("admin.quoteInsurance")}>
+              {md.insurance_percent && <Field label={t("admin.percentLabel")} value={`${md.insurance_percent}%`} />}
+              {md.insurance_requested && !md.insurance_percent && <Field label={t("common.status")} value={t("common.pending", { defaultValue: "Pending" })} />}
+            </Section>
+          )}
+
+          {/* Note */}
+          {tx.note && (
+            <Section title={t("tx.note")}>
+              <div className="py-2 text-sm whitespace-pre-wrap break-words">{tx.note}</div>
+            </Section>
+          )}
+
+          {/* Extra metadata */}
+          {extraMd.length > 0 && (
+            <Section title="Metadata">
+              {extraMd.map(([k, v]) => (
+                <Field key={k} label={k} value={typeof v === "object" ? JSON.stringify(v) : String(v)} mono />
+              ))}
+            </Section>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
