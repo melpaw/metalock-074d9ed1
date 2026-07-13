@@ -50,13 +50,12 @@ export function ProfileKycTab() {
     setBusy(true);
     try {
       if (!docFile || !statementFile) throw new Error(t("profile.kyc.filesRequired"));
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error(t("support.notAuth"));
-      const document_path = await upload(docFile, "document", u.user.id);
+      if (!isReady || !user) throw new Error(t("support.notAuth"));
+      const document_path = await upload(docFile, "document", user.id);
       // Reuse the existing selfie_path column to store the bank statement file.
-      const selfie_path = await upload(statementFile, "bank-statement", u.user.id);
+      const selfie_path = await upload(statementFile, "bank-statement", user.id);
       const { error } = await supabase.from("kyc_submissions").insert({
-        user_id: u.user.id, ...form, document_path, selfie_path,
+        user_id: user.id, ...form, document_path, selfie_path,
       } as any);
       if (error) throw error;
       toast.success(t("profile.kyc.sent"));
