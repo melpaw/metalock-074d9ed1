@@ -633,7 +633,7 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
   const [txHash, setTxHash] = useState("");
   const [sender, setSender] = useState("");
   const [note, setNote] = useState("");
-  const [hidden, setHidden] = useState(false);
+  const [chargeFee, setChargeFee] = useState(false);
   const [txDate, setTxDate] = useState<string>(() => {
     const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16);
   });
