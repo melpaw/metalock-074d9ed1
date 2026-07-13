@@ -708,10 +708,15 @@ function TxDialog({ userId, onClose, onSaved }: { userId: string; onClose: () =>
           <Field label={t("admin.clientNote")}>
             <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("admin.txNotePlaceholder")} />
           </Field>
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={hidden} onCheckedChange={setHidden} />
-            {t("admin.hideTransaction")}
-          </label>
+          {type === "deposit" && (
+            <label className="flex items-center justify-between gap-2 rounded-sm border border-border bg-surface/40 px-3 py-2 text-sm">
+              <div>
+                <div className="font-medium">{t("admin.chargeFee", { defaultValue: "Cobrar taxa (3%)" })}</div>
+                <div className="text-xs text-muted-foreground">{t("admin.chargeFeeHint", { defaultValue: "Desligado: sem taxa, nada aparece para o cliente." })}</div>
+              </div>
+              <Switch checked={chargeFee} onCheckedChange={setChargeFee} />
+            </label>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
