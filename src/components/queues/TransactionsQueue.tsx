@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { CryptoIcon } from "@/components/CryptoIcon";
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Wallet, Info, ShieldCheck } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Wallet, Info, ShieldCheck, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
