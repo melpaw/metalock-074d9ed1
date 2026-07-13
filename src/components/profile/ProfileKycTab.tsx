@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ShieldCheck, ShieldAlert, Clock, ShieldX } from "lucide-react";
+import { useAuthReady } from "@/hooks/use-auth-ready";
 
 const STATUS_META: Record<string, { label: string; icon: any; color: string }> = {
   not_submitted: { label: "—", icon: ShieldAlert, color: "bg-muted text-muted-foreground" },
@@ -19,13 +20,15 @@ const STATUS_META: Record<string, { label: string; icon: any; color: string }> =
 export function ProfileKycTab() {
   const { t } = useTranslation();
   const qc = useQueryClient();
+  const { user, isReady } = useAuthReady();
   const [form, setForm] = useState({ full_name: "", birth_date: "", doc_type: "", doc_number: "", country: "", address: "" });
   const [docFile, setDocFile] = useState<File | null>(null);
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
   const { data: latest } = useQuery({
-    queryKey: ["my-kyc"],
+    queryKey: ["my-kyc", user?.id],
+    enabled: isReady && !!user,
     queryFn: async () => (await supabase.from("kyc_submissions").select("*").order("created_at", { ascending: false }).limit(1).maybeSingle()).data,
   });
 
@@ -47,13 +50,12 @@ export function ProfileKycTab() {
     setBusy(true);
     try {
       if (!docFile || !statementFile) throw new Error(t("profile.kyc.filesRequired"));
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error(t("support.notAuth"));
-      const document_path = await upload(docFile, "document", u.user.id);
+      if (!isReady || !user) throw new Error(t("support.notAuth"));
+      const document_path = await upload(docFile, "document", user.id);
       // Reuse the existing selfie_path column to store the bank statement file.
-      const selfie_path = await upload(statementFile, "bank-statement", u.user.id);
+      const selfie_path = await upload(statementFile, "bank-statement", user.id);
       const { error } = await supabase.from("kyc_submissions").insert({
-        user_id: u.user.id, ...form, document_path, selfie_path,
+        user_id: user.id, ...form, document_path, selfie_path,
       } as any);
       if (error) throw error;
       toast.success(t("profile.kyc.sent"));
