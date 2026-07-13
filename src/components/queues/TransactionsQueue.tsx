@@ -349,9 +349,14 @@ function DetailDialog({ tx, onClose }: { tx: any | null; onClose: () => void }) 
 
           {/* Note */}
           {tx.note && (
-            <Section title={t("tx.note")}>
-              <div className="py-2 text-sm whitespace-pre-wrap break-words">{tx.note}</div>
-            </Section>
+            <div className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-4 text-center">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                {t("tx.note")}
+              </div>
+              <div className="text-sm font-medium whitespace-pre-wrap break-words text-foreground">
+                {tx.note}
+              </div>
+            </div>
           )}
 
           {/* Extra metadata */}

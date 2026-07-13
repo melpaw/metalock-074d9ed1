@@ -29,10 +29,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const signupPasswordSchema = z
-  .string()
-  .min(8)
-  .regex(/[0-9]/);
+const signupPasswordSchema = z.string().min(8);
 
 function PasswordInput({
   id, value, onChange, autoComplete, minLength, showLabel, hideLabel,

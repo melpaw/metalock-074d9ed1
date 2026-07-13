@@ -406,7 +406,7 @@
     "subSignup": "It only takes a moment. Free forever.",
     "showPw": "Show password",
     "hidePw": "Hide password",
-    "pwHint": "Minimum 8 characters and at least 1 number.",
+    "pwHint": "Minimum 8 characters.",
     "captchaLabel": "Security check — what is {{a}} + {{b}}?",
     "captchaNew": "New",
     "termsPrefix": "I accept the",
