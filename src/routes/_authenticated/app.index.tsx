@@ -375,31 +375,40 @@ function TransactionDetailsDialog({ tx, onClose, language, fmtDisplay }: { tx: a
     [t("tx.hash"), metadata.tx_hash ?? "—"],
     [t("tx.reference"), tx.reference ?? "—"],
     [t("tx.date"), new Date(tx.created_at).toLocaleString(language)],
-    [t("tx.note"), tx.note ?? "—"],
   ];
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t("tx.detailsTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="rounded-sm border border-border bg-surface-elevated p-4">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{t(`tx.${tx.type}`, { defaultValue: tx.type })}</div>
-            <div className={`mt-1 text-2xl font-black tabular-nums ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
+            <div className={`mt-1 text-2xl font-black tabular-nums break-all ${Number(tx.amount) >= 0 ? "text-up" : "text-down"}`}>
               {Number(tx.amount) >= 0 ? "+" : ""}{Number(tx.amount).toFixed(8)} {symbol}
             </div>
             {usdValue > 0 && <div className="mt-1 text-xs text-muted-foreground">≈ {fmtDisplay(usdValue)}</div>}
           </div>
           <div className="grid gap-2">
             {rows.map(([label, value]) => (
-              <div key={label} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 rounded-sm border border-border px-3 py-2 text-sm">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="min-w-0 break-words font-medium">{value}</span>
+              <div key={label} className="flex flex-col gap-0.5 rounded-sm border border-border px-3 py-2 text-sm sm:grid sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3">
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground sm:text-sm sm:normal-case sm:tracking-normal">{label}</span>
+                <span className="min-w-0 break-all font-medium">{value}</span>
               </div>
             ))}
           </div>
+          {tx.note && (
+            <div className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-4 text-center">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+                {t("tx.note")}
+              </div>
+              <div className="text-sm font-medium whitespace-pre-wrap break-words text-foreground">
+                {tx.note}
+              </div>
+            </div>
+          )}
           {insStatus === "quoted" && (
             <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 space-y-2">
               <div className="text-sm font-semibold">{t("tx.insuranceQuoted", { percent: insPct })}</div>
