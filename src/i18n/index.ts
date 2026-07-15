@@ -51,6 +51,11 @@ if (!i18n.isInitialized) {
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
     });
+} else if (i18n.language.slice(0, 2) !== "en") {
+  // In dev SSR/HMR and long-lived server workers, the module singleton can
+  // survive between renders after a user changes language. Force the default
+  // language back before any SSR/first-client render to keep hydration stable.
+  void i18n.changeLanguage("en");
 }
 
 export default i18n;
