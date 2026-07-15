@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
-import { applyClientLanguage, LANG_STORAGE_KEY } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -133,22 +132,12 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    // Restore the user's language only after the initial hydration/paint has
-    // settled. Updating i18n immediately in this root effect can still race
-    // React's concurrent hydration of lazy routes and reset active forms.
-    const languageTimer = window.setTimeout(() => {
-      try { void applyClientLanguage(localStorage.getItem(LANG_STORAGE_KEY)); } catch { /* ignore */ }
-    }, 1500);
-
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
-    return () => {
-      window.clearTimeout(languageTimer);
-      sub.subscription.unsubscribe();
-    };
+    return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
 
   return (
