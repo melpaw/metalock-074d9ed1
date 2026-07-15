@@ -37,7 +37,9 @@
     "seeAll": "See all",
     "signIn": "Sign in",
     "signUp": "Sign up",
-    "all": "All"
+    "all": "All",
+    "saved": "Saved",
+    "deleted": "Deleted"
   },
   "nav": {
     "overview": "Overview",
@@ -230,7 +232,31 @@
     "sendPendingHint": "Your request will be reviewed by the system before it is processed. Your balance is reserved until approval.",
     "requestSend": "Request send",
     "invalidAmount": "Invalid amount",
-    "insufficient": "Insufficient balance"
+    "insufficient": "Insufficient balance",
+    "bankAccounts": "Bank accounts",
+    "addBank": "Add bank account",
+    "editBank": "Edit bank account",
+    "noBankYet": "No bank account yet. Click \"Add bank account\" to get started.",
+    "accountHolder": "Account holder's full name",
+    "bankCountry": "Bank country",
+    "bankName": "Bank name",
+    "confirmDeleteBank": "Remove this bank account?",
+    "selectBank": "Select a bank account",
+    "conversionTitle": "Currency conversion",
+    "requestedAmount": "Requested amount",
+    "sourceCurrency": "Source currency",
+    "destinationCurrency": "Destination currency",
+    "equivalentUsd": "USD equivalent",
+    "conversionRate": "Conversion fee",
+    "receiveIn": "Receive in",
+    "usd": "US Dollar",
+    "brl": "Brazilian Real",
+    "eur": "Euro",
+    "conversionWarning": "The conversion from crypto to fiat currency will only start after the conversion fee payment is confirmed. Until then, the request will stay with \"Pending\" status.",
+    "willSendTo": "Will be sent to",
+    "payConversionFee": "Pay conversion fee",
+    "feeTicketSubject": "Conversion fee payment — withdrawal #{{id}}",
+    "feeTicketBody": "Hello! Please share the payment details for the conversion fee of my withdrawal request.\n\nRequest number: #{{id}}\nWithdrawal amount: {{amount}}\nDestination currency: {{fiat}}\nConversion fee (2.5%): {{fee}}\n\nThank you."
   },
   "tx": {
     "type": "Type",

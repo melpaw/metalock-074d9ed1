@@ -37,7 +37,9 @@
     "seeAll": "Ver todos",
     "signIn": "Entrar",
     "signUp": "Criar conta",
-    "all": "Todos"
+    "all": "Todos",
+    "saved": "Salvo",
+    "deleted": "Removido"
   },
   "nav": {
     "overview": "Início",
@@ -230,7 +232,31 @@
     "sendPendingHint": "A solicitação será revisada pelo sistema antes de ser processada. O saldo fica reservado até a aprovação.",
     "requestSend": "Solicitar envio",
     "invalidAmount": "Valor inválido",
-    "insufficient": "Saldo insuficiente"
+    "insufficient": "Saldo insuficiente",
+    "bankAccounts": "Contas bancárias",
+    "addBank": "Adicionar conta bancária",
+    "editBank": "Editar conta bancária",
+    "noBankYet": "Nenhuma conta cadastrada. Clique em \"Adicionar conta bancária\" para começar.",
+    "accountHolder": "Nome completo do titular",
+    "bankCountry": "País do banco",
+    "bankName": "Nome do banco",
+    "confirmDeleteBank": "Remover esta conta bancária?",
+    "selectBank": "Selecione uma conta bancária",
+    "conversionTitle": "Conversão de moeda",
+    "requestedAmount": "Valor solicitado",
+    "sourceCurrency": "Moeda de origem",
+    "destinationCurrency": "Moeda de destino",
+    "equivalentUsd": "Equivalente em USD",
+    "conversionRate": "Taxa de conversão",
+    "receiveIn": "Receber em",
+    "usd": "Dólar Americano",
+    "brl": "Real Brasileiro",
+    "eur": "Euro",
+    "conversionWarning": "A conversão da criptomoeda para moeda fiduciária somente será iniciada após a confirmação do pagamento da taxa de conversão. Até lá, a solicitação permanecerá com status \"Pendente\".",
+    "willSendTo": "Enviaremos para",
+    "payConversionFee": "Pagar taxa de conversão",
+    "feeTicketSubject": "Pagamento da taxa de conversão — saque #{{id}}",
+    "feeTicketBody": "Olá! Solicito, por gentileza, as informações de pagamento referente à taxa de conversão da minha solicitação de saque.\n\nNúmero da solicitação: #{{id}}\nValor do saque: {{amount}}\nMoeda de destino: {{fiat}}\nTaxa de conversão (2,5%): {{fee}}\n\nObrigado."
   },
   "tx": {
     "type": "Tipo",
