@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowDownToLine, Send, ArrowLeftRight, Building2, Copy, QrCode, Clock, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 export function WalletActions({ wallets, currencies, prices, onDone }: { wallets: any[]; currencies: any[]; prices: any; onDone: () => void }) {
