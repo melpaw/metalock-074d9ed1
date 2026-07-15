@@ -254,6 +254,10 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const price = livePrice > 0 ? livePrice : dbPrice > 0 ? dbPrice : stableGuess;
   const usdTotal = Number(amount || 0) * price;
   const feeUsd = usdTotal * 0.025;
+  const netUsd = usdTotal - feeUsd;
+  const fiatRates: Record<string, number> = { USD: 1, BRL: 5.0, EUR: 0.92 };
+  const fiatRate = fiatRates[fiat] ?? 1;
+  const netFiat = netUsd * fiatRate;
   const selectedBank = banks?.find((b) => b.id === bankId);
 
   function openWithdraw() {
@@ -374,11 +378,11 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
           <DialogHeader><DialogTitle>{t("wallet.conversionTitle")}</DialogTitle></DialogHeader>
           <div className="space-y-3 text-sm">
             <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
-              <Row label={t("wallet.requestedAmount")} value={`${Number(amount || 0).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`} />
-              {usdTotal > 0 && <Row label={t("wallet.equivalentUsd")} value={`$${usdTotal.toFixed(2)}`} />}
+              <Row label={t("wallet.sourceCurrency")} value={`${Number(amount || 0).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`} />
+              <Row label={t("wallet.requestedAmount")} value={`$${usdTotal.toFixed(2)} USD`} />
             </div>
             <div>
-              <Label>{t("wallet.receiveIn")}</Label>
+              <Label>{t("wallet.destinationCurrency")}</Label>
               <Select value={fiat} onValueChange={(v) => setFiat(v as any)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -387,6 +391,11 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
                   <SelectItem value="EUR">EUR — {t("wallet.eur")}</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
+              <Row label={t("wallet.conversionFee")} value={`-$${feeUsd.toFixed(2)} USD`} className="text-down" />
+              <Row label={t("wallet.conversionRate")} value={`1 USD = ${fiatRate.toFixed(2)} ${fiat}`} />
+              <Row label={t("wallet.youReceive")} value={`${netFiat.toFixed(2)} ${fiat}`} bold className="text-up" />
             </div>
             <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-warning text-center text-xs flex gap-2 items-start">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />

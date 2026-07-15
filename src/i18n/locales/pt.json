@@ -247,7 +247,7 @@
     "sourceCurrency": "Moeda de origem",
     "destinationCurrency": "Moeda de destino",
     "equivalentUsd": "Equivalente em USD",
-    "conversionRate": "Taxa de conversão",
+    "conversionRate": "Taxa de câmbio",
     "receiveIn": "Receber em",
     "usd": "Dólar Americano",
     "brl": "Real Brasileiro",
