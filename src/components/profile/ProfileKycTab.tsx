@@ -37,12 +37,21 @@ export function ProfileKycTab() {
   const StatusIcon = meta.icon;
   const canSubmit = status === "not_submitted" || status === "rejected";
 
+  function wait(ms: number) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
   async function upload(file: File, kind: string, uid: string) {
     const ext = file.name.split(".").pop() ?? "bin";
     const path = `${uid}/${kind}-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("kyc-documents").upload(path, file);
-    if (error) throw error;
-    return path;
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const { error } = await supabase.storage.from("kyc-documents").upload(path, file, { upsert: true });
+      if (!error) return path;
+      lastError = error;
+      if (attempt < 2) await wait(600 * (attempt + 1));
+    }
+    throw lastError instanceof Error ? lastError : new Error(t("common.tryAgain", { defaultValue: "Tente novamente" }));
   }
 
   async function submit(e: React.FormEvent) {
