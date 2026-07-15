@@ -138,7 +138,7 @@ function RootComponent() {
     // React's concurrent hydration of lazy routes and reset active forms.
     const languageTimer = window.setTimeout(() => {
       try { void applyClientLanguage(localStorage.getItem(LANG_STORAGE_KEY)); } catch { /* ignore */ }
-    }, 250);
+    }, 1500);
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
