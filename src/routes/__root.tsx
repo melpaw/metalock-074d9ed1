@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
-import "@/i18n";
+import i18n, { LANG_STORAGE_KEY } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -133,6 +133,15 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    // Restore the user's language AFTER hydration so SSR and the first
+    // client render always match (both render in the fallback "en"),
+    // preventing hydration mismatches that otherwise reset dialogs/selects
+    // mid-interaction (create wallet, KYC form, currency picker, ...).
+    try {
+      const saved = localStorage.getItem(LANG_STORAGE_KEY);
+      if (saved && saved !== i18n.language) i18n.changeLanguage(saved);
+    } catch { /* ignore */ }
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
