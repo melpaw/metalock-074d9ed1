@@ -247,7 +247,7 @@
     "sourceCurrency": "Source currency",
     "destinationCurrency": "Destination currency",
     "equivalentUsd": "USD equivalent",
-    "conversionRate": "Conversion fee",
+    "conversionRate": "Conversion rate",
     "receiveIn": "Receive in",
     "usd": "US Dollar",
     "brl": "Brazilian Real",

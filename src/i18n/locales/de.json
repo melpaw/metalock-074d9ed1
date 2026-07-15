@@ -247,7 +247,7 @@
     "sourceCurrency": "Ausgangswährung",
     "destinationCurrency": "Zielwährung",
     "equivalentUsd": "USD-Gegenwert",
-    "conversionRate": "Umrechnungsgebühr",
+    "conversionRate": "Wechselkurs",
     "receiveIn": "Erhalten in",
     "usd": "US-Dollar",
     "brl": "Brasilianischer Real",
