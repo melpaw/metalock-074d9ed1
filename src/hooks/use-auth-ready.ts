@@ -14,9 +14,13 @@ export function useAuthReady() {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }) => {
       if (!mounted) return;
-      setUser(data.session?.user ?? null);
+      setUser(data.user ?? null);
+      setIsReady(true);
+    }).catch(() => {
+      if (!mounted) return;
+      setUser(null);
       setIsReady(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
