@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
+import { applyClientLanguage } from "@/i18n";
 
 export function ProfileInfoTab() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["me-profile-full"],
@@ -42,7 +43,7 @@ export function ProfileInfoTab() {
       };
       const { error } = await supabase.from("profiles").update(patch).eq("id", form.id);
       if (error) throw error;
-      if (form.locale && form.locale !== i18n.language.slice(0, 2)) i18n.changeLanguage(form.locale);
+      await applyClientLanguage(form.locale);
     },
     onSuccess: () => { toast.success(t("profile.info.saved")); qc.invalidateQueries({ queryKey: ["me-profile-full"] }); qc.invalidateQueries({ queryKey: ["me-profile"] }); },
     onError: (e: any) => toast.error(e.message),
