@@ -23,7 +23,10 @@ function AppLayout() {
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
+      if (!data.user) {
+        if (!cancelled) setLanguageReady(true);
+        return;
+      }
       const { data: p } = await supabase.from("profiles")
         .select("full_name,email,avatar_url,locale")
         .eq("id", data.user.id).maybeSingle();
