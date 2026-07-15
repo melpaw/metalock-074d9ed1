@@ -430,13 +430,13 @@ function BankFormDialog({ open, onClose, bank, onSaved }: { open: boolean; onClo
   const [iban, setIban] = useState(bank?.iban ?? "");
   const [saving, setSaving] = useState(false);
 
-  // Reset when bank changes
-  useState(() => {
+  // Reset when bank changes (dialog reopens)
+  useEffect(() => {
     setHolder(bank?.account_holder ?? "");
     setCountry(bank?.country ?? "");
     setBankName(bank?.bank_name ?? "");
     setIban(bank?.iban ?? "");
-  });
+  }, [bank?.id, open]);
 
   async function save() {
     if (!holder.trim() || !country.trim() || !bankName.trim() || !iban.trim()) {
