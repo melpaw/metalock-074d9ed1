@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useEffect, useMemo, useState } from "react";
 import { WalletActions } from "@/components/wallet/WalletActions";
 import { CryptoIcon } from "@/components/CryptoIcon";
+import { useAuthReady } from "@/hooks/use-auth-ready";
 
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -25,11 +26,13 @@ function OverviewPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const pricesFn = useServerFn(getMarketPrices);
+  const { isReady } = useAuthReady();
   const [selectedTx, setSelectedTx] = useState<any | null>(null);
   const [selectedWallet, setSelectedWallet] = useState<any | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ["me-profile"],
+    enabled: isReady,
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
@@ -41,6 +44,7 @@ function OverviewPage() {
   const { data: wallets } = useQuery({
     queryKey: ["my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   });
@@ -48,6 +52,7 @@ function OverviewPage() {
   const { data: currencies } = useQuery({
     queryKey: ["currencies-active"],
     queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
     staleTime: 60_000,
   });
@@ -55,6 +60,7 @@ function OverviewPage() {
   const { data: txs } = useQuery({
     queryKey: ["my-transactions"],
     queryFn: async () => (await supabase.from("transactions").select("*, currencies(symbol)").order("created_at", { ascending: false }).limit(20)).data ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
   });
 
@@ -65,7 +71,7 @@ function OverviewPage() {
   const { data: pricesRes } = useQuery({
     queryKey: ["prices-overview", cgIds.join(",")],
     queryFn: () => pricesFn({ data: { ids: cgIds.length ? cgIds : ["bitcoin"] } }),
-    enabled: cgIds.length > 0,
+    enabled: isReady && cgIds.length > 0,
     refetchInterval: 60000,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
@@ -74,6 +80,7 @@ function OverviewPage() {
 
   // Realtime: keep wallet list live for the signed-in user
   useEffect(() => {
+    if (!isReady) return;
     let cancelled = false;
     let channel: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
@@ -88,7 +95,7 @@ function OverviewPage() {
         .subscribe();
     })();
     return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
-  }, [qc]);
+  }, [isReady, qc]);
 
   const displayCurrency = (profile as any)?.display_currency ?? "USD";
   const fxUsdToEur = prices["tether"]?.eur ?? 0.92;

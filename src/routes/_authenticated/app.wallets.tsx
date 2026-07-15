@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuthReady } from "@/hooks/use-auth-ready";
 
 
 
@@ -26,22 +27,26 @@ function WalletsPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const pricesFn = useServerFn(getMarketPrices);
+  const { isReady } = useAuthReady();
   const [selected, setSelected] = useState<any | null>(null);
 
   const { data: wallets } = useQuery({
     queryKey: ["all-my-wallets"],
     queryFn: async () => (await supabase.from("wallets").select("*, currencies(*)")).data ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   });
   const { data: currencies } = useQuery({
     queryKey: ["currencies-active"],
     queryFn: async () => (await supabase.from("currencies").select("*").eq("active", true).order("symbol")).data ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
   });
   const { data: addresses } = useQuery({
     queryKey: ["my-deposit-addresses-all"],
     queryFn: async () => (await supabase.from("deposit_addresses" as any).select("*")).data as any[] ?? [],
+    enabled: isReady,
     placeholderData: keepPreviousData,
   });
 
@@ -49,7 +54,7 @@ function WalletsPage() {
   const { data: pRes } = useQuery({
     queryKey: ["wallets-prices", ids.join(",")],
     queryFn: () => pricesFn({ data: { ids: ids.length ? ids : ["bitcoin"] } }),
-    enabled: ids.length > 0,
+    enabled: isReady && ids.length > 0,
     refetchInterval: 60000,
     placeholderData: keepPreviousData,
   });
@@ -57,6 +62,7 @@ function WalletsPage() {
 
   // realtime
   useEffect(() => {
+    if (!isReady) return;
     let cancelled = false; let ch: any = null;
     (async () => {
       const { data } = await supabase.auth.getUser();
@@ -67,7 +73,7 @@ function WalletsPage() {
         .subscribe();
     })();
     return () => { cancelled = true; if (ch) supabase.removeChannel(ch); };
-  }, [qc]);
+  }, [isReady, qc]);
 
   const rows = (wallets ?? []).map((w: any) => {
     const cg = w.currencies?.coingecko_id;

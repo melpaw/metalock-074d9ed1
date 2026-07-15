@@ -6,30 +6,41 @@ import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { applyClientLanguage, LANG_STORAGE_KEY } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
 });
 
 function AppLayout() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [languageReady, setLanguageReady] = useState(false);
   const [me, setMe] = useState<{ name: string; email: string; avatar_url: string | null } | null>(null);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   useEffect(() => {
+    let cancelled = false;
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
+      if (!data.user) {
+        if (!cancelled) setLanguageReady(true);
+        return;
+      }
       const { data: p } = await supabase.from("profiles")
         .select("full_name,email,avatar_url,locale")
         .eq("id", data.user.id).maybeSingle();
+      if (cancelled) return;
       if (p) {
         setMe({ name: (p as any).full_name || (p as any).email, email: (p as any).email, avatar_url: (p as any).avatar_url });
-        if ((p as any).locale && (p as any).locale !== i18n.language.slice(0, 2)) i18n.changeLanguage((p as any).locale);
+        await applyClientLanguage((p as any).locale || localStorage.getItem(LANG_STORAGE_KEY), Boolean((p as any).locale));
       }
+      if (!cancelled) setLanguageReady(true);
+    }).catch(() => {
+      if (!cancelled) setLanguageReady(true);
     });
-  }, [i18n]);
+    return () => { cancelled = true; };
+  }, []);
 
   const nav = [
     { to: "/app", label: t("nav.overview"), icon: LayoutDashboard, exact: true },
@@ -45,6 +56,14 @@ function AppLayout() {
   }
 
   const initials = (me?.name || me?.email || "U").slice(0, 2).toUpperCase();
+
+  if (!languageReady) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
