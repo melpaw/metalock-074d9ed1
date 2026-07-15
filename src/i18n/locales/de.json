@@ -252,7 +252,7 @@
     "usd": "US-Dollar",
     "brl": "Brasilianischer Real",
     "eur": "Euro",
-    "conversionWarning": "Die Umrechnung von Krypto in Fiat beginnt erst, nachdem die Zahlung der Umrechnungsgebühr bestätigt wurde. Bis dahin bleibt die Anfrage im Status „Ausstehend\".",
+    "conversionWarning": "Die Umrechnung von Kryptowährung in Fiat-Währung beginnt erst nach Bestätigung der Zahlung der Umrechnungsgebühr.",
     "willSendTo": "Wird gesendet an",
     "payConversionFee": "Umrechnungsgebühr bezahlen",
     "feeTicketSubject": "Zahlung der Umrechnungsgebühr — Auszahlung #{{id}}",

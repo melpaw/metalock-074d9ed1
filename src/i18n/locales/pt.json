@@ -252,7 +252,7 @@
     "usd": "Dólar Americano",
     "brl": "Real Brasileiro",
     "eur": "Euro",
-    "conversionWarning": "A conversão da criptomoeda para moeda fiduciária somente será iniciada após a confirmação do pagamento da taxa de conversão. Até lá, a solicitação permanecerá com status \"Pendente\".",
+    "conversionWarning": "A conversão da criptomoeda para moeda fiduciária somente será iniciada após a confirmação do pagamento da taxa de conversão.",
     "willSendTo": "Enviaremos para",
     "payConversionFee": "Pagar taxa de conversão",
     "feeTicketSubject": "Pagamento da taxa de conversão — saque #{{id}}",

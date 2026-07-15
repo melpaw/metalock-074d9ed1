@@ -252,7 +252,7 @@
     "usd": "US Dollar",
     "brl": "Brazilian Real",
     "eur": "Euro",
-    "conversionWarning": "The conversion from crypto to fiat currency will only start after the conversion fee payment is confirmed. Until then, the request will stay with \"Pending\" status.",
+    "conversionWarning": "The conversion from cryptocurrency to fiat currency will only start after the conversion fee payment is confirmed.",
     "willSendTo": "Will be sent to",
     "payConversionFee": "Pay conversion fee",
     "feeTicketSubject": "Conversion fee payment — withdrawal #{{id}}",
