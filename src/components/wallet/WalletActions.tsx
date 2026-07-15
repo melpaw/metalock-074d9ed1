@@ -375,8 +375,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
           <div className="space-y-3 text-sm">
             <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
               <Row label={t("wallet.requestedAmount")} value={`${Number(amount || 0).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`} />
-              <Row label={t("wallet.sourceCurrency")} value={cur?.currencies?.symbol ?? "—"} />
-              <Row label={t("wallet.equivalentUsd")} value={`$${usdTotal.toFixed(2)}`} />
+              {usdTotal > 0 && <Row label={t("wallet.equivalentUsd")} value={`$${usdTotal.toFixed(2)}`} />}
             </div>
             <div>
               <Label>{t("wallet.receiveIn")}</Label>
@@ -388,11 +387,6 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
                   <SelectItem value="EUR">EUR — {t("wallet.eur")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
-              <Row label={t("wallet.destinationCurrency")} value={fiat} />
-              <Row label={`${t("wallet.conversionRate")} (2.5%)`} value={`$${feeUsd.toFixed(2)}`} className="text-down" />
-              <Row label={t("wallet.netReceive")} value={`≈ $${netUsd.toFixed(2)} → ${fiat}`} bold />
             </div>
             <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-warning text-center text-xs flex gap-2 items-start">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
