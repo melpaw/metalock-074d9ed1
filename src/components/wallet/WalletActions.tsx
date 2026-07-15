@@ -248,11 +248,12 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
     queryFn: async () => (await supabase.from("bank_accounts" as any).select("*").order("created_at", { ascending: false })).data as any[] ?? [],
   });
   const cur = funded.find((w) => w.currency_id === currencyId);
-  const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : cur?.currencies?.symbol === "USDT" ? 1 : 0;
+  const livePrice = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : 0;
+  const dbPrice = Number(cur?.currencies?.usd_price ?? 0);
+  const stableGuess = ["USDT", "USDC", "DAI", "BUSD", "TUSD", "USD"].includes(cur?.currencies?.symbol) ? 1 : 0;
+  const price = livePrice > 0 ? livePrice : dbPrice > 0 ? dbPrice : stableGuess;
   const usdTotal = Number(amount || 0) * price;
-  const feeRate = 0.025;
-  const feeUsd = usdTotal * feeRate;
-  const netUsd = Math.max(usdTotal - feeUsd, 0);
+  const feeUsd = usdTotal * 0.025;
   const selectedBank = banks?.find((b) => b.id === bankId);
 
   function openWithdraw() {
