@@ -378,7 +378,6 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
           <DialogHeader><DialogTitle>{t("wallet.conversionTitle")}</DialogTitle></DialogHeader>
           <div className="space-y-3 text-sm">
             <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
-            <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
               <Row label={t("wallet.sourceCurrency")} value={`${Number(amount || 0).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`} />
               <Row label={t("wallet.requestedAmount")} value={`$${usdTotal.toFixed(2)} USD`} />
             </div>
