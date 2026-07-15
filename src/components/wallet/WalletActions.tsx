@@ -393,7 +393,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
               </Select>
             </div>
             <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
-              <Row label={t("wallet.conversionFee")} value={`-$${feeUsd.toFixed(2)} USD`} className="text-down" />
+              <Row label={`${t("wallet.conversionFee")} (2.5%)`} value={`-$${feeUsd.toFixed(2)} USD`} className="text-down" />
               <Row label={t("wallet.conversionRate")} value={`1 USD = ${fiatRate.toFixed(2)} ${fiat}`} />
               <Row label={t("wallet.youReceive")} value={`${netFiat.toFixed(2)} ${fiat}`} bold className="text-up" />
             </div>
