@@ -4,6 +4,29 @@ import pt from "./locales/pt.json";
 import en from "./locales/en.json";
 import de from "./locales/de.json";
 
+export const LANG_STORAGE_KEY = "cv_lang";
+export const SUPPORTED_LANGUAGES = ["pt", "en", "de"] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+
+export function normalizeLanguageCode(value: string | null | undefined): SupportedLanguage | null {
+  if (!value) return null;
+  const code = value.slice(0, 2).toLowerCase();
+  return (SUPPORTED_LANGUAGES as readonly string[]).includes(code) ? (code as SupportedLanguage) : null;
+}
+
+export async function applyClientLanguage(value: string | null | undefined, persist = true) {
+  const code = normalizeLanguageCode(value);
+  if (!code) return;
+  if (i18n.language.slice(0, 2) !== code) await i18n.changeLanguage(code);
+  if (typeof document !== "undefined") document.documentElement.lang = code;
+  if (persist && typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(LANG_STORAGE_KEY, code);
+      window.localStorage.removeItem("i18nextLng");
+    } catch { /* ignore */ }
+  }
+}
+
 // IMPORTANT: do NOT use a language detector here. The server always renders
 // with the fallback language ("en"); if the client picks a different language
 // from localStorage during the very first render, React fails hydration and
@@ -24,12 +47,10 @@ if (!i18n.isInitialized) {
       },
       lng: "en",
       fallbackLng: "en",
-      supportedLngs: ["pt", "en", "de"],
+      supportedLngs: SUPPORTED_LANGUAGES,
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
     });
 }
-
-export const LANG_STORAGE_KEY = "cv_lang";
 
 export default i18n;
