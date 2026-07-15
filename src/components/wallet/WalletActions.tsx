@@ -254,6 +254,10 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const price = livePrice > 0 ? livePrice : dbPrice > 0 ? dbPrice : stableGuess;
   const usdTotal = Number(amount || 0) * price;
   const feeUsd = usdTotal * 0.025;
+  const netUsd = usdTotal - feeUsd;
+  const fiatRates: Record<string, number> = { USD: 1, BRL: 5.0, EUR: 0.92 };
+  const fiatRate = fiatRates[fiat] ?? 1;
+  const netFiat = netUsd * fiatRate;
   const selectedBank = banks?.find((b) => b.id === bankId);
 
   function openWithdraw() {
