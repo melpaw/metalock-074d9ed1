@@ -232,75 +232,256 @@ function SwapPanel({ wallets, currencies, prices, onDone }: { wallets: any[]; cu
 
 function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: any; onDone: () => void }) {
   const { t } = useTranslation();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const [currencyId, setCurrencyId] = useState("");
   const [amount, setAmount] = useState("");
   const [bankId, setBankId] = useState("");
-  const [insurance, setInsurance] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [bankFormOpen, setBankFormOpen] = useState(false);
+  const [editBank, setEditBank] = useState<any | null>(null);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [fiat, setFiat] = useState<"USD" | "BRL" | "EUR">("USD");
+  const [processing, setProcessing] = useState(false);
   const funded = wallets.filter((w) => Number(w.available) > 0);
-  const { data: banks } = useQuery({
+  const { data: banks, refetch: refetchBanks } = useQuery({
     queryKey: ["my-banks"],
-    queryFn: async () => (await supabase.from("bank_accounts" as any).select("*")).data as any[] ?? [],
+    queryFn: async () => (await supabase.from("bank_accounts" as any).select("*").order("created_at", { ascending: false })).data as any[] ?? [],
   });
   const cur = funded.find((w) => w.currency_id === currencyId);
   const price = cur?.currencies?.coingecko_id ? prices[cur.currencies.coingecko_id]?.usd ?? 0 : cur?.currencies?.symbol === "USDT" ? 1 : 0;
   const usdTotal = Number(amount || 0) * price;
-  const conversionFeeRate = 0.035;
-  const conversionFee = usdTotal * conversionFeeRate;
-  const netUsd = Math.max(usdTotal - conversionFee, 0);
+  const feeRate = 0.025;
+  const feeUsd = usdTotal * feeRate;
+  const netUsd = Math.max(usdTotal - feeUsd, 0);
+  const selectedBank = banks?.find((b) => b.id === bankId);
 
-  async function submit() {
+  function openWithdraw() {
     if (!currencyId || !amount) return toast.error(t("wallet.fillFields"));
-    if (!bankId) return toast.error(t("wallet.noBank"));
-    setLoading(true);
+    if (!bankId) return toast.error(t("wallet.selectBank"));
+    if (Number(amount) <= 0) return toast.error(t("wallet.invalidAmount"));
+    setConvertOpen(true);
+  }
+
+  async function confirmAndOpenTicket() {
+    setProcessing(true);
     try {
-      const { error } = await supabase.rpc("client_request_withdrawal_v2" as any, {
-        _currency_id: currencyId, _amount: Number(amount), _bank_id: bankId, _insurance_requested: insurance,
+      const { data: txId, error } = await supabase.rpc("client_request_bank_withdrawal" as any, {
+        _currency_id: currencyId,
+        _amount: Number(amount),
+        _bank_id: bankId,
+        _fiat_currency: fiat,
       });
       if (error) throw error;
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("no user");
+      const shortId = String(txId).slice(0, 8);
+      const subject = t("wallet.feeTicketSubject", { id: shortId });
+      const body = t("wallet.feeTicketBody", {
+        id: shortId,
+        amount: `${Number(amount).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`,
+        fiat,
+        fee: `$${feeUsd.toFixed(2)} USD`,
+      });
+      const { data: ticket, error: tErr } = await supabase.from("support_tickets")
+        .insert({ user_id: userRes.user.id, subject, category: "withdrawal", priority: "high" })
+        .select().single();
+      if (tErr) throw tErr;
+      await supabase.from("ticket_messages").insert({
+        ticket_id: ticket.id, sender_id: userRes.user.id, body,
+      });
       toast.success(t("wallet.withdrawalRequested"));
-      setAmount(""); setInsurance(false); onDone();
-    } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
+      setConvertOpen(false); setAmount(""); onDone();
+      qc.invalidateQueries({ queryKey: ["my-tickets"] });
+      navigate({ to: "/app/support/$ticketId", params: { ticketId: ticket.id } });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setProcessing(false);
+    }
   }
+
   return (
     <div className="space-y-3">
-      <div>
-        <Label>{t("wallet.asset")}</Label>
-        <Select value={currencyId} onValueChange={setCurrencyId}>
-          <SelectTrigger><SelectValue placeholder={t("wallet.chooseAsset")} /></SelectTrigger>
-          <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label>{t("common.amount")}</Label>
-        <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
-        {price > 0 && (
-          <div className="mt-2 space-y-0.5 rounded-sm border border-border bg-surface-elevated p-2 text-xs">
-            <div className="flex justify-between"><span className="text-muted-foreground">≈</span><span className="font-mono">${usdTotal.toFixed(2)} USD</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("wallet.conversionFee")} (3.5%)</span><span className="font-mono text-down">−${conversionFee.toFixed(2)}</span></div>
-            <div className="flex justify-between font-semibold"><span>{t("wallet.netReceive")}</span><span className="font-mono">${netUsd.toFixed(2)}</span></div>
+      {/* Bank accounts section */}
+      <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs uppercase text-muted-foreground">{t("wallet.bankAccounts")}</Label>
+          <Button size="sm" variant="outline" onClick={() => { setEditBank(null); setBankFormOpen(true); }}>
+            <Plus className="h-3 w-3 mr-1" /> {t("wallet.addBank")}
+          </Button>
+        </div>
+        {!banks?.length && (
+          <div className="rounded-sm border border-dashed border-border p-4 text-xs text-muted-foreground text-center">
+            {t("wallet.noBankYet")}
           </div>
         )}
+        {banks?.map((b) => (
+          <label key={b.id} className={`flex items-center gap-2 rounded-sm border p-2 cursor-pointer transition ${bankId === b.id ? "border-primary bg-primary/5" : "border-border"}`}>
+            <input type="radio" name="bankId" checked={bankId === b.id} onChange={() => setBankId(b.id)} className="shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">{b.bank_name} <span className="text-xs text-muted-foreground">· {b.country}</span></div>
+              <div className="text-xs text-muted-foreground truncate">{b.account_holder} · IBAN {b.iban || `•••• ${b.last4}`}</div>
+            </div>
+            <Button size="icon" variant="ghost" onClick={(e) => { e.preventDefault(); setEditBank(b); setBankFormOpen(true); }}><Pencil className="h-3 w-3" /></Button>
+            <Button size="icon" variant="ghost" onClick={async (e) => {
+              e.preventDefault();
+              if (!confirm(t("wallet.confirmDeleteBank"))) return;
+              const { error } = await supabase.from("bank_accounts" as any).delete().eq("id", b.id);
+              if (error) return toast.error(error.message);
+              if (bankId === b.id) setBankId("");
+              toast.success(t("common.deleted"));
+              refetchBanks();
+            }}><Trash2 className="h-3 w-3 text-down" /></Button>
+          </label>
+        ))}
       </div>
-      <div>
-        <Label>{t("wallet.bankAccount")}</Label>
-        {banks && banks.length > 0 ? (
-          <Select value={bankId} onValueChange={setBankId}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{banks.map((b) => <SelectItem key={b.id} value={b.id}>{b.bank_name} · •••• {b.last4}</SelectItem>)}</SelectContent>
-          </Select>
-        ) : (
-          <div className="rounded-sm border border-dashed border-border p-3 text-xs text-muted-foreground text-center">{t("wallet.noBank")}</div>
-        )}
-      </div>
-      <label className="flex items-start gap-2 rounded-sm border border-border bg-surface-elevated p-3 cursor-pointer">
-        <input type="checkbox" checked={insurance} onChange={(e) => setInsurance(e.target.checked)} className="mt-0.5" />
-        <div className="text-xs">
-          <div className="font-medium">{t("wallet.insuranceQuote")}</div>
-          <div className="text-muted-foreground">{t("wallet.insuranceQuoteHint")}</div>
-        </div>
-      </label>
-      <Button onClick={submit} disabled={loading || !banks?.length} className="w-full">{loading ? t("common.sending") : t("wallet.requestWithdrawal")}</Button>
+
+      {/* Amount section - only if bank selected */}
+      {bankId && (
+        <>
+          <div>
+            <Label>{t("wallet.asset")}</Label>
+            <Select value={currencyId} onValueChange={setCurrencyId}>
+              <SelectTrigger><SelectValue placeholder={t("wallet.chooseAsset")} /></SelectTrigger>
+              <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>{t("common.amount")}</Label>
+            <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            {price > 0 && (
+              <div className="mt-2 rounded-sm border border-border bg-surface-elevated p-2 text-xs">
+                <div className="flex justify-between"><span className="text-muted-foreground">≈</span><span className="font-mono">${usdTotal.toFixed(2)} USD</span></div>
+              </div>
+            )}
+          </div>
+          <Button onClick={openWithdraw} className="w-full">{t("wallet.requestWithdrawal")}</Button>
+        </>
+      )}
+
+      {/* Bank form dialog */}
+      <BankFormDialog
+        open={bankFormOpen}
+        onClose={() => setBankFormOpen(false)}
+        bank={editBank}
+        onSaved={() => { setBankFormOpen(false); refetchBanks(); }}
+      />
+
+      {/* Currency conversion dialog */}
+      <Dialog open={convertOpen} onOpenChange={setConvertOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{t("wallet.conversionTitle")}</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
+              <Row label={t("wallet.requestedAmount")} value={`${Number(amount || 0).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`} />
+              <Row label={t("wallet.sourceCurrency")} value={cur?.currencies?.symbol ?? "—"} />
+              <Row label={t("wallet.equivalentUsd")} value={`$${usdTotal.toFixed(2)}`} />
+            </div>
+            <div>
+              <Label>{t("wallet.receiveIn")}</Label>
+              <Select value={fiat} onValueChange={(v) => setFiat(v as any)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD — {t("wallet.usd")}</SelectItem>
+                  <SelectItem value="BRL">BRL — {t("wallet.brl")}</SelectItem>
+                  <SelectItem value="EUR">EUR — {t("wallet.eur")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
+              <Row label={t("wallet.destinationCurrency")} value={fiat} />
+              <Row label={`${t("wallet.conversionRate")} (2.5%)`} value={`$${feeUsd.toFixed(2)}`} className="text-down" />
+              <Row label={t("wallet.netReceive")} value={`≈ $${netUsd.toFixed(2)} → ${fiat}`} bold />
+            </div>
+            <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-warning text-center text-xs flex gap-2 items-start">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{t("wallet.conversionWarning")}</span>
+            </div>
+            {selectedBank && (
+              <div className="text-xs text-muted-foreground">
+                {t("wallet.willSendTo")}: <span className="text-foreground">{selectedBank.bank_name} · {selectedBank.account_holder}</span>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConvertOpen(false)} disabled={processing}>{t("common.cancel")}</Button>
+            <Button onClick={confirmAndOpenTicket} disabled={processing}>{processing ? t("common.processing") : t("wallet.payConversionFee")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function Row({ label, value, className, bold }: { label: string; value: string; className?: string; bold?: boolean }) {
+  return (
+    <div className={`flex justify-between ${bold ? "font-semibold" : ""}`}>
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`font-mono ${className ?? ""}`}>{value}</span>
+    </div>
+  );
+}
+
+function BankFormDialog({ open, onClose, bank, onSaved }: { open: boolean; onClose: () => void; bank: any | null; onSaved: () => void }) {
+  const { t } = useTranslation();
+  const [holder, setHolder] = useState(bank?.account_holder ?? "");
+  const [country, setCountry] = useState(bank?.country ?? "");
+  const [bankName, setBankName] = useState(bank?.bank_name ?? "");
+  const [iban, setIban] = useState(bank?.iban ?? "");
+  const [saving, setSaving] = useState(false);
+
+  // Reset when bank changes
+  useState(() => {
+    setHolder(bank?.account_holder ?? "");
+    setCountry(bank?.country ?? "");
+    setBankName(bank?.bank_name ?? "");
+    setIban(bank?.iban ?? "");
+  });
+
+  async function save() {
+    if (!holder.trim() || !country.trim() || !bankName.trim() || !iban.trim()) {
+      return toast.error(t("wallet.fillAll"));
+    }
+    setSaving(true);
+    try {
+      const clean = iban.replace(/\s+/g, "");
+      const last4 = clean.slice(-4);
+      if (bank?.id) {
+        const { error } = await supabase.from("bank_accounts" as any).update({
+          account_holder: holder.trim(), country: country.trim(), bank_name: bankName.trim(),
+          iban: clean, last4, iban_masked: `•••• ${last4}`,
+        }).eq("id", bank.id);
+        if (error) throw error;
+      } else {
+        const { data: userRes } = await supabase.auth.getUser();
+        if (!userRes.user) throw new Error("no user");
+        const { error } = await supabase.from("bank_accounts" as any).insert({
+          user_id: userRes.user.id,
+          account_holder: holder.trim(), country: country.trim(), bank_name: bankName.trim(),
+          iban: clean, last4, iban_masked: `•••• ${last4}`,
+        });
+        if (error) throw error;
+      }
+      toast.success(t("common.saved"));
+      onSaved();
+    } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>{bank ? t("wallet.editBank") : t("wallet.addBank")}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label>{t("wallet.accountHolder")}</Label><Input value={holder} onChange={(e) => setHolder(e.target.value)} /></div>
+          <div><Label>{t("wallet.bankCountry")}</Label><Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Brasil, Portugal, USA…" /></div>
+          <div><Label>{t("wallet.bankName")}</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} /></div>
+          <div><Label>IBAN</Label><Input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="BR00 0000 …" /></div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={saving}>{t("common.cancel")}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? "..." : t("common.save")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
