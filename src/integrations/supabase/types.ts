@@ -77,9 +77,11 @@ export type Database = {
           bank_name: string
           country: string | null
           created_at: string
+          iban: string | null
           iban_masked: string | null
           id: string
           last4: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -87,9 +89,11 @@ export type Database = {
           bank_name: string
           country?: string | null
           created_at?: string
+          iban?: string | null
           iban_masked?: string | null
           id?: string
           last4: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -97,9 +101,11 @@ export type Database = {
           bank_name?: string
           country?: string | null
           created_at?: string
+          iban?: string | null
           iban_masked?: string | null
           id?: string
           last4?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -914,6 +920,15 @@ export type Database = {
       client_internal_transfer: {
         Args: { _amount: number; _from_currency: string; _to_currency: string }
         Returns: undefined
+      }
+      client_request_bank_withdrawal: {
+        Args: {
+          _amount: number
+          _bank_id: string
+          _currency_id: string
+          _fiat_currency: string
+        }
+        Returns: string
       }
       client_request_buy: {
         Args: {

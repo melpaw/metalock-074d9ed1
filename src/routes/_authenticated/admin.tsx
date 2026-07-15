@@ -110,7 +110,7 @@ function AdminLayout() {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <NotificationBell />
-            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.viewAsClient")} →</Link>
+            <Link to="/app" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.viewAsClient")} →</Link>
           </div>
         </header>
         <main className="flex-1 p-6">

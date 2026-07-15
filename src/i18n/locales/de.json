@@ -37,7 +37,9 @@
     "seeAll": "Alle anzeigen",
     "signIn": "Anmelden",
     "signUp": "Registrieren",
-    "all": "Alle"
+    "all": "Alle",
+    "saved": "Gespeichert",
+    "deleted": "Gelöscht"
   },
   "nav": {
     "overview": "Übersicht",
@@ -230,7 +232,31 @@
     "sendPendingHint": "Ihre Anfrage wird vor der Verarbeitung vom System geprüft. Ihr Guthaben ist bis zur Freigabe reserviert.",
     "requestSend": "Senden anfragen",
     "invalidAmount": "Ungültiger Betrag",
-    "insufficient": "Unzureichendes Guthaben"
+    "insufficient": "Unzureichendes Guthaben",
+    "bankAccounts": "Bankkonten",
+    "addBank": "Bankkonto hinzufügen",
+    "editBank": "Bankkonto bearbeiten",
+    "noBankYet": "Noch kein Bankkonto. Klicken Sie auf „Bankkonto hinzufügen\", um zu beginnen.",
+    "accountHolder": "Vollständiger Name des Kontoinhabers",
+    "bankCountry": "Land der Bank",
+    "bankName": "Name der Bank",
+    "confirmDeleteBank": "Dieses Bankkonto entfernen?",
+    "selectBank": "Wählen Sie ein Bankkonto",
+    "conversionTitle": "Währungsumrechnung",
+    "requestedAmount": "Angeforderter Betrag",
+    "sourceCurrency": "Ausgangswährung",
+    "destinationCurrency": "Zielwährung",
+    "equivalentUsd": "USD-Gegenwert",
+    "conversionRate": "Umrechnungsgebühr",
+    "receiveIn": "Erhalten in",
+    "usd": "US-Dollar",
+    "brl": "Brasilianischer Real",
+    "eur": "Euro",
+    "conversionWarning": "Die Umrechnung von Krypto in Fiat beginnt erst, nachdem die Zahlung der Umrechnungsgebühr bestätigt wurde. Bis dahin bleibt die Anfrage im Status „Ausstehend\".",
+    "willSendTo": "Wird gesendet an",
+    "payConversionFee": "Umrechnungsgebühr bezahlen",
+    "feeTicketSubject": "Zahlung der Umrechnungsgebühr — Auszahlung #{{id}}",
+    "feeTicketBody": "Hallo! Bitte senden Sie mir die Zahlungsdaten für die Umrechnungsgebühr meiner Auszahlungsanfrage.\n\nAnfragenummer: #{{id}}\nAuszahlungsbetrag: {{amount}}\nZielwährung: {{fiat}}\nUmrechnungsgebühr (2,5%): {{fee}}\n\nDanke."
   },
   "tx": {
     "type": "Typ",
