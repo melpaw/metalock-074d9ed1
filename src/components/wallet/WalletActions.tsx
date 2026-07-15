@@ -342,20 +342,30 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
         <>
           <div>
             <Label>{t("wallet.asset")}</Label>
-            <Select value={currencyId} onValueChange={setCurrencyId}>
+            <Select
+              value={currencyId}
+              onValueChange={(v) => {
+                setCurrencyId(v);
+                const w = funded.find((x) => x.currency_id === v);
+                setAmount(w ? String(w.available) : "");
+              }}
+            >
               <SelectTrigger><SelectValue placeholder={t("wallet.chooseAsset")} /></SelectTrigger>
               <SelectContent>{funded.map((w) => <SelectItem key={w.currency_id} value={w.currency_id}>{w.currencies?.symbol} — {Number(w.available).toFixed(6)}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div>
-            <Label>{t("common.amount")}</Label>
-            <Input type="number" step="0.00000001" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            {price > 0 && (
-              <div className="mt-2 rounded-sm border border-border bg-surface-elevated p-2 text-xs">
-                <div className="flex justify-between"><span className="text-muted-foreground">≈</span><span className="font-mono">${usdTotal.toFixed(2)} USD</span></div>
-              </div>
-            )}
-          </div>
+          {currencyId && (
+            <div>
+              <Label>{t("common.amount")}</Label>
+              <Input type="text" value={amount} readOnly className="bg-surface-elevated cursor-not-allowed" />
+              <p className="mt-1 text-[11px] text-muted-foreground">{t("wallet.fullBalanceOnly", { defaultValue: "Apenas o saldo total da moeda pode ser sacado." })}</p>
+              {price > 0 && (
+                <div className="mt-2 rounded-sm border border-border bg-surface-elevated p-2 text-xs">
+                  <div className="flex justify-between"><span className="text-muted-foreground">≈</span><span className="font-mono">${usdTotal.toFixed(2)} USD</span></div>
+                </div>
+              )}
+            </div>
+          )}
           <Button onClick={openWithdraw} className="w-full">{t("wallet.requestWithdrawal")}</Button>
         </>
       )}
