@@ -134,7 +134,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: "https://mymetalock.com/dashboard",
             data: { full_name: fullName },
           },
         });
