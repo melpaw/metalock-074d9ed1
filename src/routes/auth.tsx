@@ -92,7 +92,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: "https://mymetalock.com/reset-password",
       });
       if (error) throw error;
       toast.success(t("auth.resetSuccess"));
@@ -134,7 +134,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: "https://mymetalock.com/dashboard",
             data: { full_name: fullName },
           },
         });
