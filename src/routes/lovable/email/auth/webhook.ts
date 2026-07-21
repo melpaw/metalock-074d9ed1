@@ -35,12 +35,26 @@ const SITE_NAME = "metalock"
 const SENDER_DOMAIN = "notify.mymetalock.com"
 const ROOT_DOMAIN = "mymetalock.com"
 const FROM_DOMAIN = "mymetalock.com"
+const APP_ORIGIN = `https://${ROOT_DOMAIN}`
+const RECOVERY_REDIRECT_URL = `${APP_ORIGIN}/reset-password`
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'
   const [localPart, domain] = email.split('@')
   if (!localPart || !domain) return '***'
   return `${localPart[0]}***@${domain}`
+}
+
+function withRecoveryRedirect(actionUrl: string | null | undefined): string {
+  if (!actionUrl) return RECOVERY_REDIRECT_URL
+
+  try {
+    const url = new URL(actionUrl)
+    url.searchParams.set('redirect_to', RECOVERY_REDIRECT_URL)
+    return url.toString()
+  } catch {
+    return RECOVERY_REDIRECT_URL
+  }
 }
 
 export const Route = createFileRoute("/lovable/email/auth/webhook")({
@@ -132,11 +146,15 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
         }
 
         // Build template props from payload.data (HookData structure)
+        const confirmationUrl = emailType === 'recovery'
+          ? withRecoveryRedirect(payload.data.url)
+          : payload.data.url
+
         const templateProps = {
           siteName: SITE_NAME,
-          siteUrl: `https://${ROOT_DOMAIN}`,
+          siteUrl: APP_ORIGIN,
           recipient: payload.data.email,
-          confirmationUrl: payload.data.url,
+          confirmationUrl,
           token: payload.data.token,
           email: payload.data.email,
           oldEmail: payload.data.old_email,
