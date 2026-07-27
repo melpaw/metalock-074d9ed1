@@ -19,7 +19,7 @@
 # Plain static Pages hosting will NOT work — the app needs the Worker runtime
 # to serve SSR and server functions.
 
-name = "metalock"
+name = "metalock-074d9ed1"
 main = ".output/server/index.mjs"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
