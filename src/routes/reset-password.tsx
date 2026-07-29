@@ -65,18 +65,58 @@ function ResetPasswordPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Supabase parses the recovery link automatically. Wait for the PASSWORD_RECOVERY event
-    // or an already-hydrated session, then let the user set a new password.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || session) {
         setValidSession(true);
         setReady(true);
       }
     });
-    supabase.auth.getSession().then(({ data }) => {
+
+    (async () => {
+      try {
+        const url = new URL(window.location.href);
+        // Supabase pode entregar o token via query (?token_hash=...&type=recovery)
+        // ou via fragment (#access_token=...&type=recovery). Tratamos ambos para
+        // que o link funcione em qualquer dispositivo/navegador, mesmo sem o
+        // code_verifier PKCE do dispositivo original.
+        const tokenHash = url.searchParams.get("token_hash");
+        const type = url.searchParams.get("type") ?? "";
+        const code = url.searchParams.get("code");
+
+        if (tokenHash && (type === "recovery" || type === "")) {
+          const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+          if (!error) {
+            setValidSession(true);
+            // Limpa o token da URL para evitar reuso.
+            window.history.replaceState({}, "", "/reset-password");
+          }
+        } else if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (!error) {
+            setValidSession(true);
+            window.history.replaceState({}, "", "/reset-password");
+          }
+        } else {
+          const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+          const accessToken = hash.get("access_token");
+          const refreshToken = hash.get("refresh_token");
+          if (accessToken && refreshToken) {
+            const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+            if (!error) {
+              setValidSession(true);
+              window.history.replaceState({}, "", "/reset-password");
+            }
+          }
+        }
+      } catch {
+        /* ignore, fallback to getSession below */
+      }
+
+      const { data } = await supabase.auth.getSession();
       if (data.session) setValidSession(true);
       setReady(true);
-    });
+    })();
+
     return () => sub.subscription.unsubscribe();
   }, []);
 
