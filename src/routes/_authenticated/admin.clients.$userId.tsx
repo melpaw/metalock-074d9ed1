@@ -319,19 +319,59 @@ function KycIsland({ userId }: { userId: string }) {
         <DialogContent className="max-w-3xl">
           <DialogHeader><DialogTitle>{t("admin.kycDocuments")}</DialogTitle></DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <div className="mb-2 text-sm font-medium">{t("admin.document")}</div>
-              {viewer?.doc ? <img src={viewer.doc} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
-            </div>
-            <div>
-              <div className="mb-2 text-sm font-medium">{t("profile.kyc.bankStatement")}</div>
-              {viewer?.selfie ? <img src={viewer.selfie} className="rounded border border-border w-full" /> : <div className="text-sm text-muted-foreground">—</div>}
-            </div>
-
+            <FilePreview label={t("admin.document")} url={viewer?.doc} />
+            <FilePreview label={t("profile.kyc.bankStatement")} url={viewer?.selfie} />
           </div>
         </DialogContent>
       </Dialog>
     </Card>
+  );
+}
+
+function FilePreview({ label, url }: { label: string; url?: string }) {
+  const isPdf = !!url && /\.pdf(\?|$)/i.test(url);
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="text-sm font-medium">{label}</div>
+        {url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-primary hover:underline"
+          >
+            Abrir em nova aba ↗
+          </a>
+        )}
+      </div>
+      {!url ? (
+        <div className="text-sm text-muted-foreground">—</div>
+      ) : isPdf ? (
+        <iframe src={url} className="w-full h-[520px] rounded border border-border bg-background" title={label} />
+      ) : (
+        <img
+          src={url}
+          alt={label}
+          className="rounded border border-border w-full"
+          onError={(e) => {
+            // Fallback: se o navegador não conseguir renderizar (ex.: HEIC),
+            // mostramos um link direto para abrir/baixar.
+            const el = e.currentTarget;
+            const parent = el.parentElement;
+            if (!parent) return;
+            el.remove();
+            const a = document.createElement("a");
+            a.href = url;
+            a.target = "_blank";
+            a.rel = "noreferrer";
+            a.className = "text-sm text-primary underline";
+            a.textContent = "Baixar arquivo";
+            parent.appendChild(a);
+          }}
+        />
+      )}
+    </div>
   );
 }
 
