@@ -66,7 +66,7 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) {
+      if (event === "PASSWORD_RECOVERY" && session) {
         setValidSession(true);
         setReady(true);
       }
@@ -90,7 +90,7 @@ function ResetPasswordPage() {
             // Limpa o token da URL para evitar reuso.
             window.history.replaceState({}, "", "/reset-password");
           }
-        } else if (code) {
+        } else if (code && type === "recovery") {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (!error) {
             setValidSession(true);
@@ -100,7 +100,8 @@ function ResetPasswordPage() {
           const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
           const accessToken = hash.get("access_token");
           const refreshToken = hash.get("refresh_token");
-          if (accessToken && refreshToken) {
+          const hashType = hash.get("type");
+          if (accessToken && refreshToken && hashType === "recovery") {
             const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
             if (!error) {
               setValidSession(true);
@@ -112,8 +113,6 @@ function ResetPasswordPage() {
         /* ignore, fallback to getSession below */
       }
 
-      const { data } = await supabase.auth.getSession();
-      if (data.session) setValidSession(true);
       setReady(true);
     })();
 
