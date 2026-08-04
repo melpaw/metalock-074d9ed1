@@ -92,7 +92,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://mymetalock.com/reset-password",
+        redirectTo: "https://mymetalock.com/reset-password?type=recovery",
       });
       if (error) throw error;
       toast.success(t("auth.resetSuccess"));

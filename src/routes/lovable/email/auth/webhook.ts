@@ -50,8 +50,14 @@ function withRecoveryRedirect(actionUrl: string | null | undefined): string {
 
   try {
     const url = new URL(actionUrl)
-    url.searchParams.set('redirect_to', RECOVERY_REDIRECT_URL)
-    return url.toString()
+    const tokenHash = url.searchParams.get('token_hash') ?? url.searchParams.get('token')
+
+    if (!tokenHash) return RECOVERY_REDIRECT_URL
+
+    const recoveryUrl = new URL(RECOVERY_REDIRECT_URL)
+    recoveryUrl.searchParams.set('token_hash', tokenHash)
+    recoveryUrl.searchParams.set('type', 'recovery')
+    return recoveryUrl.toString()
   } catch {
     return RECOVERY_REDIRECT_URL
   }
