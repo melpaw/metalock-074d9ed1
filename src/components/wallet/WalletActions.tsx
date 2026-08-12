@@ -292,7 +292,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
         id: shortId,
         amount: `${Number(amount).toFixed(8)} ${cur?.currencies?.symbol ?? ""}`,
         fiat,
-        fee: `$${feeUsd.toFixed(2)} USD`,
+        fee: `$${feeUsd.toFixed(2)} USD (${feeLabel})`,
       });
       const { data: ticket, error: tErr } = await supabase.from("support_tickets")
         .insert({ user_id: userRes.user.id, subject, category: "withdrawal", priority: "high" })
@@ -410,7 +410,7 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
               </Select>
             </div>
             <div className="rounded-sm border border-border bg-surface-elevated p-3 space-y-1">
-              <Row label={`${t("wallet.conversionFee")} (2.5%)`} value={`-$${feeUsd.toFixed(2)} USD`} className="text-down" />
+              <Row label={`${t("wallet.conversionFee")} (${feeLabel})`} value={`-$${feeUsd.toFixed(2)} USD`} className="text-down" />
             </div>
             <div className="rounded-sm border border-warning/40 bg-warning/10 p-3 text-warning text-center text-xs flex gap-2 items-start">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
