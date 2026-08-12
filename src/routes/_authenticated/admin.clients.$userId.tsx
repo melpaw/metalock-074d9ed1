@@ -206,7 +206,7 @@ function PermissionsCard({ userId }: { userId: string }) {
     queryKey: ["client-perms", userId],
     queryFn: async () => {
       const { data } = await supabase.from("client_permissions" as any).select("*").eq("user_id", userId).maybeSingle();
-      return (data as any) ?? { allow_send: true, allow_buy: true, allow_swap: true, allow_deposit: true, allow_withdrawal: true, allow_stake: true };
+      return (data as any) ?? { allow_send: true, allow_buy: true, allow_swap: true, allow_deposit: true, allow_withdrawal: true, allow_stake: true, withdrawal_fee_rate: 0.025 };
     },
   });
 
@@ -215,7 +215,7 @@ function PermissionsCard({ userId }: { userId: string }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("client_permissions" as any).upsert({ user_id: userId, ...local, updated_at: new Date().toISOString() });
+      const { error } = await supabase.from("client_permissions" as any).upsert({ user_id: userId, ...local, withdrawal_fee_rate: local.withdrawal_fee_rate == null ? 0.025 : Number(local.withdrawal_fee_rate), updated_at: new Date().toISOString() });
       if (error) throw error;
     },
     onSuccess: () => { toast.success(t("admin.permissionsUpdated")); qc.invalidateQueries({ queryKey: ["client-perms", userId] }); },
@@ -236,6 +236,21 @@ function PermissionsCard({ userId }: { userId: string }) {
             <Switch checked={!!local[k]} onCheckedChange={(v) => setLocal({ ...local, [k]: v })} />
           </label>
         ))}
+      </div>
+      <div className="mt-3 rounded-md bg-surface-elevated px-3 py-2">
+        <div className="text-sm">{t("admin.withdrawalFeeRate", { defaultValue: "Taxa de conversão do saque (%)" })}</div>
+        <Input
+          type="number"
+          step="0.01"
+          min="0"
+          max="100"
+          className="mt-2"
+          value={local.withdrawal_fee_rate == null ? "" : String(Number(local.withdrawal_fee_rate) * 100)}
+          onChange={(e) => setLocal({ ...local, withdrawal_fee_rate: e.target.value === "" ? null : Number(e.target.value) / 100 })}
+        />
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("admin.withdrawalFeeRateHint", { defaultValue: "Aplicada nas solicitações de saque bancário deste cliente. Padrão: 2,5%." })}
+        </p>
       </div>
     </Card>
   );

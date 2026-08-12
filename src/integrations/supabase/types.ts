@@ -142,6 +142,7 @@ export type Database = {
           updated_at: string
           updated_by: string | null
           user_id: string
+          withdrawal_fee_rate: number
         }
         Insert: {
           allow_buy?: boolean
@@ -153,6 +154,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           user_id: string
+          withdrawal_fee_rate?: number
         }
         Update: {
           allow_buy?: boolean
@@ -164,6 +166,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           user_id?: string
+          withdrawal_fee_rate?: number
         }
         Relationships: []
       }
