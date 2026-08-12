@@ -215,7 +215,7 @@ function PermissionsCard({ userId }: { userId: string }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("client_permissions" as any).upsert({ user_id: userId, ...local, updated_at: new Date().toISOString() });
+      const { error } = await supabase.from("client_permissions" as any).upsert({ user_id: userId, ...local, withdrawal_fee_rate: local.withdrawal_fee_rate == null ? 0.025 : Number(local.withdrawal_fee_rate), updated_at: new Date().toISOString() });
       if (error) throw error;
     },
     onSuccess: () => { toast.success(t("admin.permissionsUpdated")); qc.invalidateQueries({ queryKey: ["client-perms", userId] }); },
