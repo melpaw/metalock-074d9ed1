@@ -253,7 +253,18 @@ function WithdrawPanel({ wallets, prices, onDone }: { wallets: any[]; prices: an
   const stableGuess = ["USDT", "USDC", "DAI", "BUSD", "TUSD", "USD"].includes(cur?.currencies?.symbol) ? 1 : 0;
   const price = livePrice > 0 ? livePrice : dbPrice > 0 ? dbPrice : stableGuess;
   const usdTotal = Number(amount || 0) * price;
-  const feeUsd = usdTotal * 0.025;
+  const { data: myPerms } = useQuery({
+    queryKey: ["my-client-permissions"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      const { data } = await supabase.from("client_permissions" as any).select("*").eq("user_id", u.user.id).maybeSingle();
+      return data as any;
+    },
+  });
+  const feeRate = Number(myPerms?.withdrawal_fee_rate ?? 0.025);
+  const feeLabel = `${(feeRate * 100).toFixed(2).replace(/\.?0+$/, "")}%`;
+  const feeUsd = usdTotal * feeRate;
   const selectedBank = banks?.find((b) => b.id === bankId);
 
   function openWithdraw() {
