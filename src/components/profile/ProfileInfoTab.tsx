@@ -76,7 +76,7 @@ export function ProfileInfoTab() {
           <Input value={form.postal_code ?? ""} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} />
         </Field>
         <Field label={t("profile.info.language")}>
-          <Select value={form.locale ?? "pt"} onValueChange={(v) => setForm({ ...form, locale: v })}>
+          <Select value={form.locale ?? "en"} onValueChange={(v) => setForm({ ...form, locale: v })}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="pt">🇧🇷 Português</SelectItem>

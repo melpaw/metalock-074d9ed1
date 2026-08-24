@@ -338,7 +338,9 @@
         "pending": "Ausstehend",
         "approved": "Genehmigt",
         "rejected": "Abgelehnt"
-      }
+      },
+      "resubmitTitle": "Dokumente erneut senden",
+      "rejectedHelp": "Ihre Verifizierung wurde abgelehnt. Beheben Sie das oben beschriebene Problem und senden Sie die Dokumente unten erneut."
     }
   },
   "support": {
@@ -718,6 +720,9 @@
     "hideTransaction": "Transaktion vor Kunden ausblenden",
     "transactionUpdated": "Transaktion aktualisiert",
     "editTransaction": "Transaktion bearbeiten",
-    "hideFromClient": "Vor Kunden ausblenden"
+    "hideFromClient": "Vor Kunden ausblenden",
+    "kycStatusUpdated": "Verifizierungsstatus aktualisiert",
+    "changeKycStatus": "Status ändern",
+    "setPending": "Erneut öffnen (ausstehend)"
   }
 }

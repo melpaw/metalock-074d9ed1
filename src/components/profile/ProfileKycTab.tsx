@@ -85,6 +85,13 @@ export function ProfileKycTab() {
         <Badge className={meta.color}><StatusIcon className="mr-1 h-3 w-3" />{meta.label}</Badge>
       </div>
 
+      {status === "rejected" && (
+        <div className="rounded-sm border border-down/40 bg-down/10 p-4">
+          <div className="text-sm font-semibold">{t("profile.kyc.resubmitTitle")}</div>
+          <p className="mt-1 text-sm text-muted-foreground">{t("profile.kyc.rejectedHelp")}</p>
+        </div>
+      )}
+
       {canSubmit && (
         <form onSubmit={submit} className="rounded-sm border border-border bg-surface p-6 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 space-y-1.5"><Label>{t("profile.info.fullName")}</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required /></div>

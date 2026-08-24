@@ -276,12 +276,18 @@ function KycIsland({ userId }: { userId: string }) {
     setViewer({ sub, doc: (d.data as any)?.signedUrl, selfie: (s.data as any)?.signedUrl });
   }
 
-  async function review(id: string, approve: boolean) {
+  async function setStatus(id: string, status: "approved" | "rejected" | "pending") {
     const note = notes[id] ?? "";
-    if (!approve && !note.trim()) return toast.error(t("admin.rejectionReasonRequired"));
-    const { error } = await supabase.rpc("admin_review_kyc", { _id: id, _approve: approve, _notes: note });
+    if (status === "rejected" && !note.trim()) return toast.error(t("admin.rejectionReasonRequired"));
+    const { error } = await supabase.rpc("admin_set_kyc_status" as any, {
+      _id: id, _status: status, _notes: note.trim() || null,
+    });
     if (error) return toast.error(error.message);
-    toast.success(approve ? t("admin.kycApproved") : t("admin.kycRejectedToast"));
+    toast.success(
+      status === "approved" ? t("admin.kycApproved")
+        : status === "rejected" ? t("admin.kycRejectedToast")
+        : t("admin.kycStatusUpdated"),
+    );
     qc.invalidateQueries({ queryKey: ["client-kyc-island", userId] });
     qc.invalidateQueries({ queryKey: ["client-detail", userId] });
   }
@@ -308,23 +314,32 @@ function KycIsland({ userId }: { userId: string }) {
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => openViewer(k)}><Eye className="h-4 w-4 mr-1" /> {t("admin.viewDocs")}</Button>
               </div>
-              {k.status === "pending" && (
-                <div className="space-y-2">
-                  <Textarea rows={2} placeholder={t("admin.rejectNotePlaceholder")}
-                    value={notes[k.id] ?? ""} onChange={(e) => setNotes({ ...notes, [k.id]: e.target.value })} />
-                  <div className="flex gap-2">
-                    <Button size="sm" className="bg-success text-success-foreground hover:bg-success/90" onClick={() => review(k.id, true)}>
+              <div className="space-y-2">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">{t("admin.changeKycStatus")}</div>
+                <Textarea rows={2} placeholder={t("admin.rejectNotePlaceholder")}
+                  value={notes[k.id] ?? ""} onChange={(e) => setNotes({ ...notes, [k.id]: e.target.value })} />
+                <div className="flex flex-wrap gap-2">
+                  {k.status !== "approved" && (
+                    <Button size="sm" className="bg-success text-success-foreground hover:bg-success/90" onClick={() => setStatus(k.id, "approved")}>
                       <Check className="h-4 w-4 mr-1" /> {t("common.approve")}
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => review(k.id, false)}>
+                  )}
+                  {k.status !== "rejected" && (
+                    <Button size="sm" variant="destructive" onClick={() => setStatus(k.id, "rejected")}>
                       <X className="h-4 w-4 mr-1" /> {t("common.reject")}
                     </Button>
-                  </div>
+                  )}
+                  {k.status !== "pending" && (
+                    <Button size="sm" variant="outline" onClick={() => setStatus(k.id, "pending")}>
+                      <Clock className="h-4 w-4 mr-1" /> {t("admin.setPending")}
+                    </Button>
+                  )}
                 </div>
-              )}
+              </div>
               {k.review_notes && k.status !== "pending" && (
                 <div className="text-xs text-muted-foreground border-t border-border pt-2">{t("tx.note")}: {k.review_notes}</div>
               )}
+
             </div>
           ))}
         </div>

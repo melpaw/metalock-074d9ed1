@@ -14,6 +14,16 @@ export function normalizeLanguageCode(value: string | null | undefined): Support
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(code) ? (code as SupportedLanguage) : null;
 }
 
+/** Explicit language chosen by the user on this device, if any. */
+export function getStoredLanguage(): SupportedLanguage | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return normalizeLanguageCode(window.localStorage.getItem(LANG_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
 export async function applyClientLanguage(value: string | null | undefined, persist = true) {
   const code = normalizeLanguageCode(value);
   if (!code) return;
