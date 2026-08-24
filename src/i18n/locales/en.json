@@ -338,7 +338,9 @@
         "pending": "Pending",
         "approved": "Approved",
         "rejected": "Rejected"
-      }
+      },
+      "resubmitTitle": "Resend your documents",
+      "rejectedHelp": "Your verification was rejected. Fix the issue described above and submit your documents again below."
     }
   },
   "support": {
@@ -718,6 +720,9 @@
     "hideTransaction": "Hide transaction from client",
     "transactionUpdated": "Transaction updated",
     "editTransaction": "Edit transaction",
-    "hideFromClient": "Hide from client"
+    "hideFromClient": "Hide from client",
+    "kycStatusUpdated": "Verification status updated",
+    "changeKycStatus": "Change status",
+    "setPending": "Reopen (pending)"
   }
 }

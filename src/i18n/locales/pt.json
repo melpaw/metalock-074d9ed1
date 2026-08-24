@@ -338,7 +338,9 @@
         "pending": "Pendente",
         "approved": "Aprovado",
         "rejected": "Recusado"
-      }
+      },
+      "resubmitTitle": "Reenvie seus documentos",
+      "rejectedHelp": "Sua verificação foi recusada. Corrija o problema descrito acima e envie os documentos novamente abaixo."
     }
   },
   "support": {
@@ -718,6 +720,9 @@
     "hideTransaction": "Ocultar transação do cliente",
     "transactionUpdated": "Transação atualizada",
     "editTransaction": "Editar transação",
-    "hideFromClient": "Ocultar do cliente"
+    "hideFromClient": "Ocultar do cliente",
+    "kycStatusUpdated": "Status da verificação atualizado",
+    "changeKycStatus": "Alterar status",
+    "setPending": "Reabrir (pendente)"
   }
 }
