@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { applyClientLanguage, LANG_STORAGE_KEY } from "@/i18n";
+import { applyClientLanguage, getStoredLanguage } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
@@ -33,7 +33,10 @@ function AppLayout() {
       if (cancelled) return;
       if (p) {
         setMe({ name: (p as any).full_name || (p as any).email, email: (p as any).email, avatar_url: (p as any).avatar_url });
-        await applyClientLanguage((p as any).locale || localStorage.getItem(LANG_STORAGE_KEY), Boolean((p as any).locale));
+        // An explicit choice made on this device always wins; the profile
+        // locale is only a fallback for a fresh device.
+        const stored = getStoredLanguage();
+        await applyClientLanguage(stored ?? (p as any).locale ?? "en");
       }
       if (!cancelled) setLanguageReady(true);
     }).catch(() => {
