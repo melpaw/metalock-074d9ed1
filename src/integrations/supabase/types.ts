@@ -887,6 +887,14 @@ export type Database = {
         Args: { _percent: number; _tx_id: string }
         Returns: undefined
       }
+      admin_set_kyc_status: {
+        Args: {
+          _id: string
+          _notes?: string
+          _status: Database["public"]["Enums"]["kyc_status"]
+        }
+        Returns: undefined
+      }
       admin_set_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -913,8 +921,8 @@ export type Database = {
       }
       admin_update_transaction: {
         Args: {
-          _hidden: boolean
-          _note: string
+          _hidden?: boolean
+          _note?: string
           _status: string
           _tx_id: string
         }
